@@ -39,7 +39,7 @@ def seed_everything(seed: int, freeze_torch=False):
         torch.backends.cudnn.benchmark = True
 
 
-def init_setting(font_path=None):
+def init_setting(font_path=None, seed=None, freeze_torch=False):
     pd.options.display.float_format = '{:.4f}'.format
     pd.set_option('display.max_colwidth', 300)
     plt.style.use('seaborn-ticks')
@@ -59,6 +59,9 @@ def init_setting(font_path=None):
     #         break
     
     plt.rcParams['axes.unicode_minus'] = False
+    
+    if seed:
+        seed_everything(seed, freeze_torch=freeze_torch)
 
 
 def load_pickle(file):
