@@ -20,13 +20,13 @@
 本文使用笔者对toad、scorecardpy、optbinning等库进行二次封装后的代码进行实操，文中会对仓库中的部分代码细节进行说明。本文旨在对仓库评分卡建模流程进行说明，并提供一个可以直接运行的完整示例，让更多金融从业小伙伴掌握整套评分卡模型构建方法。
 
 
-## 代码说明
+## 项目说明
 
 ### 仓库地址
 
 https://github.com/itlubber/scorecardpipeline
 
-### 项目结构
+### 代码结构
 
 该仓库下代码主要用于提供评分卡建模相关的组件，项目结构如下：
 
@@ -53,6 +53,12 @@ https://github.com/itlubber/scorecardpipeline
 + `processing` 中提供了数据前处理相关的方法：特征筛选方法（`FeatureSelection`、`StepwiseSelection`）、变量分箱方法（`Combiner`）、变量证据权重转换方法（`WOETransformer`），方法继承`sklearn.base`中的`BaseEstimator`和`TransformerMixin`，能够支持构建`pipeline`和超参数搜索
 + `model`中提供了基于`sklearn.linear_model.LogisticRegression`实现的`ITLubberLogisticRegression`，同时重写了`toad.ScoreCard`，以支持模型相关内容的输出
 + `excel_writer` 中提供了操作 `excel` 的一系列公共方法，包含设置条件格式、设置列宽、设置数字格式、插入指定样式的内容（`insert_value2sheet`）、插入图片数据（`insert_pic2sheet`）、插入`dataframe`数据内容（`insert_df2sheet`）、保存`excel`文件（`save`）等方法
+
+### `scorecardpipeline` 安装
+
+```bash
+pip install scorecardpipeline -i https://pypi.Python.org/simple/
+```
 
 
 ## 评分卡建模

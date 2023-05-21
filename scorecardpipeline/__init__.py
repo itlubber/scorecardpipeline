@@ -9,4 +9,4 @@ from .utils import *
 from .processing import FeatureSelection, FeatureImportanceSelector, StepwiseSelection, Combiner, WOETransformer
 from .model import ITLubberLogisticRegression, ScoreCard
 
-__version__ = "0.1.4"
+__version__ = "0.1.5"

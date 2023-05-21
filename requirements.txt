@@ -14,4 +14,3 @@ optbinning
 category-encoders
 sklearn_pandas
 sklearn2pmml
-catboost
