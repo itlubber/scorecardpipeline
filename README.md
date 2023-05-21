@@ -13,7 +13,7 @@
 
 ## 交流
 
-<table style="text-align:center;">
+<table style="text-align:center !important;border=0;">
     <tr>
         <td>
             <span>微信: itlubber</span>
@@ -24,10 +24,10 @@
     </tr>
     <tr>
         <td>
-            <img src="https://itlubber.art//upload/itlubber.png" alt="itlubber.png" border=0/>
+            <img src="https://itlubber.art//upload/itlubber.png" alt="itlubber.png" width="50%" border=0/>
         </td>
         <td>
-            <img src="https://itlubber.art//upload/itlubber_art.png" alt="itlubber_art.png" border=0/>
+            <img src="https://itlubber.art//upload/itlubber_art.png" alt="itlubber_art.png" width="50%" border=0/>
         </td>
     </tr>
 </table>
