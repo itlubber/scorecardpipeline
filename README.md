@@ -1,6 +1,6 @@
-# scorecardpipeline
+# 评分卡pipeline建模包
 
-评分卡pipeline建模包，封装toad、scorecardpy、optbinning等评分卡建模相关组件，API风格与sklearn高度一致，支持自定义模型报告输出
+`scorecardpipeline` 封装了 `toad`、`scorecardpy`、`optbinning` 等评分卡建模相关组件，`API` 风格与 `sklearn` 高度一致，支持 `pipeline` 式端到端评分卡建模、模型报告输出、导出 `PMML` 文件、超参数搜索等
 
 > 仓库地址：https://github.com/itlubber/scorecardpipeline
 > 
