@@ -16,7 +16,7 @@ import scorecardpy as sc
 from optbinning import OptimalBinning
 from toad.plot import proportion_plot, badrate_plot
 
-from .utils import corr_plot, bin_plot, feature_bin_stats
+from .utils import *
 
 
 def drop_identical(frame, threshold = 0.95, return_drop = False, exclude = None, target = None):
