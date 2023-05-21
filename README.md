@@ -11,6 +11,28 @@
 > pipy包：https://pypi.org/project/scorecardpipeline/
 
 
+## 交流
+
+<table style="text-align:center;">
+    <tr>
+        <td>
+            <span>微信: itlubber</span>
+        </td>
+        <td>
+            <span>微信公众号: itlubber_art</span>
+        </td>
+    </tr>
+    <tr>
+        <td>
+            <img src="https://itlubber.art//upload/itlubber.png" alt="itlubber.png" border=0/>
+        </td>
+        <td>
+            <img src="https://itlubber.art//upload/itlubber_art.png" alt="itlubber_art.png" border=0/>
+        </td>
+    </tr>
+</table>
+
+
 ## 引言
 
 作为一名金融搬砖工作者，评分卡建模怎么也算是基操。本文主要对笔者日常使用的评分卡建模代码进行讲解，说明如何一步步从原始数据到最终评分卡模型以及如何解读产出的模型报告文档。
