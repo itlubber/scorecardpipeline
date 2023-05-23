@@ -5,6 +5,9 @@
 @Site    : itlubber.art
 """
 
+from openpyxl.formatting.rule import ColorScaleRule
+from openpyxl.utils import get_column_letter, column_index_from_string
+
 from .utils import *
 from .processing import FeatureSelection, FeatureImportanceSelector, StepwiseSelection, Combiner, WOETransformer
 from .model import ITLubberLogisticRegression, ScoreCard

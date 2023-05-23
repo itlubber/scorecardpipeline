@@ -10,12 +10,14 @@ warnings.filterwarnings("ignore")
 
 import os
 import re
+import six
 import random
 import joblib
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from matplotlib import font_manager
+from matplotlib.ticker import PercentFormatter
 import seaborn as sns
 from sklearn.metrics import roc_curve, auc
 
@@ -320,7 +322,7 @@ def ks_plot(score, target, title="", fontsize=14, figsize=(16, 8), save=None, co
         
         handles1, labels1 = ax[0].get_legend_handles_labels()
 
-        ax[0].legend(loc='upper center', ncol=len(labels1), bbox_to_anchor=(0.5, 1.1), frameon=False)
+        # ax[0].legend(loc='upper center', ncol=len(labels1), bbox_to_anchor=(0.5, 1.1), frameon=False)
 
         # ROC 曲线
         fpr, tpr, thresholds = roc_curve(target, score)
@@ -364,25 +366,27 @@ def ks_plot(score, target, title="", fontsize=14, figsize=(16, 8), save=None, co
         return fig
 
 
-def score_hist(score, y_true, figsize=(15, 10), bins=30, save=None, labels=["good", "bad"], anchor=1.05, **kwargs):
+def score_hist(score, y_true, figsize=(15, 10), bins=30, save=None, labels=["坏样本", "好样本"], anchor=1.1, fontsize=14, **kwargs):
     fig, ax = plt.subplots(1, 1, figsize = figsize)
     palette = sns.diverging_palette(340, 267, n=2, s=100, l=40)
 
     sns.histplot(
-                x=score, hue=y_true.replace({i: v for i, v in enumerate(labels)}), element="step", stat="density", bins=bins, common_bins=True, common_norm=True, palette=palette, ax=ax, **kwargs
+                x=score, hue=y_true.replace({i: v for i, v in enumerate(labels)}), element="step", stat="probability", bins=bins, common_bins=True, common_norm=True, palette=palette, ax=ax, **kwargs
             )
 
     sns.despine()
-
+    
     ax.spines['top'].set_color("#2639E9")
     ax.spines['bottom'].set_color("#2639E9")
     ax.spines['right'].set_color("#2639E9")
     ax.spines['left'].set_color("#2639E9")
 
-    ax.set_xlabel("score")
-    ax.set_ylabel("density")
+    ax.set_xlabel("评分分布", fontsize=fontsize)
+    ax.set_ylabel("样本占比", fontsize=fontsize)
     
-    ax.legend(["坏样本", "好样本"], loc='upper center', ncol=len(y_true.unique()), bbox_to_anchor=(0.5, anchor), frameon=False, fontsize=14)
+    ax.yaxis.set_major_formatter(PercentFormatter(1))
+    
+    ax.legend(labels[:y_true.nunique()], loc='upper center', ncol=y_true.nunique(), bbox_to_anchor=(0.5, anchor), frameon=False, fontsize=fontsize)
     
     fig.tight_layout()
 
@@ -442,3 +446,84 @@ def psi_plot(expected, actual, labels=["预期", "实际"], save=None, colors=["
 
     if result:
         return df_psi[["评分区间", f"{labels[0]}样本数", f"{labels[0]}样本占比", f"{labels[0]}坏样本率", f"{labels[1]}样本数", f"{labels[1]}样本占比", f"{labels[1]}坏样本率", f"{labels[1]}% - {labels[0]}%", f"ln({labels[1]}% / {labels[0]}%)", "分档PSI值", "总体PSI值"]]
+
+
+def dataframe_plot(df, row_height=0.4, font_size=14, header_color='#2639E9', row_colors=['#dae3f3', 'w'], edge_color='w', bbox=[0, 0, 1, 1], header_columns=0, ax=None, save=None, **kwargs):
+    data = df.copy()
+    for col in data.select_dtypes('datetime'):
+        data[col] = data[col].dt.strftime("%Y-%m-%d")
+
+    for col in data.select_dtypes('float'):
+        data[col] = data[col].apply(lambda x: np.nan if pd.isnull(x) else round(x, 4))
+
+    cols_width = [max(data[col].apply(lambda x:len(str(x).encode())).max(), len(str(col).encode())) / 8. for col in data.columns]
+
+    if ax is None:
+        size = (sum(cols_width), (len(data) + 1) * row_height)
+        fig, ax = plt.subplots(figsize=size)
+        ax.axis('off')
+
+    mpl_table = ax.table(cellText=data.values, colWidths=cols_width, bbox=bbox, colLabels=data.columns, **kwargs)
+
+    mpl_table.auto_set_font_size(False)
+    mpl_table.set_fontsize(font_size)
+
+    for k, cell in  six.iteritems(mpl_table._cells):
+        cell.set_edgecolor(edge_color)
+        if k[0] == 0 or k[1] < header_columns:
+            cell.set_text_props(weight='bold', color='w')
+            cell.set_facecolor(header_color)
+        else:
+            cell.set_facecolor(row_colors[k[0]%len(row_colors)])
+
+    fig.tight_layout()
+    
+    if save:
+        if os.path.dirname(save) != "" and not os.path.exists(os.path.dirname(save)):
+            os.makedirs(os.path.dirname(save))
+
+        fig.savefig(save, dpi=240, format="png", bbox_inches="tight")
+
+    return fig
+
+
+def distribution_plot(df, date="date", target="target", save=None, figsize=(10, 6), colors=["#2639E9", "#F76E6C", "#FE7715"], freq="M", anchor=0.94, result=False):
+    temp = df.set_index(date).assign(
+        好样本=lambda x: (x[target] == 0).astype(int),
+        坏样本=lambda x: (x[target] == 1).astype(int),
+    ).resample(freq).agg({"好样本": sum, "坏样本": sum})
+    
+    temp.index = [i.strftime("%Y-%m-%d") for i in temp.index]
+
+    fig, ax1 = plt.subplots(1, 1, figsize=figsize)
+    temp.plot(kind='bar', stacked=True, ax=ax1, color=colors[:2], hatch="/", legend=False)
+    ax1.tick_params(axis='x', labelrotation=-90)
+    ax1.set(xlabel=None)
+    ax1.set_ylabel('样本数')
+    ax1.set_title('不同时点数据集样本分布情况\n\n')
+
+    ax2 = plt.twinx()
+    (temp["坏样本"] / temp.sum(axis=1)).plot(ax=ax2, color=colors[-1], marker=".", linewidth=2, label="坏样本率")
+    # sns.despine()
+
+    handles1, labels1 = ax1.get_legend_handles_labels()
+    handles2, labels2 = ax2.get_legend_handles_labels()
+    fig.legend(handles1 + handles2, labels1 + labels2, loc='upper center', ncol=len(labels1 + labels2), bbox_to_anchor=(0.5, anchor), frameon=False)
+
+    fig.tight_layout()
+
+    if save:
+        if os.path.dirname(save) != "" and not os.path.exists(os.path.dirname(save)):
+            os.makedirs(os.path.dirname(save))
+
+        fig.savefig(save, dpi=240, format="png", bbox_inches="tight")
+
+    if result:
+        temp = temp.reset_index().rename(columns={date: "日期", "index": "日期", 0: "好样本", 1: "坏样本"})
+        temp["样本总数"] = temp["坏样本"] + temp["好样本"]
+        temp["样本占比"] = temp["样本总数"] / temp["样本总数"].sum()
+        temp["好样本占比"] = temp["好样本"] / temp["好样本"].sum()
+        temp["坏样本占比"] = temp["坏样本"] / temp["坏样本"].sum()
+        temp["坏样本率"] = temp["坏样本"] / temp["样本总数"]
+
+        return temp[["日期", "样本总数", "样本占比", "好样本", "好样本占比", "坏样本", "坏样本占比", "坏样本率"]]
