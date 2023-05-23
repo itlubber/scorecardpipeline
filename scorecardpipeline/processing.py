@@ -169,7 +169,7 @@ class StepwiseSelection(TransformerMixin, BaseEstimator):
             target: 数据集中标签名称，默认 target
             estimator: 预估器，默认 ols，可选 "ols", "lr", "lasso", "ridge"，通常默认即可
             direction: 逐步回归方向，默认both，可选 "forward", "backward", "both"，通常默认即可
-            criterion: 评价指标，默认 aic，可选 "aic", "bic"，通常默认即可
+            criterion: 评价指标，默认 aic，可选 "aic", "bic", "ks", "auc"，通常默认即可
             max_iter: 最大迭代次数，sklearn中使用的参数，默认为 None
             return_drop: 是否返回特征剔除信息，默认 True
             exclude: 强制保留的某些特征
@@ -239,7 +239,7 @@ class FeatureImportanceSelector(BaseEstimator, TransformerMixin):
         x = x.copy()
         
         if self.max_iv is not None:
-            self.high_iv_feature_names_ = list(toad.quality(train, target=target, cpu_cores=-1, iv_only=True).query("iv > 1.0").index)
+            self.high_iv_feature_names_ = list(toad.quality(x, target=self.target, cpu_cores=-1, iv_only=True).query(f"iv > {self.max_iv}").index)
             x = x[[c for c in x.columns if c not in self.high_iv_feature_names_]]
         
         X = x.drop(columns=self.target)

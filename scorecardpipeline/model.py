@@ -6,28 +6,17 @@
 """
 
 import os
-import toad
-import warnings
+import math
 import numpy as np
 import pandas as pd
 import scorecardpy as sc
-from scorecardpy.perf import eva_pks, eva_proc
-from optbinning import OptimalBinning
 import matplotlib.pyplot as plt
-from matplotlib import font_manager
-import seaborn as sns
-
+import toad
 import scipy
-import statsmodels.api as sm
 from statsmodels.stats.outliers_influence import variance_inflation_factor
-
-from sklearn.pipeline import Pipeline
-from sklearn.metrics import roc_curve, auc
 from sklearn.metrics import classification_report
 from sklearn.linear_model import LogisticRegression
-from sklearn.model_selection import train_test_split
 from sklearn.utils.validation import check_is_fitted
-from sklearn.ensemble import GradientBoostingClassifier
 from sklearn.base import BaseEstimator, TransformerMixin, ClassifierMixin
 
 from .utils import *
@@ -277,6 +266,12 @@ class ScoreCard(toad.ScoreCard, TransformerMixin):
     def transform(self, x):
         return self.predict(x)
     
+    @staticmethod
+    def score_clip(score, clip=50):
+        clip_start = max(math.ceil(score.min() / clip) * clip, math.ceil(score.quantile(0.01) / clip) * clip)
+        clip_end = min(math.ceil(score.max() / clip) * clip, math.ceil(score.quantile(0.99) / clip) * clip)
+        return [i for i in range(clip_start, clip_end, clip)]
+    
     def scorecard_scale(self):
         scorecard_kedu = pd.DataFrame(
             [
@@ -291,8 +286,12 @@ class ScoreCard(toad.ScoreCard, TransformerMixin):
         )
         return scorecard_kedu
     
-    def scorecard_points(self):
+    def scorecard_points(self, feature_map={}):
         card_points = self.export(to_frame=True).rename(columns={"name": "变量名称", "value": "变量分箱", "score": "对应分数"})
+        
+        if feature_map is not None and len(feature_map) > 0:
+            card_points.insert(loc=1, column="变量含义", value=[feature_map.get(c, "") for c in card_points["变量名称"]])
+        
         return card_points
     
     def scorecard2pmml(self, pmml: str = 'scorecard.pmml', debug: bool = False):

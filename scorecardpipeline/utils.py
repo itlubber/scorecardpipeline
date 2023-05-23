@@ -13,6 +13,7 @@ import re
 import six
 import random
 import joblib
+import warnings
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -20,9 +21,10 @@ from matplotlib import font_manager
 from matplotlib.ticker import PercentFormatter
 import seaborn as sns
 from sklearn.metrics import roc_curve, auc
-
 import toad
 from optbinning import OptimalBinning
+
+from .logger import init_logger
 
 
 def seed_everything(seed: int, freeze_torch=False):
@@ -41,7 +43,8 @@ def seed_everything(seed: int, freeze_torch=False):
         torch.backends.cudnn.benchmark = True
 
 
-def init_setting(font_path=None, seed=None, freeze_torch=False):
+def init_setting(font_path=None, seed=None, freeze_torch=False, logger=False, **kwargs):
+    warnings.filterwarnings("ignore")
     pd.options.display.float_format = '{:.4f}'.format
     pd.set_option('display.max_colwidth', 300)
     plt.style.use('seaborn-ticks')
@@ -64,6 +67,9 @@ def init_setting(font_path=None, seed=None, freeze_torch=False):
     
     if seed:
         seed_everything(seed, freeze_torch=freeze_torch)
+    
+    if logger:
+        return init_logger(**kwargs)
 
 
 def load_pickle(file):
@@ -72,6 +78,40 @@ def load_pickle(file):
 
 def save_pickle(obj, file):
     joblib.dump(obj, file)
+    
+    
+def germancredit():
+    '''
+    German Credit Data
+    ------
+    Credit data that classifies debtors described by a set of attributes as good or bad credit risks. See source link below for detailed information.
+    [source](https://archive.ics.uci.edu/ml/datasets/Statlog+(German+Credit+Data))
+    '''
+    from pandas.api.types import CategoricalDtype
+    
+    data = pd.read_csv(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'germancredit.csv'))
+    
+    cate_levels = {
+            "status_of_existing_checking_account": ['... < 0 DM', '0 <= ... < 200 DM', '... >= 200 DM / salary assignments for at least 1 year', 'no checking account'], 
+            "credit_history": ["no credits taken/ all credits paid back duly", "all credits at this bank paid back duly", "existing credits paid back duly till now", "delay in paying off in the past", "critical account/ other credits existing (not at this bank)"], 
+            "savings_account_and_bonds": ["... < 100 DM", "100 <= ... < 500 DM", "500 <= ... < 1000 DM", "... >= 1000 DM", "unknown/ no savings account"],
+            "present_employment_since": ["unemployed", "... < 1 year", "1 <= ... < 4 years", "4 <= ... < 7 years", "... >= 7 years"], 
+            "personal_status_and_sex": ["male : divorced/separated", "female : divorced/separated/married", "male : single", "male : married/widowed", "female : single"], 
+            "other_debtors_or_guarantors": ["none", "co-applicant", "guarantor"], 
+            "property": ["real estate",  "building society savings agreement/ life insurance",  "car or other, not in attribute Savings account/bonds",  "unknown / no property"],
+            "other_installment_plans": ["bank", "stores", "none"],
+            "housing": ["rent", "own", "for free"], 
+            "job": ["unemployed/ unskilled - non-resident", "unskilled - resident", "skilled employee / official", "management/ self-employed/ highly qualified employee/ officer"],
+            "telephone": ["none", "yes, registered under the customers name"], 
+            "foreign_worker": ["yes", "no"]}
+    
+    def cate_type(levels):
+        return CategoricalDtype(categories=levels, ordered=True)
+    
+    for i in cate_levels.keys():
+        data[i] = data[i].astype(cate_type(cate_levels[i]))
+    
+    return data
 
 
 def round_float(num, decimal = 4):
@@ -139,9 +179,9 @@ def feature_bin_stats(data, feature, target="target", rules={}, method='step', m
             combiner.update(rule)
         else:
             if method in ["step", "quantile"]:
-                combiner.fit(x, y=target, method=method, n_bins=max_n_bins, **kwargs)
+                combiner.fit(data[[feature, target]], y=target, method=method, n_bins=max_n_bins, **kwargs)
             else:
-                combiner.fit(x, y=target, method=method, min_samples=min_bin_size, n_bins=max_n_bins, **kwargs)
+                combiner.fit(data[[feature, target]], y=target, method=method, min_samples=min_bin_size, n_bins=max_n_bins, **kwargs)
     
     if len(rules) > 0:
         if isinstance(rules, (list, np.ndarray)):
@@ -366,7 +406,7 @@ def ks_plot(score, target, title="", fontsize=14, figsize=(16, 8), save=None, co
         return fig
 
 
-def score_hist(score, y_true, figsize=(15, 10), bins=30, save=None, labels=["坏样本", "好样本"], anchor=1.1, fontsize=14, **kwargs):
+def hist_plot(score, y_true, figsize=(15, 10), bins=30, save=None, labels=["坏样本", "好样本"], anchor=1.1, fontsize=14, **kwargs):
     fig, ax = plt.subplots(1, 1, figsize = figsize)
     palette = sns.diverging_palette(340, 267, n=2, s=100, l=40)
 
@@ -503,7 +543,7 @@ def distribution_plot(df, date="date", target="target", save=None, figsize=(10, 
     ax1.set_title('不同时点数据集样本分布情况\n\n')
 
     ax2 = plt.twinx()
-    (temp["坏样本"] / temp.sum(axis=1)).plot(ax=ax2, color=colors[-1], marker=".", linewidth=2, label="坏样本率")
+    (temp["坏样本"] / temp.sum(axis=1)).plot(ax=ax2, color=colors[-1], marker="-", linewidth=2, label="坏样本率")
     # sns.despine()
 
     handles1, labels1 = ax1.get_legend_handles_labels()
