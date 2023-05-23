@@ -9,6 +9,8 @@
 > 微信公共号推文：https://mp.weixin.qq.com/s/eCTp4h0fau77xOgf_V28wQ
 > 
 > pipy包：https://pypi.org/project/scorecardpipeline/
+>
+> `scorecardpipeline` 教程：https://itlubber.art/upload/scorecardpipeline.html
 
 
 ## 交流
