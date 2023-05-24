@@ -543,7 +543,7 @@ def distribution_plot(df, date="date", target="target", save=None, figsize=(10, 
     ax1.set_title('不同时点数据集样本分布情况\n\n')
 
     ax2 = plt.twinx()
-    (temp["坏样本"] / temp.sum(axis=1)).plot(ax=ax2, color=colors[-1], marker="-", linewidth=2, label="坏样本率")
+    (temp["坏样本"] / temp.sum(axis=1)).plot(ax=ax2, color=colors[-1], style="--", linewidth=2, label="坏样本率")
     # sns.despine()
 
     handles1, labels1 = ax1.get_legend_handles_labels()
