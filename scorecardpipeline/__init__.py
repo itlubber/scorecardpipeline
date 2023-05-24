@@ -16,7 +16,7 @@ from .model import ITLubberLogisticRegression, ScoreCard
 from .excel_writer import ExcelWriter
 
 
-__version__ = "0.1.6"
+__version__ = "0.1.7"
 
 __all__ = (
     __version__

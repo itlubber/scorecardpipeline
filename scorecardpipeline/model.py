@@ -422,7 +422,7 @@ class ScoreCard(toad.ScoreCard, TransformerMixin):
     
     @staticmethod
     def score_hist(score, y_true, figsize=(15, 10), bins=20, save=None, **kwargs):
-        score_hist(score, y_true, figsize=figsize, bins=bins, save=save, **kwargs)
+        hist_plot(score, y_true, figsize=figsize, bins=bins, save=save, **kwargs)
     
     def _format_rule(self, rule, decimal = 4, **kwargs):
         bins = self.format_bins(rule['bins'])
