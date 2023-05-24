@@ -17,7 +17,7 @@
 
 |  微信 |  微信公众号 |
 | :---: | :----: |
-| < img src="https://itlubber.art//upload/itlubber.png" alt="itlubber.png" width="50%" border=0/> | < img src="https://itlubber.art//upload/itlubber_art.png" alt="itlubber_art.png" width="50%" border=0/> |
+| <img src="https://itlubber.art//upload/itlubber.png" alt="itlubber.png" width="50%" border=0/> | <img src="https://itlubber.art//upload/itlubber_art.png" alt="itlubber_art.png" width="50%" border=0/> |
 |  itlubber  | itlubber_art |
 
 
