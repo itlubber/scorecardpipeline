@@ -287,8 +287,12 @@ def bin_plot(feature_table, desc="", figsize=(10, 6), colors=["#2639E9", "#F76E6
     return fig
 
 
-def corr_plot(data, figure_size=(16, 8),  fontsize=14, mask=False, save=None, annot=True):
-    corr = data.corr()
+def corr_plot(data, figure_size=(16, 8),  fontsize=14, mask=False, save=None, annot=True, max_len=35):
+    if max_len is None:
+        corr = data.corr()
+    else:
+        corr = data.rename(columns={c: c if len(str(c)) <= max_len else f"{str(c)[:max_len]}..." for c in data.columns}).corr()
+    
     corr_mask = np.zeros_like(corr, dtype = np.bool)
     corr_mask[np.triu_indices_from(corr_mask)] = True
 

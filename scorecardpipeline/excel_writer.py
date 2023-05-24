@@ -22,7 +22,7 @@ from openpyxl.styles import NamedStyle, Border, Side, Alignment, PatternFill, Fo
 
 class ExcelWriter:
 
-    def __init__(self, style_excel=os.path.join(os.path.dirname(os.path.abspath(__file__)), 'template.xlsx'), style_sheet_name="初始化", fontsize=10, font='楷体', theme_color='8E8BFE'):
+    def __init__(self, style_excel=os.path.join(os.path.dirname(os.path.abspath(__file__)), 'template.xlsx'), style_sheet_name="初始化", fontsize=10, font='楷体', theme_color='2639E9'):
         """
         excel 文件内容写入公共方法
 
@@ -30,7 +30,7 @@ class ExcelWriter:
         :param style_sheet_name: 模版文件内初始样式sheet名称，默认即可
         :param fontsize: 插入excel文件中内容的字体大小，默认 10
         :param font: 插入excel文件中内容的字体，默认 楷体
-        :param theme_color: 主题色，默认 8E8BFE，注意不包含 #
+        :param theme_color: 主题色，默认 2639E9，注意不包含 #
         """
         # english_width，chinese_width
         self.english_width = 0.12
@@ -368,7 +368,7 @@ class ExcelWriter:
         :param filename: 需要保存 excel 文件的路径
         :param close: 是否需要释放 writer
         """
-        if self.style_sheet in self.workbook.sheetnames:
+        if self.style_sheet.title in self.workbook.sheetnames:
             self.workbook.remove(self.style_sheet)
         
         self.workbook.save(filename)

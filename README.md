@@ -1,16 +1,18 @@
 # 评分卡pipeline建模包
 
+<img src="https://itlubber.art/upload/scorecardpipeline.png" alt="itlubber.png" width="100%" border=0/> 
+
 `scorecardpipeline` 封装了 `toad`、`scorecardpy`、`optbinning` 等评分卡建模相关组件，`API` 风格与 `sklearn` 高度一致，支持 `pipeline` 式端到端评分卡建模、模型报告输出、导出 `PMML` 文件、超参数搜索等
 
+> 教程：https://itlubber.art/upload/scorecardpipeline.html
+> 
+> pipy包：https://pypi.org/project/scorecardpipeline/
+>
 > 仓库地址：https://github.com/itlubber/scorecardpipeline
 > 
 > 博文地址：https://itlubber.art/archives/itlubber-scorecard-end2end
 > 
 > 微信公共号推文：https://mp.weixin.qq.com/s/eCTp4h0fau77xOgf_V28wQ
-> 
-> pipy包：https://pypi.org/project/scorecardpipeline/
->
-> `scorecardpipeline` 教程：https://itlubber.art/upload/scorecardpipeline.html
 
 
 ## 交流
@@ -489,7 +491,7 @@ print(clf.best_params_)
 ```python
 class ExcelWriter:
 
-    def __init__(self, style_excel='报告输出模版.xlsx', style_sheet_name="初始化", fontsize=10, font='楷体', theme_color='8E8BFE'):
+    def __init__(self, style_excel='报告输出模版.xlsx', style_sheet_name="初始化", fontsize=10, font='楷体', theme_color='2639E9'):
         """
         excel 文件内容写入公共方法
         
@@ -497,7 +499,7 @@ class ExcelWriter:
         :param style_sheet_name: 模版文件内初始样式sheet名称，默认即可
         :param fontsize: 插入excel文件中内容的字体大小，默认 10
         :param font: 插入excel文件中内容的字体，默认 楷体
-        :param theme_color: 主题色，默认 8E8BFE，注意不包含 #
+        :param theme_color: 主题色，默认 2639E9，注意不包含 #
         """
 
     def add_conditional_formatting(self, worksheet, start_space, end_space):
@@ -582,7 +584,7 @@ class ExcelWriter:
 + 使用方法
 
 ```python
-writer = ExcelWriter(style_excel="./utils/报告输出模版.xlsx", theme_color="8E8BFE")
+writer = ExcelWriter(style_excel="./utils/报告输出模版.xlsx", theme_color="2639E9")
 
 # 评分卡刻度
 scorecard_kedu = pd.DataFrame(

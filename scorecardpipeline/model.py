@@ -167,6 +167,14 @@ class ITLubberLogisticRegression(LogisticRegression):
         
         return stats
     
+    def summary2(self, feature_map={}):
+        stats = self.summary().reset_index().rename(columns={"index": "Features"})
+        
+        if feature_map is not None and len(feature_map) > 0:
+            stats.insert(loc=1, column="Describe", value=[feature_map.get(c, "") for c in stats["Features"]])
+        
+        return stats
+    
     @staticmethod
     def convert_sparse_matrix(x):
         if scipy.sparse.issparse(x):
@@ -194,7 +202,7 @@ class ITLubberLogisticRegression(LogisticRegression):
         ax.spines['top'].set_visible(False)
         ax.spines['right'].set_visible(False)
 
-        ax.set_title("Regression Meta Analysis - Weight Plot", fontsize=fontsize, fontweight="bold")
+        ax.set_title("Regression Meta Analysis - Weight Plot\n", fontsize=fontsize, fontweight="bold")
         ax.set_xlabel("Weight Estimates", fontsize=fontsize, weight="bold")
         ax.set_ylabel("Variable", fontsize=fontsize, weight="bold")
         
