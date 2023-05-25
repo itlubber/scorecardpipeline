@@ -429,7 +429,8 @@ def hist_plot(score, y_true=None, figsize=(15, 10), bins=30, save=None, labels=[
     
     ax.yaxis.set_major_formatter(PercentFormatter(1))
     
-    ax.legend(labels[:y_true.nunique()], loc='upper center', ncol=y_true.nunique(), bbox_to_anchor=(0.5, anchor), frameon=False, fontsize=fontsize)
+    if y_true is not None:
+        ax.legend(labels[:y_true.nunique()], loc='upper center', ncol=y_true.nunique(), bbox_to_anchor=(0.5, anchor), frameon=False, fontsize=fontsize)
     
     fig.tight_layout()
 
