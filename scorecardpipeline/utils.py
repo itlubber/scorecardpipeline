@@ -409,12 +409,12 @@ def ks_plot(score, target, title="", fontsize=14, figsize=(16, 8), save=None, co
         return fig
 
 
-def hist_plot(score, y_true, figsize=(15, 10), bins=30, save=None, labels=["坏样本", "好样本"], anchor=1.1, fontsize=14, **kwargs):
+def hist_plot(score, y_true=None, figsize=(15, 10), bins=30, save=None, labels=["坏样本", "好样本"], anchor=1.1, fontsize=14, **kwargs):
     fig, ax = plt.subplots(1, 1, figsize = figsize)
     palette = sns.diverging_palette(340, 267, n=2, s=100, l=40)
 
     sns.histplot(
-                x=score, hue=y_true.replace({i: v for i, v in enumerate(labels)}), element="step", stat="probability", bins=bins, common_bins=True, common_norm=True, palette=palette, ax=ax, **kwargs
+                x=score, hue=y_true.replace({i: v for i, v in enumerate(labels)}) if y_true is not None else y_true, element="step", stat="probability", bins=bins, common_bins=True, common_norm=True, palette=palette, ax=ax, **kwargs
             )
 
     sns.despine()
@@ -453,7 +453,7 @@ def psi_plot(expected, actual, labels=["预期", "实际"], save=None, colors=["
     df_psi["总体PSI值"] = df_psi["分档PSI值"].sum()
     
     if plot:
-        x = df_psi['分箱'].apply(lambda l: l if max_len is None else str(l)[:max_len] + "...")
+        x = df_psi['分箱'].apply(lambda l: l if max_len is None else f"{str(l)[:max_len]}...")
         x_indexes = np.arange(len(x))
         fig, ax1 = plt.subplots(figsize=figsize)
 
@@ -503,7 +503,7 @@ def csi_plot(expected, actual, score_bins, labels=["预期", "实际"], save=Non
     df_csi["总体CSI值"] = df_csi["分档CSI值"].sum()
     
     if plot:
-        x = df_csi['分箱'].apply(lambda l: l if max_len is None else str(l)[:max_len] + "...")
+        x = df_csi['分箱'].apply(lambda l: l if max_len is None else f"{str(l)[:max_len]}...")
         x_indexes = np.arange(len(x))
         fig, ax1 = plt.subplots(figsize=figsize)
 
