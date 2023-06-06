@@ -1,0 +1,1 @@
+include scorecardpipeline/*.ttf scorecardpipeline/*.csv scorecardpipeline/*.xlsx
