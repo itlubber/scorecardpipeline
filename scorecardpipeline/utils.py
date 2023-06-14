@@ -122,6 +122,8 @@ def round_float(num, decimal = 4):
     
 
 def feature_bins(bins, decimal = 4):
+    if len(bins) == 0:
+        return {0: "全部样本"}
     if isinstance(bins, list): bins = np.array(bins)
     EMPTYBINS = len(bins) if not isinstance(bins[0], (set, list, np.ndarray)) else -1
     
