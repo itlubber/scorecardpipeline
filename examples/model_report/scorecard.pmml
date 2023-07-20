@@ -1,121 +1,137 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <PMML xmlns="http://www.dmg.org/PMML-4_4" xmlns:data="http://jpmml.org/jpmml-model/InlineTable" version="4.4">
 	<Header>
-		<Application name="SkLearn2PMML package" version="0.92.2"/>
-		<Timestamp>2023-05-24T14:36:34Z</Timestamp>
+		<Application name="SkLearn2PMML package" version="0.90.4"/>
+		<Timestamp>2023-06-10T17:52:50Z</Timestamp>
 	</Header>
 	<MiningBuildTask>
 		<Extension name="repr">PMMLPipeline(steps=[('preprocessing', DataFrameMapper(df_out=True, drop_cols=[],
-                features=[(['duration_in_month'],
-                           ExpressionTransformer(expr='105.52382650126933 if '
-                                                      'X[0] &lt; 12 else '
-                                                      '47.51887857920758')),
+                features=[(['status_of_existing_checking_account'],
+                           LookupTransformer(default_value=0.0,
+                                             mapping={'... &lt; 0 DM': -18.580641074758205,
+                                                      '... &gt;= 200 DM / salary assignments for at least 1 year': 110.79343448069255,
+                                                      '0 &lt;= ... &lt; 200 DM': 22.04892574268311,
+                                                      'no checking account': 110.79343448069255})),
+                          (['telephone'],
+                           LookupTransformer(default_va...
                           (['personal_status_and_sex'],
                            LookupTransformer(default_value=0.0,
-                                             mapping={'female : divorced/separated/married': 60.06093521375783,
-                                                      'male : divorced/separated': 60.06093521375783,
-                                                      'male : married/widowe...
-                                                      'car (used)': 80.33598885315155,
-                                                      'domestic appliances': 80.33598885315155,
-                                                      'education': 10.99485374698104,
-                                                      'furniture/equipment': 30.695902126389818,
-                                                      'others': 10.99485374698104,
-                                                      'radio/television': 80.33598885315155,
-                                                      'repairs': 30.695902126389818,
-                                                      'retraining': 80.33598885315155})),
-                          (['credit_amount'],
-                           ExpressionTransformer(expr='48.14925243789148 if '
-                                                      'X[0] &lt; 1845 else '
-                                                      '74.86757985609073'))])),
+                                             mapping={'female : divorced/separated/married': 60.06093521375786,
+                                                      'male : divorced/separated': 60.06093521375786,
+                                                      'male : married/widowed': 16.731225424210255,
+                                                      'male : single': 36.646251007181824})),
+                          (['duration_in_month'],
+                           ExpressionTransformer(expr='105.52382650126799 if '
+                                                      'X[0] &lt; 12 else '
+                                                      '47.5188785792075'))])),
        ('scorecard', LinearRegression(fit_intercept=False))])</Extension>
 	</MiningBuildTask>
 	<DataDictionary>
 		<DataField name="y" optype="continuous" dataType="double"/>
-		<DataField name="duration_in_month" optype="continuous" dataType="double"/>
-		<DataField name="personal_status_and_sex" optype="categorical" dataType="string"/>
 		<DataField name="status_of_existing_checking_account" optype="categorical" dataType="string"/>
-		<DataField name="housing" optype="categorical" dataType="string"/>
-		<DataField name="age_in_years" optype="continuous" dataType="double"/>
-		<DataField name="installment_rate_in_percentage_of_disposable_income" optype="continuous" dataType="double"/>
-		<DataField name="credit_history" optype="categorical" dataType="string"/>
-		<DataField name="present_employment_since" optype="categorical" dataType="string"/>
-		<DataField name="savings_account_and_bonds" optype="categorical" dataType="string"/>
 		<DataField name="telephone" optype="categorical" dataType="string"/>
+		<DataField name="savings_account_and_bonds" optype="categorical" dataType="string"/>
+		<DataField name="age_in_years" optype="continuous" dataType="double"/>
+		<DataField name="housing" optype="categorical" dataType="string"/>
 		<DataField name="purpose" optype="categorical" dataType="string"/>
+		<DataField name="present_employment_since" optype="categorical" dataType="string"/>
+		<DataField name="credit_history" optype="categorical" dataType="string"/>
+		<DataField name="installment_rate_in_percentage_of_disposable_income" optype="continuous" dataType="double"/>
 		<DataField name="credit_amount" optype="continuous" dataType="double"/>
+		<DataField name="personal_status_and_sex" optype="categorical" dataType="string"/>
+		<DataField name="duration_in_month" optype="continuous" dataType="double"/>
 	</DataDictionary>
 	<RegressionModel functionName="regression" algorithmName="sklearn.linear_model._base.LinearRegression">
 		<MiningSchema>
 			<MiningField name="y" usageType="target"/>
-			<MiningField name="duration_in_month"/>
-			<MiningField name="personal_status_and_sex"/>
 			<MiningField name="status_of_existing_checking_account"/>
-			<MiningField name="housing"/>
-			<MiningField name="age_in_years"/>
-			<MiningField name="installment_rate_in_percentage_of_disposable_income"/>
-			<MiningField name="credit_history"/>
-			<MiningField name="present_employment_since"/>
-			<MiningField name="savings_account_and_bonds"/>
 			<MiningField name="telephone"/>
+			<MiningField name="savings_account_and_bonds"/>
+			<MiningField name="age_in_years"/>
+			<MiningField name="housing"/>
 			<MiningField name="purpose"/>
+			<MiningField name="present_employment_since"/>
+			<MiningField name="credit_history"/>
+			<MiningField name="installment_rate_in_percentage_of_disposable_income"/>
 			<MiningField name="credit_amount"/>
+			<MiningField name="personal_status_and_sex"/>
+			<MiningField name="duration_in_month"/>
 		</MiningSchema>
 		<LocalTransformations>
-			<DerivedField name="eval(105.52382650126933 if X[0] &lt; 12 else 47.51887857920758)" optype="continuous" dataType="double">
-				<Apply function="if">
-					<Apply function="lessThan">
-						<FieldRef field="duration_in_month"/>
-						<Constant dataType="integer">12</Constant>
-					</Apply>
-					<Constant dataType="double">105.52382650126933</Constant>
-					<Constant dataType="double">47.51887857920758</Constant>
-				</Apply>
-			</DerivedField>
-			<DerivedField name="lookup(personal_status_and_sex)" optype="continuous" dataType="double">
-				<MapValues defaultValue="0.0" outputColumn="data:output" dataType="double">
-					<FieldColumnPair field="personal_status_and_sex" column="data:input"/>
-					<InlineTable>
-						<row>
-							<data:input>male : married/widowed</data:input>
-							<data:output>16.73122542421026</data:output>
-						</row>
-						<row>
-							<data:input>male : single</data:input>
-							<data:output>36.64625100718181</data:output>
-						</row>
-						<row>
-							<data:input>female : divorced/separated/married</data:input>
-							<data:output>60.06093521375783</data:output>
-						</row>
-						<row>
-							<data:input>male : divorced/separated</data:input>
-							<data:output>60.06093521375783</data:output>
-						</row>
-					</InlineTable>
-				</MapValues>
-			</DerivedField>
 			<DerivedField name="lookup(status_of_existing_checking_account)" optype="continuous" dataType="double">
 				<MapValues defaultValue="0.0" outputColumn="data:output" dataType="double">
 					<FieldColumnPair field="status_of_existing_checking_account" column="data:input"/>
 					<InlineTable>
 						<row>
 							<data:input>... &lt; 0 DM</data:input>
-							<data:output>-18.58064107475858</data:output>
+							<data:output>-18.580641074758205</data:output>
 						</row>
 						<row>
 							<data:input>... &gt;= 200 DM / salary assignments for at least 1 year</data:input>
-							<data:output>110.79343448069291</data:output>
+							<data:output>110.79343448069255</data:output>
 						</row>
 						<row>
 							<data:input>no checking account</data:input>
-							<data:output>110.79343448069291</data:output>
+							<data:output>110.79343448069255</data:output>
 						</row>
 						<row>
 							<data:input>0 &lt;= ... &lt; 200 DM</data:input>
-							<data:output>22.048925742682968</data:output>
+							<data:output>22.04892574268311</data:output>
 						</row>
 					</InlineTable>
 				</MapValues>
+			</DerivedField>
+			<DerivedField name="lookup(telephone)" optype="continuous" dataType="double">
+				<MapValues defaultValue="0.0" outputColumn="data:output" dataType="double">
+					<FieldColumnPair field="telephone" column="data:input"/>
+					<InlineTable>
+						<row>
+							<data:input>yes, registered under the customers name</data:input>
+							<data:output>58.19282370101616</data:output>
+						</row>
+						<row>
+							<data:input>none</data:input>
+							<data:output>33.461167194590665</data:output>
+						</row>
+					</InlineTable>
+				</MapValues>
+			</DerivedField>
+			<DerivedField name="lookup(savings_account_and_bonds)" optype="continuous" dataType="double">
+				<MapValues defaultValue="0.0" outputColumn="data:output" dataType="double">
+					<FieldColumnPair field="savings_account_and_bonds" column="data:input"/>
+					<InlineTable>
+						<row>
+							<data:input>... &gt;= 1000 DM</data:input>
+							<data:output>102.85055234000365</data:output>
+						</row>
+						<row>
+							<data:input>100 &lt;= ... &lt; 500 DM</data:input>
+							<data:output>42.947695455421915</data:output>
+						</row>
+						<row>
+							<data:input>... &lt; 100 DM</data:input>
+							<data:output>19.400844274980592</data:output>
+						</row>
+						<row>
+							<data:input>500 &lt;= ... &lt; 1000 DM</data:input>
+							<data:output>102.85055234000365</data:output>
+						</row>
+						<row>
+							<data:input>unknown/ no savings account</data:input>
+							<data:output>102.85055234000365</data:output>
+						</row>
+					</InlineTable>
+				</MapValues>
+			</DerivedField>
+			<DerivedField name="eval(4.957009418395771 if X[0] &lt; 26 else 46.08686134022081)" optype="continuous" dataType="double">
+				<Apply function="if">
+					<Apply function="lessThan">
+						<FieldRef field="age_in_years"/>
+						<Constant dataType="integer">26</Constant>
+					</Apply>
+					<Constant dataType="double">4.957009418395771</Constant>
+					<Constant dataType="double">46.08686134022081</Constant>
+				</Apply>
 			</DerivedField>
 			<DerivedField name="lookup(housing)" optype="continuous" dataType="double">
 				<MapValues defaultValue="0.0" outputColumn="data:output" dataType="double">
@@ -123,62 +139,62 @@
 					<InlineTable>
 						<row>
 							<data:input>for free</data:input>
-							<data:output>17.516376027544162</data:output>
+							<data:output>17.516376027543803</data:output>
 						</row>
 						<row>
 							<data:input>rent</data:input>
-							<data:output>24.729660862620776</data:output>
+							<data:output>24.729660862620523</data:output>
 						</row>
 						<row>
 							<data:input>own</data:input>
-							<data:output>52.459329523035485</data:output>
+							<data:output>52.45932952303565</data:output>
 						</row>
 					</InlineTable>
 				</MapValues>
 			</DerivedField>
-			<DerivedField name="eval(4.957009418395742 if X[0] &lt; 26 else 46.086861340220786)" optype="continuous" dataType="double">
-				<Apply function="if">
-					<Apply function="lessThan">
-						<FieldRef field="age_in_years"/>
-						<Constant dataType="integer">26</Constant>
-					</Apply>
-					<Constant dataType="double">4.957009418395742</Constant>
-					<Constant dataType="double">46.086861340220786</Constant>
-				</Apply>
-			</DerivedField>
-			<DerivedField name="eval(87.7344891092279 if X[0] &lt; 2 else 57.698544178093364)" optype="continuous" dataType="double">
-				<Apply function="if">
-					<Apply function="lessThan">
-						<FieldRef field="installment_rate_in_percentage_of_disposable_income"/>
-						<Constant dataType="integer">2</Constant>
-					</Apply>
-					<Constant dataType="double">87.7344891092279</Constant>
-					<Constant dataType="double">57.698544178093364</Constant>
-				</Apply>
-			</DerivedField>
-			<DerivedField name="lookup(credit_history)" optype="continuous" dataType="double">
+			<DerivedField name="lookup(purpose)" optype="continuous" dataType="double">
 				<MapValues defaultValue="0.0" outputColumn="data:output" dataType="double">
-					<FieldColumnPair field="credit_history" column="data:input"/>
+					<FieldColumnPair field="purpose" column="data:input"/>
 					<InlineTable>
 						<row>
-							<data:input>all credits at this bank paid back duly</data:input>
-							<data:output>-43.01659952450284</data:output>
+							<data:input>repairs</data:input>
+							<data:output>30.695902126389978</data:output>
 						</row>
 						<row>
-							<data:input>existing credits paid back duly till now</data:input>
-							<data:output>38.61320025087605</data:output>
+							<data:input>education</data:input>
+							<data:output>10.99485374698142</data:output>
 						</row>
 						<row>
-							<data:input>delay in paying off in the past</data:input>
-							<data:output>38.61320025087605</data:output>
+							<data:input>car (new)</data:input>
+							<data:output>10.99485374698142</data:output>
 						</row>
 						<row>
-							<data:input>critical account/ other credits existing (not at this bank)</data:input>
-							<data:output>91.11335606625624</data:output>
+							<data:input>business</data:input>
+							<data:output>30.695902126389978</data:output>
 						</row>
 						<row>
-							<data:input>no credits taken/ all credits paid back duly</data:input>
-							<data:output>-43.01659952450284</data:output>
+							<data:input>radio/television</data:input>
+							<data:output>80.33598885315115</data:output>
+						</row>
+						<row>
+							<data:input>retraining</data:input>
+							<data:output>80.33598885315115</data:output>
+						</row>
+						<row>
+							<data:input>furniture/equipment</data:input>
+							<data:output>30.695902126389978</data:output>
+						</row>
+						<row>
+							<data:input>car (used)</data:input>
+							<data:output>80.33598885315115</data:output>
+						</row>
+						<row>
+							<data:input>others</data:input>
+							<data:output>10.99485374698142</data:output>
+						</row>
+						<row>
+							<data:input>domestic appliances</data:input>
+							<data:output>80.33598885315115</data:output>
 						</row>
 					</InlineTable>
 				</MapValues>
@@ -189,7 +205,7 @@
 					<InlineTable>
 						<row>
 							<data:input>... &lt; 1 year</data:input>
-							<data:output>6.932379150182186</data:output>
+							<data:output>6.9323791501826335</data:output>
 						</row>
 						<row>
 							<data:input>... &gt;= 7 years</data:input>
@@ -201,128 +217,109 @@
 						</row>
 						<row>
 							<data:input>4 &lt;= ... &lt; 7 years</data:input>
-							<data:output>91.35828308530944</data:output>
+							<data:output>91.35828308530887</data:output>
 						</row>
 						<row>
 							<data:input>unemployed</data:input>
-							<data:output>6.932379150182186</data:output>
+							<data:output>6.9323791501826335</data:output>
 						</row>
 					</InlineTable>
 				</MapValues>
 			</DerivedField>
-			<DerivedField name="lookup(savings_account_and_bonds)" optype="continuous" dataType="double">
+			<DerivedField name="lookup(credit_history)" optype="continuous" dataType="double">
 				<MapValues defaultValue="0.0" outputColumn="data:output" dataType="double">
-					<FieldColumnPair field="savings_account_and_bonds" column="data:input"/>
+					<FieldColumnPair field="credit_history" column="data:input"/>
 					<InlineTable>
 						<row>
-							<data:input>... &gt;= 1000 DM</data:input>
-							<data:output>102.85055234000397</data:output>
+							<data:input>all credits at this bank paid back duly</data:input>
+							<data:output>-43.01659952450262</data:output>
 						</row>
 						<row>
-							<data:input>100 &lt;= ... &lt; 500 DM</data:input>
-							<data:output>42.94769545542189</data:output>
+							<data:input>existing credits paid back duly till now</data:input>
+							<data:output>38.613200250876076</data:output>
 						</row>
 						<row>
-							<data:input>... &lt; 100 DM</data:input>
-							<data:output>19.400844274980432</data:output>
+							<data:input>delay in paying off in the past</data:input>
+							<data:output>38.613200250876076</data:output>
 						</row>
 						<row>
-							<data:input>500 &lt;= ... &lt; 1000 DM</data:input>
-							<data:output>102.85055234000397</data:output>
+							<data:input>critical account/ other credits existing (not at this bank)</data:input>
+							<data:output>91.11335606625616</data:output>
 						</row>
 						<row>
-							<data:input>unknown/ no savings account</data:input>
-							<data:output>102.85055234000397</data:output>
+							<data:input>no credits taken/ all credits paid back duly</data:input>
+							<data:output>-43.01659952450262</data:output>
 						</row>
 					</InlineTable>
 				</MapValues>
 			</DerivedField>
-			<DerivedField name="lookup(telephone)" optype="continuous" dataType="double">
-				<MapValues defaultValue="0.0" outputColumn="data:output" dataType="double">
-					<FieldColumnPair field="telephone" column="data:input"/>
-					<InlineTable>
-						<row>
-							<data:input>yes, registered under the customers name</data:input>
-							<data:output>58.19282370101607</data:output>
-						</row>
-						<row>
-							<data:input>none</data:input>
-							<data:output>33.461167194590686</data:output>
-						</row>
-					</InlineTable>
-				</MapValues>
+			<DerivedField name="eval(87.73448910922855 if X[0] &lt; 2 else 57.69854417809359)" optype="continuous" dataType="double">
+				<Apply function="if">
+					<Apply function="lessThan">
+						<FieldRef field="installment_rate_in_percentage_of_disposable_income"/>
+						<Constant dataType="integer">2</Constant>
+					</Apply>
+					<Constant dataType="double">87.73448910922855</Constant>
+					<Constant dataType="double">57.69854417809359</Constant>
+				</Apply>
 			</DerivedField>
-			<DerivedField name="lookup(purpose)" optype="continuous" dataType="double">
-				<MapValues defaultValue="0.0" outputColumn="data:output" dataType="double">
-					<FieldColumnPair field="purpose" column="data:input"/>
-					<InlineTable>
-						<row>
-							<data:input>repairs</data:input>
-							<data:output>30.695902126389818</data:output>
-						</row>
-						<row>
-							<data:input>education</data:input>
-							<data:output>10.99485374698104</data:output>
-						</row>
-						<row>
-							<data:input>car (new)</data:input>
-							<data:output>10.99485374698104</data:output>
-						</row>
-						<row>
-							<data:input>business</data:input>
-							<data:output>30.695902126389818</data:output>
-						</row>
-						<row>
-							<data:input>radio/television</data:input>
-							<data:output>80.33598885315155</data:output>
-						</row>
-						<row>
-							<data:input>retraining</data:input>
-							<data:output>80.33598885315155</data:output>
-						</row>
-						<row>
-							<data:input>furniture/equipment</data:input>
-							<data:output>30.695902126389818</data:output>
-						</row>
-						<row>
-							<data:input>car (used)</data:input>
-							<data:output>80.33598885315155</data:output>
-						</row>
-						<row>
-							<data:input>others</data:input>
-							<data:output>10.99485374698104</data:output>
-						</row>
-						<row>
-							<data:input>domestic appliances</data:input>
-							<data:output>80.33598885315155</data:output>
-						</row>
-					</InlineTable>
-				</MapValues>
-			</DerivedField>
-			<DerivedField name="eval(48.14925243789148 if X[0] &lt; 1845 else 74.86757985609073)" optype="continuous" dataType="double">
+			<DerivedField name="eval(48.149252437891455 if X[0] &lt; 1845 else 74.8675798560905)" optype="continuous" dataType="double">
 				<Apply function="if">
 					<Apply function="lessThan">
 						<FieldRef field="credit_amount"/>
 						<Constant dataType="integer">1845</Constant>
 					</Apply>
-					<Constant dataType="double">48.14925243789148</Constant>
-					<Constant dataType="double">74.86757985609073</Constant>
+					<Constant dataType="double">48.149252437891455</Constant>
+					<Constant dataType="double">74.8675798560905</Constant>
+				</Apply>
+			</DerivedField>
+			<DerivedField name="lookup(personal_status_and_sex)" optype="continuous" dataType="double">
+				<MapValues defaultValue="0.0" outputColumn="data:output" dataType="double">
+					<FieldColumnPair field="personal_status_and_sex" column="data:input"/>
+					<InlineTable>
+						<row>
+							<data:input>male : married/widowed</data:input>
+							<data:output>16.731225424210255</data:output>
+						</row>
+						<row>
+							<data:input>male : single</data:input>
+							<data:output>36.646251007181824</data:output>
+						</row>
+						<row>
+							<data:input>female : divorced/separated/married</data:input>
+							<data:output>60.06093521375786</data:output>
+						</row>
+						<row>
+							<data:input>male : divorced/separated</data:input>
+							<data:output>60.06093521375786</data:output>
+						</row>
+					</InlineTable>
+				</MapValues>
+			</DerivedField>
+			<DerivedField name="eval(105.52382650126799 if X[0] &lt; 12 else 47.5188785792075)" optype="continuous" dataType="double">
+				<Apply function="if">
+					<Apply function="lessThan">
+						<FieldRef field="duration_in_month"/>
+						<Constant dataType="integer">12</Constant>
+					</Apply>
+					<Constant dataType="double">105.52382650126799</Constant>
+					<Constant dataType="double">47.5188785792075</Constant>
 				</Apply>
 			</DerivedField>
 		</LocalTransformations>
 		<RegressionTable intercept="0.0">
-			<NumericPredictor name="eval(105.52382650126933 if X[0] &lt; 12 else 47.51887857920758)" coefficient="1.0"/>
-			<NumericPredictor name="lookup(personal_status_and_sex)" coefficient="1.0"/>
 			<NumericPredictor name="lookup(status_of_existing_checking_account)" coefficient="1.0"/>
-			<NumericPredictor name="lookup(housing)" coefficient="1.0"/>
-			<NumericPredictor name="eval(4.957009418395742 if X[0] &lt; 26 else 46.086861340220786)" coefficient="1.0"/>
-			<NumericPredictor name="eval(87.7344891092279 if X[0] &lt; 2 else 57.698544178093364)" coefficient="1.0"/>
-			<NumericPredictor name="lookup(credit_history)" coefficient="1.0"/>
-			<NumericPredictor name="lookup(present_employment_since)" coefficient="1.0"/>
-			<NumericPredictor name="lookup(savings_account_and_bonds)" coefficient="1.0"/>
 			<NumericPredictor name="lookup(telephone)" coefficient="1.0"/>
+			<NumericPredictor name="lookup(savings_account_and_bonds)" coefficient="1.0"/>
+			<NumericPredictor name="eval(4.957009418395771 if X[0] &lt; 26 else 46.08686134022081)" coefficient="1.0"/>
+			<NumericPredictor name="lookup(housing)" coefficient="1.0"/>
 			<NumericPredictor name="lookup(purpose)" coefficient="1.0"/>
-			<NumericPredictor name="eval(48.14925243789148 if X[0] &lt; 1845 else 74.86757985609073)" coefficient="1.0"/>
+			<NumericPredictor name="lookup(present_employment_since)" coefficient="1.0"/>
+			<NumericPredictor name="lookup(credit_history)" coefficient="1.0"/>
+			<NumericPredictor name="eval(87.73448910922855 if X[0] &lt; 2 else 57.69854417809359)" coefficient="1.0"/>
+			<NumericPredictor name="eval(48.149252437891455 if X[0] &lt; 1845 else 74.8675798560905)" coefficient="1.0"/>
+			<NumericPredictor name="lookup(personal_status_and_sex)" coefficient="1.0"/>
+			<NumericPredictor name="eval(105.52382650126799 if X[0] &lt; 12 else 47.5188785792075)" coefficient="1.0"/>
 		</RegressionTable>
 	</RegressionModel>
 </PMML>

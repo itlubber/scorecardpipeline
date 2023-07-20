@@ -122,14 +122,16 @@ def round_float(num, decimal = 4):
     
 
 def feature_bins(bins, decimal = 4):
+    if len(bins) == 0:
+        return {0: "全部样本"}
     if isinstance(bins, list): bins = np.array(bins)
     EMPTYBINS = len(bins) if not isinstance(bins[0], (set, list, np.ndarray)) else -1
     
     l = []
-    if np.issubdtype(bins.dtype, np.number):
-        has_empty = len(bins) > 0 and np.isnan(bins[-1])
+    if not isinstance(bins[0], (set, list, np.ndarray)):
+        has_empty = len(bins) > 0 and pd.isnull(bins[-1])
         if has_empty: bins = bins[:-1]
-        sp_l = ["负无穷"] + [round_float(b, decimal=decimal) for b in bins.tolist()] + ["正无穷"]
+        sp_l = ["负无穷"] + [round_float(b, decimal=decimal) for b in bins] + ["正无穷"]
         for i in range(len(sp_l) - 1): l.append('['+str(sp_l[i])+' , '+str(sp_l[i+1])+')')
         if has_empty: l.append('缺失值')
     else:
@@ -251,7 +253,7 @@ def bin_plot(feature_table, desc="", figsize=(10, 6), colors=["#2639E9", "#F76E6
     """
     feature_table = feature_table.copy()
 
-    feature_table["分箱"] = feature_table["分箱"].apply(lambda x: x if re.match("^\[.*\)$", x) else str(x)[:max_len] + "..")
+    feature_table["分箱"] = feature_table["分箱"].apply(lambda x: x if not pd.isnull(x) and re.match("^\[.*\)$", x) else (str(x)[:max_len] + ".." if len(str(x)) > max_len else str(x)))
 
     fig, ax1 = plt.subplots(figsize=figsize)
     ax1.barh(feature_table['分箱'], feature_table['好样本数'], color=colors[0], label='好样本', hatch="/")
