@@ -274,6 +274,32 @@ class ScoreCard(toad.ScoreCard, TransformerMixin):
     def transform(self, x):
         return self.predict(x)
     
+    def _check_rules(self, combiner, transer):
+        for col in self.features_:
+            if col not in combiner:
+                raise Exception('column \'{col}\' is not in combiner'.format(col = col))
+            
+            if col not in transer:
+                raise Exception('column \'{col}\' is not in transer'.format(col = col))
+
+            l_c = len(combiner[col])
+            l_t = len(transer[col]['woe'])
+
+            if l_c == 0:
+                continue
+
+            if np.issubdtype(combiner[col].dtype, np.number):
+                if l_c != l_t - 1:
+                    if np.isnan(combiner[col]).sum() > 0:
+                        combiner.update({col: combiner[col][:-1]})
+                    else:
+                        raise Exception('column \'{col}\' is not matched, assert {l_t} bins but given {l_c}'.format(col = col, l_t = l_t, l_c = l_c + 1))
+            else:
+                if l_c != l_t:
+                    raise Exception('column \'{col}\' is not matched, assert {l_t} bins but given {l_c}'.format(col = col, l_t = l_t, l_c = l_c))
+
+        return True
+    
     @staticmethod
     def score_clip(score, clip=50):
         clip_start = max(math.ceil(score.min() / clip) * clip, math.ceil(score.quantile(0.01) / clip) * clip)
