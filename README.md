@@ -68,6 +68,8 @@ https://github.com/itlubber/scorecardpipeline
 
 ### `scorecardpipeline` 安装
 
++ `pipy` 安装
+
 ```bash
 >> pip install scorecardpipeline -i https://pypi.Python.org/simple/
 
@@ -77,6 +79,14 @@ Collecting scorecardpipeline
   ......
 Installing collected packages: sklearn-pandas, scorecardpy, sklearn2pmml, scorecardpipeline
 Successfully installed scorecardpipeline-0.1.5 scorecardpy-0.1.9.2 sklearn-pandas-2.2.0 sklearn2pmml-0.92.2
+```
+
++ 源码编译
+
+```bash
+python setup.py sdist bdist_wheel
+pip install dist/scorecardpipeline-0.1.11-py3-none-any.whl
+# twine upload dist/*
 ```
 
 
