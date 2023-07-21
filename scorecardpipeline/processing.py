@@ -289,7 +289,7 @@ class FeatureImportanceSelector(BaseEstimator, TransformerMixin):
 
 class Combiner(TransformerMixin, BaseEstimator):
     
-    def __init__(self, target="target", method='chi', empty_separate=False, min_n_bins=2, max_n_bins=3, max_n_prebins=10, min_prebin_size=0.02, min_bin_size=0.05, max_bin_size=None, gamma=0.01, monotonic_trend="auto_asc_desc", rules={}, n_jobs=1):
+    def __init__(self, target="target", method='chi', empty_separate=False, min_n_bins=2, max_n_bins=None, max_n_prebins=20, min_prebin_size=0.02, min_bin_size=0.05, max_bin_size=None, gamma=0.01, monotonic_trend="auto_asc_desc", adj_rules={}, n_jobs=1):
         """特征分箱封装方法
 
         Args:
@@ -297,14 +297,14 @@ class Combiner(TransformerMixin, BaseEstimator):
             method: 特征分箱方法，可选 "chi", "dt", "quantile", "step", "kmeans", "cart", "mdlp", "uniform", 参考 toad.Combiner & optbinning.OptimalBinning
             empty_separate: 是否空值单独一箱, 默认 False，推荐设置为 True
             min_n_bins: 最小分箱数，默认 2，即最小拆分2箱
-            max_n_bins: 最大分像素，默认 3，即最大拆分3箱，推荐设置 3 ～ 5，不宜过多，偶尔使用 optbinning 时不起效
+            max_n_bins: 最大分箱数，默认 None，即不限制拆分箱数，推荐设置 3 ～ 5，不宜过多，偶尔使用 optbinning 时不起效
             max_n_prebins: 使用 optbinning 时预分箱数量
             min_prebin_size: 使用 optbinning 时预分箱叶子结点（或者每箱）样本占比，默认 2%
             min_bin_size: 使用 optbinning 正式分箱叶子结点（或者每箱）最小样本占比，默认 5%
             max_bin_size: 使用 optbinning 正式分箱叶子结点（或者每箱）最大样本占比，默认 None
             gamma: 使用 optbinning 分箱时限制过拟合的正则化参数，值越大惩罚越多，默认 0。01
             monotonic_trend: 使用 optbinning 正式分箱时的坏率策略，默认 auto，可选 "auto", "auto_heuristic", "auto_asc_desc", "ascending", "descending", "convex", "concave", "peak", "valley", "peak_heuristic", "valley_heuristic"
-            rules: 自定义分箱规则，toad.Combiner 能够接收的形式
+            adj_rules: 自定义分箱规则，toad.Combiner 能够接收的形式
             n_jobs: 使用多进程加速的worker数量，默认单进程
         """
         self.combiner = toad.transform.Combiner()
@@ -319,9 +319,12 @@ class Combiner(TransformerMixin, BaseEstimator):
         self.min_prebin_size = min_prebin_size
         self.gamma = gamma
         self.monotonic_trend = monotonic_trend
-        self.rules = rules
+        self.adj_rules = adj_rules
         self.n_jobs = n_jobs
         
+    def update(self, rules):
+        self.combiner.update(rules)
+    
     def optbinning_bins(self, feature, data=None, target="target", min_n_bins=2, max_n_bins=3, max_n_prebins=10, min_prebin_size=0.02, min_bin_size=0.05, max_bin_size=None, gamma=0.01, monotonic_trend="auto_asc_desc"):
         if data[feature].dropna().nunique() <= min_n_bins:
             splits = []
@@ -351,7 +354,7 @@ class Combiner(TransformerMixin, BaseEstimator):
             
             except Exception as e:
                 _combiner = toad.transform.Combiner()
-                _combiner.fit(data[[feature, target]].dropna(), target, method="chi", min_samples=self.min_bin_size, n_bins=self.max_n_bins)
+                _combiner.fit(data[[feature, target]].dropna(), target, method="chi", min_samples=self.min_bin_size, n_bins=self.max_n_bins, empty_separate=False)
                 rule = {feature: [s.tolist() if isinstance(s, np.ndarray) else s for s in _combiner.export()[feature]] + [[np.nan] if dtype == "categorical" else np.nan]}
         
         self.combiner.update(rule)
@@ -364,23 +367,19 @@ class Combiner(TransformerMixin, BaseEstimator):
                     [executor.submit(feature_optbinning_bins(feature)) for feature in x.columns.drop(self.target)]
             else:
                 for feature in x.drop(columns=[self.target]):
-                    self.optbinning_bins(feature, data=x, target=self.target, min_n_bins=self.min_n_bins, max_n_bins=self.max_n_bins, max_n_prebins=self.max_n_prebins, min_prebin_size=self.min_prebin_size, min_bin_size=self.min_bin_size, max_bin_size=self.max_bin_size, gamma=self.gamma, monotonic_trend=self.monotonic_trend)
+                    feature_optbinning_bins(feature)
         else:
             if self.method in ["step", "quantile"]:
-                self.combiner.fit(x, y=self.target, method=self.method, n_bins=self.max_n_bins)
+                self.combiner.fit(x, y=self.target, method=self.method, n_bins=self.max_n_bins, empty_separate=self.empty_separate)
             else:
-                self.combiner.fit(x, y=self.target, method=self.method, min_samples=self.min_bin_size, n_bins=self.max_n_bins)
+                self.combiner.fit(x, y=self.target, method=self.method, min_samples=self.min_bin_size, n_bins=self.max_n_bins, empty_separate=self.empty_separate)
         
-        self.update(self.rules)
+        self.update(self.adj_rules)
         
         return self
     
     def transform(self, x, y=None, labels=False):
         return self.combiner.transform(x, labels=labels)
-    
-    def update(self, rules):
-        if isinstance(rules, dict):
-            self.combiner.update(rules)
 
     def export(self, to_json=None):
         return self.combiner.export(to_json=to_json)

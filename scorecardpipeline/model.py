@@ -251,7 +251,11 @@ class ScoreCard(toad.ScoreCard, TransformerMixin):
         
     def fit(self, x):
         y = x[self.target]
-        x = x.drop(columns=[self.target])
+        
+        if self.pretrain_lr:
+            x = x[self.pretrain_lr.feature_names_in_]
+        else:
+            x = x.drop(columns=[self.target])
         
         self._feature_names = x.columns.tolist()
 
