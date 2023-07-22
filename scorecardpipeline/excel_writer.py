@@ -22,7 +22,7 @@ from openpyxl.styles import NamedStyle, Border, Side, Alignment, PatternFill, Fo
 
 class ExcelWriter:
 
-    def __init__(self, style_excel=os.path.join(os.path.dirname(os.path.abspath(__file__)), 'template.xlsx'), style_sheet_name="初始化", fontsize=10, font='楷体', theme_color='2639E9'):
+    def __init__(self, style_excel=os.path.join(os.path.dirname(os.path.abspath(__file__)), 'template.xlsx'), style_sheet_name="初始化", fontsize=10, font='楷体', theme_color='2639E9', opacity=0.85):
         """
         excel 文件内容写入公共方法
 
@@ -31,12 +31,14 @@ class ExcelWriter:
         :param fontsize: 插入excel文件中内容的字体大小，默认 10
         :param font: 插入excel文件中内容的字体，默认 楷体
         :param theme_color: 主题色，默认 2639E9，注意不包含 #
+        :param opacity: 写入dataframe时使用颜色填充主题色的透明度设置，默认 0.85
         """
         # english_width，chinese_width
         self.english_width = 0.12
         self.chinese_width = 0.21
         self.theme_color = theme_color
-        self.fontsize = 10
+        self.opacity = opacity
+        self.fontsize = fontsize
         self.font = '楷体'
         self.workbook = load_workbook(style_excel)
         self.style_sheet = self.workbook[style_sheet_name]
@@ -154,7 +156,7 @@ class ExcelWriter:
 
         return start_row + int(figsize[1] / 17.5), column_index_from_string(start_col) + 8
 
-    def insert_rows(self, worksheet, row, row_index, col_index, merge_rows=None, style="", auto_width=False):
+    def insert_rows(self, worksheet, row, row_index, col_index, merge_rows=None, style="", auto_width=False, style_only=False):
         curr_col = column_index_from_string(col_index)
         for j, v in enumerate(row):
             if merge_rows is not None and row_index + 1 not in merge_rows:
@@ -164,6 +166,8 @@ class ExcelWriter:
                     self.insert_value2sheet(worksheet, f'{get_column_letter(curr_col + j)}{row_index}', self.astype_insertvalue(v), style="merge_right", auto_width=auto_width)
                 else:
                     self.insert_value2sheet(worksheet, f'{get_column_letter(curr_col + j)}{row_index}', self.astype_insertvalue(v), style="merge_middle", auto_width=auto_width)
+            elif style_only or len(row) <= 1:
+                self.insert_value2sheet(worksheet, f'{get_column_letter(curr_col + j)}{row_index}', self.astype_insertvalue(v), style=style or "middle", auto_width=auto_width)
             else:
                 if j == 0:
                     self.insert_value2sheet(worksheet, f'{get_column_letter(curr_col + j)}{row_index}', self.astype_insertvalue(v), style=f"{style}_left" if style else "left", auto_width=auto_width)
@@ -172,17 +176,18 @@ class ExcelWriter:
                 else:
                     self.insert_value2sheet(worksheet, f'{get_column_letter(curr_col + j)}{row_index}', self.astype_insertvalue(v), style=f"{style}_middle" if style else "middle", auto_width=auto_width)
 
-    def insert_df2sheet(self, worksheet, data, insert_space, merge_column=None, header=True, index=False, auto_width=False):
+    def insert_df2sheet(self, worksheet, data, insert_space, merge_column=None, header=True, index=False, auto_width=False, fill=False):
         """
         向excel文件中插入制定样式的dataframe数据
 
         :param worksheet: 需要插入内容的sheet
         :param data: 需要插入的dataframe
         :param insert_space: 插入内容的起始单元格位置
-        :param merge_column: 需要分组显示的列，index或者列明
+        :param merge_column: 需要分组显示的列，index或者列名
         :param header: 是否存储dataframe的header，暂不支持多级表头
         :param index: 是否存储dataframe的index
         :param auto_width: 是否自动调整列宽
+        :param fill: 是否使用颜色填充而非边框
         :return 返回插入元素最后一列之后、最后一行之后的位置
         """
         df = data.copy()
@@ -195,29 +200,45 @@ class ExcelWriter:
             start_col = get_column_letter(start_col)
 
         if merge_column:
-            if isinstance(merge_column, str):
+            if not isinstance(merge_column, (list, np.ndarray)):
                 merge_column = [merge_column]
 
             if isinstance(merge_column[0], (int, float)):
-                merge_cols = None
-                merge_rows = merge_rows
-            else:
-                merge_cols = [get_column_letter(df.columns.get_loc(col) + column_index_from_string(start_col)) for col in merge_column]
-                df = df.sort_values(merge_column)
-                merge_rows = list(np.cumsum(df.groupby(merge_column)[merge_column].count().values[:, 0]) + start_row + 1)
+                merge_column = [df.columns.tolist()[col] if col not in df.columns else col for col in merge_column]
+                
+            df = df.sort_values(merge_column).reset_index(drop=True)
+            
+            merge_cols = [get_column_letter(df.columns.get_loc(col) + column_index_from_string(start_col)) for col in merge_column]
+            merge_rows = list(np.cumsum(df.groupby(merge_column)[merge_column].count().values[:, 0]) + start_row + 1)
+        else:
+            merge_rows = None
 
         for i, row in enumerate(dataframe_to_rows(df, header=header, index=index)):
-            if i == 0:
-                if header:
-                    self.insert_rows(worksheet, row, start_row + i, start_col, style="header", auto_width=auto_width)
+            if fill:
+                if i == 0:
+                    if header:
+                        self.insert_rows(worksheet, row, start_row + i, start_col, style="header", auto_width=auto_width)
+                    else:
+                        self.insert_rows(worksheet, row, start_row + i, start_col, style="middle_even_first", auto_width=auto_width, style_only=True)
                 else:
-                    self.insert_rows(worksheet, row, start_row + i, start_col, style="first", auto_width=auto_width)
-            elif (header and i == len(df)) or (not header and i + 1 == len(df)):
-                self.insert_rows(worksheet, row, start_row + i, start_col, style="last", auto_width=auto_width)
+                    if i % 2 == 1:
+                        style = "middle_odd_last" if (header and i == len(df)) or (not header and i + 1 == len(df)) else "middle_odd"
+                    else:
+                        style = "middle_even_last" if (header and i == len(df)) or (not header and i + 1 == len(df)) else "middle_even"
+                    
+                    self.insert_rows(worksheet, row, start_row + i, start_col, style=style, auto_width=auto_width, style_only=True)
             else:
-                self.insert_rows(worksheet, row, start_row + i, start_col, auto_width=auto_width, merge_rows=merge_rows if merge_column else None)
+                if i == 0:
+                    if header:
+                        self.insert_rows(worksheet, row, start_row + i, start_col, style="header", auto_width=auto_width)
+                    else:
+                        self.insert_rows(worksheet, row, start_row + i, start_col, style="first", auto_width=auto_width)
+                elif (header and i == len(df)) or (not header and i + 1 == len(df)):
+                    self.insert_rows(worksheet, row, start_row + i, start_col, style="last", auto_width=auto_width)
+                else:
+                    self.insert_rows(worksheet, row, start_row + i, start_col, auto_width=auto_width, merge_rows=merge_rows)
 
-        # if merge_column and merge_cols is not None:
+        # if merge and merge_cols is not None:
         #     merge_rows = [start_row + 2] + merge_rows
         #     for s, e in zip(merge_rows[:-1], merge_rows[1:]):
         #         if e - s > 1:
@@ -255,7 +276,7 @@ class ExcelWriter:
     def calc_continuous_cnt(list_, index_=0):
         """
         Clac continuous_cnt
-
+        
         Examples:s
             list_ = ['A','A','A','A','B','C','C','D','D','D']
             (1) calc_continuous_cnt(list_, 0) ===>('A', 0, 4)
@@ -294,6 +315,13 @@ class ExcelWriter:
             else:
                 start_col = space[1]
             return f"{start_row}{start_col}"
+    
+    @staticmethod
+    def calculate_rgba_color(hex_color, opacity, prefix="#"):
+        rgb_color = tuple(int(hex_color.lstrip('#')[i:i+2], 16) for i in (0, 2, 4))
+        rgba_color = tuple(int((1 - opacity) * c + opacity * 255) for c in rgb_color)
+        
+        return prefix + '{:02X}{:02X}{:02X}'.format(*rgba_color)
 
     def init_style(self, font, fontsize, theme_color):
         header_style, header_left_style, header_middle_style, header_right_style = NamedStyle(name="header"), NamedStyle(name="header_left"), NamedStyle(name="header_middle"), NamedStyle(name="header_right")
@@ -301,12 +329,13 @@ class ExcelWriter:
         content_style, left_style, middle_style, right_style = NamedStyle(name="content"), NamedStyle(name="left"), NamedStyle(name="middle"), NamedStyle(name="right")
         merge_style, merge_left_style, merge_middle_style, merge_right_style =  NamedStyle(name="merge"), NamedStyle(name="merge_left"), NamedStyle(name="merge_middle"), NamedStyle(name="merge_right")
         first_style, first_left_style, first_middle_style, first_right_style = NamedStyle(name="first"), NamedStyle(name="first_left"), NamedStyle(name="first_middle"), NamedStyle(name="first_right")
-
+        
         header_font = Font(size=fontsize, name=font, color="FFFFFF", bold=True)
         header_fill = PatternFill(fill_type="solid", start_color=theme_color)
         alignment = Alignment(horizontal='center', vertical='center', wrap_text=False)
         content_fill = PatternFill(fill_type="solid", start_color="FFFFFF")
         content_font = Font(size=fontsize, name=font, color="000000")
+        even_fill = PatternFill(fill_type="solid", start_color=self.calculate_rgba_color(self.theme_color, self.opacity, prefix=""))
 
         header_style.font, header_left_style.font, header_middle_style.font, header_right_style.font = header_font, header_font, header_font, header_font
         header_style.fill, header_left_style.fill, header_middle_style.fill, header_right_style.fill = header_fill, header_fill, header_fill, header_fill
@@ -352,13 +381,26 @@ class ExcelWriter:
         first_left_style.border = self.itlubber_border(["medium", "thin", "thin", "medium"], [theme_color, "FFFFFF", theme_color, theme_color])
         first_middle_style.border = self.itlubber_border(["thin", "thin", "thin", "medium"], ["FFFFFF", "FFFFFF", theme_color, theme_color])
         first_right_style.border = self.itlubber_border(["thin", "medium", "thin", "medium"], ["FFFFFF", theme_color, theme_color, theme_color])
+        
+        middle_odd_style, middle_odd_first_style, middle_odd_last_style = NamedStyle(name="middle_odd"), NamedStyle(name="middle_odd_first"), NamedStyle(name="middle_odd_last")
+        middle_even_style, middle_even_first_style, middle_even_last_style = NamedStyle(name="middle_even"), NamedStyle(name="middle_even_first"), NamedStyle(name="middle_even_last")
+        
+        middle_odd_style.font, middle_odd_first_style.font, middle_odd_last_style.font, middle_even_style.font, middle_even_first_style.font, middle_even_last_style.font = content_font, content_font, content_font, content_font, content_font, content_font
+        middle_odd_style.alignment, middle_odd_first_style.alignment, middle_odd_last_style.alignment, middle_even_style.alignment, middle_even_first_style.alignment, middle_even_last_style.alignment = alignment, alignment, alignment, alignment, alignment, alignment
+        middle_odd_style.fill, middle_odd_first_style.fill, middle_odd_last_style.fill, middle_even_style.fill, middle_even_first_style.fill, middle_even_last_style.fill = content_fill, content_fill, content_fill, even_fill, even_fill, even_fill
+        
+        middle_odd_first_style.border = Border(top=Side(border_style="medium", color=self.theme_color))
+        middle_odd_last_style.border = Border(bottom=Side(border_style="medium", color=self.theme_color))
+        middle_even_first_style.border = Border(top=Side(border_style="medium", color=self.theme_color))
+        middle_even_last_style.border = Border(bottom=Side(border_style="medium", color=self.theme_color))
 
         self.name_styles.extend([
             header_style, header_left_style, header_middle_style, header_right_style,
             last_style, last_left_style, last_middle_style, last_right_style,
             content_style, left_style, middle_style, right_style,
             merge_style, merge_left_style, merge_middle_style, merge_right_style,
-            first_style, first_left_style, first_middle_style, first_right_style
+            first_style, first_left_style, first_middle_style, first_right_style,
+            middle_odd_style, middle_even_first_style, middle_odd_last_style, middle_even_style, middle_odd_first_style, middle_even_last_style,
         ])
 
     def save(self, filename, close=True):
@@ -375,3 +417,18 @@ class ExcelWriter:
         
         if close:
             self.workbook.close()
+
+
+if __name__ == "__main__":
+    writer = ExcelWriter()
+    worksheet = writer.get_sheet_by_name("模型报告")
+    end_row, end_col = writer.insert_value2sheet(worksheet, "B2", value="模型报告", style="header")
+    end_row, end_col = writer.insert_value2sheet(worksheet, "B3", value="当前模型主要为评分卡模型", style="content", auto_width=True)
+    sample = pd.DataFrame(np.concatenate([np.random.random_sample((10, 10)) * 40, np.random.randint(0, 3, (10, 2))], axis=1), columns=[f"B{i}" for i in range(10)] + ["target", "type"])
+    end_row, end_col = writer.insert_df2sheet(worksheet, sample, (end_row + 2, column_index_from_string("B")))
+    end_row, end_col = writer.insert_df2sheet(worksheet, sample, (end_row + 2, column_index_from_string("B")), fill=True)
+    end_row, end_col = writer.insert_df2sheet(worksheet, sample, (end_row + 2, column_index_from_string("B")), fill=True, header=False)
+    end_row, end_col = writer.insert_df2sheet(worksheet, sample, (end_row + 2, column_index_from_string("B")), merge_column="target")
+    end_row, end_col = writer.insert_df2sheet(worksheet, sample, (end_row + 2, column_index_from_string("B")), merge_column=["target", "type"])
+    end_row, end_col = writer.insert_df2sheet(worksheet, sample, (end_row + 2, column_index_from_string("B")), merge_column=[10, 11])
+    writer.save("测试样例.xlsx")
