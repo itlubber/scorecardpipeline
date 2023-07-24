@@ -14,8 +14,9 @@ import matplotlib.pyplot as plt
 from openpyxl.cell.cell import Cell
 from openpyxl.drawing.image import Image
 from openpyxl import load_workbook, Workbook
-from openpyxl.formatting.rule import DataBarRule
+from openpyxl.worksheet.worksheet import Worksheet
 from openpyxl.utils.dataframe import dataframe_to_rows
+from openpyxl.formatting.rule import DataBarRule, ColorScaleRule
 from openpyxl.utils import get_column_letter, column_index_from_string
 from openpyxl.styles import NamedStyle, Border, Side, Alignment, PatternFill, Font
 
@@ -417,6 +418,46 @@ class ExcelWriter:
         
         if close:
             self.workbook.close()
+            
+            
+def dataframe2excel(data, excel_writer, sheet_name=None, title=None, header=True, theme_color="2639E9", fill=True, percent_cols=None, condition_cols=None, color_cols=None, start_col=2, start_row=2, **kwargs):
+    if isinstance(excel_writer, ExcelWriter):
+        writer = excel_writer
+        worksheet = excel_writer.get_sheet_by_name(sheet_name or "Sheet1")
+    else:
+        writer = ExcelWriter(theme_color=theme_color)
+        worksheet = writer.get_sheet_by_name(sheet_name or "Sheet1")
+
+    if title:
+        start_row, end_col = writer.insert_value2sheet(worksheet, (start_row, start_col), value=title, style="header")
+        start_row += 1
+
+    end_row, end_col = writer.insert_df2sheet(worksheet, data, (start_row, start_col), fill=fill, header=header, **kwargs)
+    
+    if percent_cols:
+        for c in [c for c in percent_cols if c in data.columns]:
+            conditional_column = get_column_letter(start_col + data.columns.get_loc(c))
+            writer.set_number_format(worksheet, f"{conditional_column}{end_row - len(data)}:{conditional_column}{end_row - 1}", "0.00%")
+    
+    if condition_cols:
+        for c in [c for c in condition_cols if c in data.columns]:
+            conditional_column = get_column_letter(start_col + data.columns.get_loc(c))
+            writer.add_conditional_formatting(worksheet, f'{conditional_column}{end_row - len(data)}', f'{conditional_column}{end_row - 1}')
+
+    if color_cols:
+        for c in [c for c in color_cols if c in data.columns]:
+            try:
+                rule = ColorScaleRule(start_type='num', start_value=data[c].min(), start_color=theme_color, mid_type='num', mid_value=0., mid_color='FFFFFF', end_type='num', end_value=data[c].max(), end_color=theme_color)
+                conditional_column = get_column_letter(start_col + data.columns.get_loc(c))
+                worksheet.conditional_formatting.add(f"{conditional_column}{end_row - len(data)}:{conditional_column}{end_row - 1}", rule)
+            except:
+                import traceback
+                traceback.print_exc()
+    
+    if not isinstance(excel_writer, (Worksheet, ExcelWriter)):
+        writer.save(excel_writer)
+    
+    return end_row, end_col
 
 
 if __name__ == "__main__":
@@ -431,4 +472,5 @@ if __name__ == "__main__":
     end_row, end_col = writer.insert_df2sheet(worksheet, sample, (end_row + 2, column_index_from_string("B")), merge_column="target")
     end_row, end_col = writer.insert_df2sheet(worksheet, sample, (end_row + 2, column_index_from_string("B")), merge_column=["target", "type"])
     end_row, end_col = writer.insert_df2sheet(worksheet, sample, (end_row + 2, column_index_from_string("B")), merge_column=[10, 11])
+    end_row, end_col = dataframe2excel(sample, writer, sheet_name="模型报告", start_row=end_row + 2, percent_cols=["B2", "B6"], condition_cols=["B3", "B9"], color_cols=["B4"])
     writer.save("测试样例.xlsx")
