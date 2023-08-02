@@ -16,7 +16,7 @@ from .model import ITLubberLogisticRegression, ScoreCard
 from .excel_writer import ExcelWriter
 
 
-__version__ = "0.1.13"
+__version__ = "0.1.14"
 __all__ = (
     "__version__"
     , "FeatureSelection", "FeatureImportanceSelector", "StepwiseSelection", "Combiner", "WOETransformer"
@@ -26,5 +26,5 @@ __all__ = (
     , "ColorScaleRule", "get_column_letter", "column_index_from_string", "seed_everything"
     , "feature_bins", "feature_bin_stats"
     , "bin_plot", "corr_plot", "ks_plot", "hist_plot", "psi_plot", "dataframe_plot", "distribution_plot"
-    , "ExcelWriter"
+    , "ExcelWriter", "dataframe2excel",
 )
