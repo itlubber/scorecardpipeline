@@ -23,7 +23,7 @@ from openpyxl.styles import NamedStyle, Border, Side, Alignment, PatternFill, Fo
 
 class ExcelWriter:
 
-    def __init__(self, style_excel=os.path.join(os.path.dirname(os.path.abspath(__file__)), 'template.xlsx'), style_sheet_name="初始化", fontsize=10, font='楷体', theme_color='2639E9', opacity=0.85):
+    def __init__(self, style_excel=os.path.join(os.path.dirname(os.path.abspath(__file__)), 'template.xlsx'), style_sheet_name="初始化", mode="replace", fontsize=10, font='楷体', theme_color='2639E9', opacity=0.85):
         """
         excel 文件内容写入公共方法
 
@@ -37,10 +37,11 @@ class ExcelWriter:
         # english_width，chinese_width
         self.english_width = 0.12
         self.chinese_width = 0.21
-        self.theme_color = theme_color
+        self.mode = mode
+        self.font = font
         self.opacity = opacity
         self.fontsize = fontsize
-        self.font = '楷体'
+        self.theme_color = theme_color
         self.workbook = load_workbook(style_excel)
         self.style_sheet = self.workbook[style_sheet_name]
 
@@ -414,18 +415,50 @@ class ExcelWriter:
         if self.style_sheet.title in self.workbook.sheetnames:
             self.workbook.remove(self.style_sheet)
         
+        if os.path.exists(filename) and self.mode == "append":
+            _workbook = load_workbook(filename)
+            
+            for _sheet_name in _workbook.sheetnames:
+                if _sheet_name not in self.workbook.sheetnames:
+                    _worksheet = self.get_sheet_by_name(_sheet_name)
+                    
+                    for i, row in enumerate(_workbook[_sheet_name].iter_rows()):
+                        for j, cell in enumerate(row):
+                            _worksheet.cell(row=i + 1, column=j + 1).value = cell.value
+                            _worksheet.cell(row=i + 1, column=j + 1).style = cell.style
+
+                            if i == _workbook[_sheet_name].max_row - 1:
+                                _worksheet.column_dimensions[get_column_letter(j + 1)].width = _workbook[_sheet_name].column_dimensions[get_column_letter(j + 1)].width
+
+                self.workbook.move_sheet(_worksheet, offset=-len(self.workbook.sheetnames) + 1)
+                
+            _workbook.close()
+            
         self.workbook.save(filename)
         
         if close:
             self.workbook.close()
             
             
-def dataframe2excel(data, excel_writer, sheet_name=None, title=None, header=True, theme_color="2639E9", fill=True, percent_cols=None, condition_cols=None, color_cols=None, start_col=2, start_row=2, **kwargs):
+def dataframe2excel(data, excel_writer, sheet_name=None, title=None, header=True, theme_color="2639E9", fill=True, percent_cols=None, condition_cols=None, color_cols=None, start_col=2, start_row=2, mode="replace", writer_params={}, **kwargs):
     if isinstance(excel_writer, ExcelWriter):
         writer = excel_writer
         worksheet = excel_writer.get_sheet_by_name(sheet_name or "Sheet1")
     else:
-        writer = ExcelWriter(theme_color=theme_color)
+        writer = ExcelWriter(theme_color=theme_color, mode=mode, **writer_params)
+        
+        # if os.path.exists(excel_writer) and mode == "append":
+        #     workbook = load_workbook(excel_writer)
+            
+        #     for _sheet_name in workbook.sheetnames:
+        #         _worksheet = writer.get_sheet_by_name(_sheet_name or "Sheet1")
+                
+        #         for i, row in enumerate(workbook[_sheet_name].iter_rows()):
+        #             for j, cell in enumerate(row):
+        #                 _worksheet.cell(row=i + 1, column=j + 1, value=cell.value)
+            
+        #     workbook.close()
+        
         worksheet = writer.get_sheet_by_name(sheet_name or "Sheet1")
 
     if title:
