@@ -440,7 +440,7 @@ class ExcelWriter:
             self.workbook.close()
             
             
-def dataframe2excel(data, excel_writer, sheet_name=None, title=None, header=True, theme_color="2639E9", fill=True, percent_cols=None, condition_cols=None, color_cols=None, start_col=2, start_row=2, mode="replace", writer_params={}, **kwargs):
+def dataframe2excel(data, excel_writer, sheet_name=None, title=None, header=True, theme_color="2639E9", fill=True, percent_cols=None, condition_cols=None, custom_cols=None, custom_format="#,##0", color_cols=None, start_col=2, start_row=2, mode="replace", writer_params={}, **kwargs):
     if isinstance(excel_writer, ExcelWriter):
         writer = excel_writer
         worksheet = excel_writer.get_sheet_by_name(sheet_name or "Sheet1")
@@ -471,6 +471,11 @@ def dataframe2excel(data, excel_writer, sheet_name=None, title=None, header=True
         for c in [c for c in percent_cols if c in data.columns]:
             conditional_column = get_column_letter(start_col + data.columns.get_loc(c))
             writer.set_number_format(worksheet, f"{conditional_column}{end_row - len(data)}:{conditional_column}{end_row - 1}", "0.00%")
+    
+    if custom_cols:
+        for c in [c for c in percent_cols if c in data.columns]:
+            conditional_column = get_column_letter(start_col + data.columns.get_loc(c))
+            writer.set_number_format(worksheet, f"{conditional_column}{end_row - len(data)}:{conditional_column}{end_row - 1}", custom_format)
     
     if condition_cols:
         for c in [c for c in condition_cols if c in data.columns]:
