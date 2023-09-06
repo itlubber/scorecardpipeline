@@ -443,7 +443,6 @@ class ExcelWriter:
 def dataframe2excel(data, excel_writer, sheet_name=None, title=None, header=True, theme_color="2639E9", fill=True, percent_cols=None, condition_cols=None, custom_cols=None, custom_format="#,##0", color_cols=None, start_col=2, start_row=2, mode="replace", writer_params={}, **kwargs):
     if isinstance(excel_writer, ExcelWriter):
         writer = excel_writer
-        worksheet = excel_writer.get_sheet_by_name(sheet_name or "Sheet1")
     else:
         writer = ExcelWriter(theme_color=theme_color, mode=mode, **writer_params)
         
@@ -458,8 +457,8 @@ def dataframe2excel(data, excel_writer, sheet_name=None, title=None, header=True
         #                 _worksheet.cell(row=i + 1, column=j + 1, value=cell.value)
             
         #     workbook.close()
-        
-        worksheet = writer.get_sheet_by_name(sheet_name or "Sheet1")
+    
+    worksheet = writer.get_sheet_by_name(sheet_name or "Sheet1")
 
     if title:
         start_row, end_col = writer.insert_value2sheet(worksheet, (start_row, start_col), value=title, style="header")
