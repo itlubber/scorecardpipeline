@@ -180,7 +180,7 @@ class ExcelWriter:
 
     def insert_df2sheet(self, worksheet, data, insert_space, merge_column=None, header=True, index=False, auto_width=False, fill=False):
         """
-        向excel文件中插入制定样式的dataframe数据
+        向excel文件中插入指定样式的dataframe数据
 
         :param worksheet: 需要插入内容的sheet
         :param data: 需要插入的dataframe
@@ -441,6 +441,28 @@ class ExcelWriter:
             
             
 def dataframe2excel(data, excel_writer, sheet_name=None, title=None, header=True, theme_color="2639E9", fill=True, percent_cols=None, condition_cols=None, custom_cols=None, custom_format="#,##0", color_cols=None, start_col=2, start_row=2, mode="replace", writer_params={}, **kwargs):
+    """
+    向excel文件中插入指定样式的dataframe数据
+
+    :param data: 需要保存的dataframe数据，index默认不保存，如果需要保存先 .reset_index().rename(columns={"index": "索引名称"}) 再保存，有部分索引 reset_index 之后是 0 而非 index，根据实际情况进行修改
+    :param excel_writer: 需要保存到的 excel 文件路径或者 ExcelWriter
+    :param sheet_name: 需要插入内容的sheet，如果是 Worksheet，则直接向 Worksheet 插入数据
+    :param title: 是否在dataframe之前的位置插入一个标题
+    :param header: 是否存储dataframe的header，暂不支持多级表头
+    :param theme_color: 主题色
+    :param fill: 是否使用单元个颜色填充样式还是使用边框样式
+    :param percent_cols: 需要显示为百分数的列，仅修改显示格式，不更改数值
+    :param condition_cols: 需要显示条件格式的列（无边框渐变数据条）
+    :param color_cols: 需要显示为条件格式颜色填充的列（单元格填充渐变色）
+    :param custom_cols: 需要显示自定义格式的列，与 custom_format 参数搭配使用
+    :param custom_format: 显示的自定义格式，与 custom_cols 参数搭配使用，默认 #,##0 ，即显示为有分隔符的整数
+    :param start_col: 在excel中的开始列数，默认 2，即第二列开始
+    :param start_row: 在excel中的开始行数，默认 2，即第二行开始，如果 title 有值的话，会从 start_row + 2 行开始插入dataframe数据
+    :param mode: excel写入的模式，可选 append 和 replace ，默认 replace ，选择 append 时会在已有的excel文件中增加内容，不覆盖原有内容
+    :param writer_params: 透传至 ExcelWriter 内的参数
+    :param **kwargs: 其他参数，透传至 insert_df2sheet 方法，例如 传入 auto_width=True 会根据内容自动调整列宽
+    :return 返回插入元素最后一列之后、最后一行之后的位置
+    """
     if isinstance(excel_writer, ExcelWriter):
         writer = excel_writer
     else:
@@ -458,7 +480,10 @@ def dataframe2excel(data, excel_writer, sheet_name=None, title=None, header=True
             
         #     workbook.close()
     
-    worksheet = writer.get_sheet_by_name(sheet_name or "Sheet1")
+    if isinstance(worksheet, Worksheet):
+        worksheet = sheet_name
+    else:
+        worksheet = writer.get_sheet_by_name(sheet_name or "Sheet1")
 
     if title:
         start_row, end_col = writer.insert_value2sheet(worksheet, (start_row, start_col), value=title, style="header")
@@ -491,7 +516,7 @@ def dataframe2excel(data, excel_writer, sheet_name=None, title=None, header=True
                 import traceback
                 traceback.print_exc()
     
-    if not isinstance(excel_writer, (Worksheet, ExcelWriter)):
+    if not isinstance(excel_writer, ExcelWriter) and not isinstance(worksheet, Worksheet):
         writer.save(excel_writer)
     
     return end_row, end_col

@@ -371,23 +371,28 @@ class ScoreCard(toad.ScoreCard, TransformerMixin):
                 if has_empty:
                     score_empty = rule['scores'][-1]
                     total_bins -= 1
-                    iter = enumerate(zip(rule['bins'][:-1], rule['scores'][:-1]), start=1)
+                    bin_scores = rule['scores'][:-1]
+                    bin_vars = rule['bins'][:-1]
+                    expression_string += f'{score_empty} if pandas.isnull(X[0]) '
                 else:
-                    iter = enumerate(zip(rule['bins'], rule['scores']), start=1)
+                    bin_scores = rule['scores']
+                    bin_vars = rule['bins']
 
-                if has_empty:
-                    expression_string += f'{score_empty} if pandas.isnull(X[0])'
-
-                for i, (bin_var, score) in iter:
-                    if i == 1 and not has_empty:
-                        expression_string += f'{score} if X[0] < {bin_var}'
-                    elif i == total_bins:
-                        expression_string += f' else {score}'
+                for i in range(len(bin_scores)):
+                    if i == 0:
+                        _expression_string = f'{bin_scores[i]}'
+                    elif i == total_bins - 1:
+                        _expression_string += f' if X[0] < {bin_vars[i - 1]} else {bin_scores[i]}'
                     else:
-                        expression_string += f' else ({score} if X[0] < {bin_var}'
+                        _expression_string += f' if X[0] < {bin_vars[i - 1]} else ({bin_scores[i]} '
                         end_string += ')'
 
-                expression_string += end_string
+                _expression_string += end_string
+
+                if has_empty:
+                    expression_string += f'else ({_expression_string})' if _expression_string.count('else') > 0 else _expression_string
+                else:
+                    expression_string += _expression_string
 
                 mapper.append((
                     [var],
@@ -396,19 +401,13 @@ class ScoreCard(toad.ScoreCard, TransformerMixin):
                 samples[var] = np.random.random(20) * 100
 
         scorecard_mapper = DataFrameMapper(mapper, df_out=True)
-
+        
         pipeline = PMMLPipeline([
             ('preprocessing', scorecard_mapper),
             ('scorecard', LinearRegression(fit_intercept=False)),
         ])
 
-        pipeline.named_steps['scorecard'].fit(
-            pd.DataFrame(
-                np.random.randint(0, 100, (100, len(scorecard_mapper.features))),
-                columns=[m[0][0] for m in scorecard_mapper.features]
-            ),
-            pd.Series(np.random.randint(0, 2, 100), name='score')
-        )
+        pipeline.fit(pd.DataFrame(samples), pd.Series(np.random.randint(0, 2, 20), name='score'))
 
         pipeline.named_steps['scorecard'].coef_ = np.ones(len(scorecard_mapper.features))
 

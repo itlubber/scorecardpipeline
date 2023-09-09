@@ -13,10 +13,10 @@ from .logger import init_logger
 from .utils import *
 from .processing import FeatureSelection, FeatureImportanceSelector, StepwiseSelection, Combiner, WOETransformer
 from .model import ITLubberLogisticRegression, ScoreCard
-from .excel_writer import ExcelWriter
+from .excel_writer import ExcelWriter, dataframe2excel
 
 
-__version__ = "0.1.15"
+__version__ = "0.1.16"
 __all__ = (
     "__version__"
     , "FeatureSelection", "FeatureImportanceSelector", "StepwiseSelection", "Combiner", "WOETransformer"
