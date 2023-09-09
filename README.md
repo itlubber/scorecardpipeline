@@ -89,6 +89,10 @@ pip install dist/scorecardpipeline-0.1.11-py3-none-any.whl
 # twine upload dist/*
 ```
 
++ 特别说明
+
+`评分卡` 转 `PMML` 目前部分依赖 `java` ，如果需要解锁这部分功能，需要先安装 `jdk` 环境，推荐 `jdk 1.8 +`
+
 
 ## 评分卡建模
 
