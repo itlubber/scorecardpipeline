@@ -480,7 +480,7 @@ def dataframe2excel(data, excel_writer, sheet_name=None, title=None, header=True
             
         #     workbook.close()
     
-    if isinstance(worksheet, Worksheet):
+    if isinstance(sheet_name, Worksheet):
         worksheet = sheet_name
     else:
         worksheet = writer.get_sheet_by_name(sheet_name or "Sheet1")
