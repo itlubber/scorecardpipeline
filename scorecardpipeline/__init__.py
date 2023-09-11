@@ -16,7 +16,7 @@ from .model import ITLubberLogisticRegression, ScoreCard
 from .excel_writer import ExcelWriter, dataframe2excel
 
 
-__version__ = "0.1.17"
+__version__ = "0.1.18"
 __all__ = (
     "__version__"
     , "FeatureSelection", "FeatureImportanceSelector", "StepwiseSelection", "Combiner", "WOETransformer"

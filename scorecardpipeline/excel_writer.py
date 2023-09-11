@@ -467,7 +467,7 @@ def dataframe2excel(data, excel_writer, sheet_name=None, title=None, header=True
         writer = excel_writer
     else:
         writer = ExcelWriter(theme_color=theme_color, mode=mode, **writer_params)
-        
+    
         # if os.path.exists(excel_writer) and mode == "append":
         #     workbook = load_workbook(excel_writer)
             
@@ -497,7 +497,7 @@ def dataframe2excel(data, excel_writer, sheet_name=None, title=None, header=True
             writer.set_number_format(worksheet, f"{conditional_column}{end_row - len(data)}:{conditional_column}{end_row - 1}", "0.00%")
     
     if custom_cols:
-        for c in [c for c in percent_cols if c in data.columns]:
+        for c in [c for c in custom_cols if c in data.columns]:
             conditional_column = get_column_letter(start_col + data.columns.get_loc(c))
             writer.set_number_format(worksheet, f"{conditional_column}{end_row - len(data)}:{conditional_column}{end_row - 1}", custom_format)
     
