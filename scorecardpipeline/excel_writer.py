@@ -516,7 +516,7 @@ def dataframe2excel(data, excel_writer, sheet_name=None, title=None, header=True
                 import traceback
                 traceback.print_exc()
     
-    if not isinstance(excel_writer, ExcelWriter) and not isinstance(worksheet, Worksheet):
+    if not isinstance(excel_writer, ExcelWriter) and not isinstance(sheet_name, Worksheet):
         writer.save(excel_writer)
     
     return end_row, end_col

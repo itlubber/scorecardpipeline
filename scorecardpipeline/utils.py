@@ -584,7 +584,12 @@ def dataframe_plot(df, row_height=0.4, font_size=14, header_color='#2639E9', row
     return fig
 
 
-def distribution_plot(df, date="date", target="target", save=None, figsize=(10, 6), colors=["#2639E9", "#F76E6C", "#FE7715"], freq="M", anchor=0.94, result=False):
+def distribution_plot(data, date="date", target="target", save=None, figsize=(10, 6), colors=["#2639E9", "#F76E6C", "#FE7715"], freq="M", anchor=0.94, result=False):
+    df = data.copy()
+    
+    if isinstance(df[date].dtype, object):
+        df[date] = pd.to_datetime(df[date])
+    
     temp = df.set_index(date).assign(
         好样本=lambda x: (x[target] == 0).astype(int),
         坏样本=lambda x: (x[target] == 1).astype(int),
