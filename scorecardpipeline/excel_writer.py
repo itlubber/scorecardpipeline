@@ -263,7 +263,7 @@ class ExcelWriter:
 
     @staticmethod
     def astype_insertvalue(value, decimal_point=4):
-        if re.search('tuple|list|numpy.dtype|bool|str|numpy.ndarray|Interval|Categorical', str(type(value))):
+        if re.search('tuple|time|list|numpy.dtype|bool|str|numpy.ndarray|Interval|Categorical', str(type(value))):
             value = str(value)
         elif re.search('int', str(type(value))):
             value = value
