@@ -178,7 +178,7 @@ class ExcelWriter:
                 else:
                     self.insert_value2sheet(worksheet, f'{get_column_letter(curr_col + j)}{row_index}', self.astype_insertvalue(v), style=f"{style}_middle" if style else "middle", auto_width=auto_width)
 
-    def insert_df2sheet(self, worksheet, data, insert_space, merge_column=None, header=True, index=False, auto_width=False, fill=False):
+    def insert_df2sheet(self, worksheet, data, insert_space, merge_column=None, header=True, index=False, auto_width=False, fill=False, merge=False):
         """
         向excel文件中插入指定样式的dataframe数据
 
@@ -190,7 +190,9 @@ class ExcelWriter:
         :param index: 是否存储dataframe的index
         :param auto_width: 是否自动调整列宽
         :param fill: 是否使用颜色填充而非边框
-        :return 返回插入元素最后一列之后、最后一行之后的位置
+        :param merge: 是否合并单元格，配合 merge_column 一起使用，当前版本仅在 merge_column 只有一列时有效
+        
+        返回插入元素最后一列之后、最后一行之后的位置
         """
         df = data.copy()
 
@@ -213,6 +215,7 @@ class ExcelWriter:
             merge_cols = [get_column_letter(df.columns.get_loc(col) + column_index_from_string(start_col)) for col in merge_column]
             merge_rows = list(np.cumsum(df.groupby(merge_column)[merge_column].count().values[:, 0]) + start_row + 1)
         else:
+            merge_cols = None
             merge_rows = None
 
         for i, row in enumerate(dataframe_to_rows(df, header=header, index=index)):
@@ -240,12 +243,17 @@ class ExcelWriter:
                 else:
                     self.insert_rows(worksheet, row, start_row + i, start_col, auto_width=auto_width, merge_rows=merge_rows)
 
-        # if merge and merge_cols is not None:
-        #     merge_rows = [start_row + 2] + merge_rows
-        #     for s, e in zip(merge_rows[:-1], merge_rows[1:]):
-        #         if e - s > 1:
-        #             for merge_col in merge_cols:
-        #                 worksheet.merge_cells(f"{merge_col}{s-1}:{merge_col}{e-1}")
+        # 合并单元格, 仅支持单列, 两列及其以上不进行合并
+        if merge and merge_column and merge_cols and len(merge_cols) == 1:
+            if header:
+                merge_rows = [start_row + 2] + merge_rows
+            else:
+                merge_rows = [r - 1 for r in [start_row + 2] + merge_rows]
+            
+            for s, e in zip(merge_rows[:-1], merge_rows[1:]):
+                if e - s > 1:
+                    for merge_col in merge_cols:
+                        worksheet.merge_cells(f"{merge_col}{s-1}:{merge_col}{e-1}")
 
         end_row = start_row + len(data) + 1 if header else start_row + len(data)
 
@@ -275,7 +283,7 @@ class ExcelWriter:
         """
         Clac continuous_cnt
         
-        Examples:s
+        Examples:
             list_ = ['A','A','A','A','B','C','C','D','D','D']
             (1) calc_continuous_cnt(list_, 0) ===>('A', 0, 4)
             (2) calc_continuous_cnt(list_, 4) ===>('B', 4, 1)

@@ -18,7 +18,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from matplotlib import font_manager
-from matplotlib.ticker import PercentFormatter
+from matplotlib.ticker import PercentFormatter, FuncFormatter
 import seaborn as sns
 from sklearn.metrics import roc_curve, auc
 import toad
@@ -240,7 +240,7 @@ def feature_bin_stats(data, feature, target="target", rules={}, method='step', m
         return table[['指标名称', "指标含义", '分箱', '样本总数', '样本占比', '好样本数', '好样本占比', '坏样本数', '坏样本占比', '坏样本率', '分档WOE值', '分档IV值', '指标IV值', 'LIFT值', '累积LIFT值']]
 
 
-def bin_plot(feature_table, desc="", figsize=(10, 6), colors=["#2639E9", "#F76E6C", "#FE7715"], save=None, anchor=0.945, max_len=35):
+def bin_plot(feature_table, desc="", figsize=(10, 6), colors=["#2639E9", "#F76E6C", "#FE7715"], save=None, anchor=0.94, max_len=35, hatch=True):
     """简单策略挖掘：特征分箱图
 
     :param feature_table: 特征分箱的统计信息表，由 feature_bin_stats 运行得到
@@ -248,7 +248,10 @@ def bin_plot(feature_table, desc="", figsize=(10, 6), colors=["#2639E9", "#F76E6
     :param figsize: 图像尺寸大小，传入一个tuple，默认 （10， 6）
     :param colors: 图片主题颜色，默认即可
     :param save: 图片保存路径
-
+    :param anchor: 图例在图中的位置，通常 0.95 左右，根据图片标题与图例之间的空隙自行调整即可
+    :param max_len: 分箱显示的最大长度，防止分类变量分箱过多文本过长导致图像显示区域很小，默认最长 35 个字符
+    :param hatch: 柱状图是否显示斜杠，默认显示
+    
     :return Figure
     """
     feature_table = feature_table.copy()
@@ -256,8 +259,8 @@ def bin_plot(feature_table, desc="", figsize=(10, 6), colors=["#2639E9", "#F76E6
     feature_table["分箱"] = feature_table["分箱"].apply(lambda x: x if not pd.isnull(x) and re.match("^\[.*\)$", x) else (str(x)[:max_len] + ".." if len(str(x)) > max_len else str(x)))
 
     fig, ax1 = plt.subplots(figsize=figsize)
-    ax1.barh(feature_table['分箱'], feature_table['好样本数'], color=colors[0], label='好样本', hatch="/")
-    ax1.barh(feature_table['分箱'], feature_table['坏样本数'], left=feature_table['好样本数'], color=colors[1], label='坏样本', hatch="\\")
+    ax1.barh(feature_table['分箱'], feature_table['好样本数'], color=colors[0], label='好样本', hatch="/" if hatch else None)
+    ax1.barh(feature_table['分箱'], feature_table['坏样本数'], left=feature_table['好样本数'], color=colors[1], label='坏样本', hatch="\\" if hatch else None)
     ax1.set_xlabel('样本数')
 
     ax2 = ax1.twiny()
@@ -271,6 +274,8 @@ def bin_plot(feature_table, desc="", figsize=(10, 6), colors=["#2639E9", "#F76E6
         ax1.text(v['样本总数'] / 2, i + len(feature_table) / 60, f"{int(v['好样本数'])}:{int(v['坏样本数'])}:{v['坏样本率']:.2%}")
 
     ax1.invert_yaxis()
+    ax2.xaxis.set_major_formatter(PercentFormatter(1, decimals=0, is_latex=True))
+    # ax2.xaxis.set_major_formatter(FuncFormatter(lambda x,_:'{}%'.format(round(x * 100, 4))))
 
     fig.suptitle(f'{desc}分箱图\n\n')
 
@@ -445,7 +450,7 @@ def hist_plot(score, y_true=None, figsize=(15, 10), bins=30, save=None, labels=[
     return fig
 
 
-def psi_plot(expected, actual, labels=["预期", "实际"], save=None, colors=["#2639E9", "#F76E6C", "#FE7715"], figsize=(15, 8), anchor=0.94, width=0.35, result=False, plot=True, max_len=None):
+def psi_plot(expected, actual, labels=["预期", "实际"], save=None, colors=["#2639E9", "#F76E6C", "#FE7715"], figsize=(15, 8), anchor=0.94, width=0.35, result=False, plot=True, max_len=None, hatch=True):
     expected = expected.rename(columns={"样本总数": f"{labels[0]}样本数", "样本占比": f"{labels[0]}样本占比", "坏样本率": f"{labels[0]}坏样本率"})
     actual = actual.rename(columns={"样本总数": f"{labels[1]}样本数", "样本占比": f"{labels[1]}样本占比", "坏样本率": f"{labels[1]}坏样本率"})
     df_psi = expected.merge(actual, on="分箱", how="outer").replace(np.nan, 0)
@@ -460,8 +465,8 @@ def psi_plot(expected, actual, labels=["预期", "实际"], save=None, colors=["
         x_indexes = np.arange(len(x))
         fig, ax1 = plt.subplots(figsize=figsize)
 
-        ax1.bar(x_indexes - width / 2, df_psi[f'{labels[0]}样本占比'], width, label=f'{labels[0]}样本占比', color=colors[0], hatch="/")
-        ax1.bar(x_indexes + width / 2, df_psi[f'{labels[1]}样本占比'], width, label=f'{labels[1]}样本占比', color=colors[1], hatch="\\")
+        ax1.bar(x_indexes - width / 2, df_psi[f'{labels[0]}样本占比'], width, label=f'{labels[0]}样本占比', color=colors[0], hatch="/" if hatch else None)
+        ax1.bar(x_indexes + width / 2, df_psi[f'{labels[1]}样本占比'], width, label=f'{labels[1]}样本占比', color=colors[1], hatch="\\" if hatch else None)
 
         ax1.set_ylabel('样本占比: 分箱内样本数 / 样本总数')
         ax1.set_xticks(x_indexes)
@@ -495,7 +500,7 @@ def psi_plot(expected, actual, labels=["预期", "实际"], save=None, colors=["
         return df_psi[["分箱", f"{labels[0]}样本数", f"{labels[0]}样本占比", f"{labels[0]}坏样本率", f"{labels[1]}样本数", f"{labels[1]}样本占比", f"{labels[1]}坏样本率", f"{labels[1]}% - {labels[0]}%", f"ln({labels[1]}% / {labels[0]}%)", "分档PSI值", "总体PSI值"]]
 
 
-def csi_plot(expected, actual, score_bins, labels=["预期", "实际"], save=None, colors=["#2639E9", "#F76E6C", "#FE7715"], figsize=(15, 8), anchor=0.94, width=0.35, result=False, plot=True, max_len=None):
+def csi_plot(expected, actual, score_bins, labels=["预期", "实际"], save=None, colors=["#2639E9", "#F76E6C", "#FE7715"], figsize=(15, 8), anchor=0.94, width=0.35, result=False, plot=True, max_len=None, hatch=True):
     expected = expected.rename(columns={"样本总数": f"{labels[0]}样本数", "样本占比": f"{labels[0]}样本占比", "坏样本率": f"{labels[0]}坏样本率"})
     actual = actual.rename(columns={"样本总数": f"{labels[1]}样本数", "样本占比": f"{labels[1]}样本占比", "坏样本率": f"{labels[1]}坏样本率"})
     df_csi = expected.merge(actual, on="分箱", how="outer").replace(np.nan, 0)
@@ -510,8 +515,8 @@ def csi_plot(expected, actual, score_bins, labels=["预期", "实际"], save=Non
         x_indexes = np.arange(len(x))
         fig, ax1 = plt.subplots(figsize=figsize)
 
-        ax1.bar(x_indexes - width / 2, df_csi[f'{labels[0]}样本占比'], width, label=f'{labels[0]}样本占比', color=colors[0], hatch="/")
-        ax1.bar(x_indexes + width / 2, df_csi[f'{labels[1]}样本占比'], width, label=f'{labels[1]}样本占比', color=colors[1], hatch="\\")
+        ax1.bar(x_indexes - width / 2, df_csi[f'{labels[0]}样本占比'], width, label=f'{labels[0]}样本占比', color=colors[0], hatch="/" if hatch else None)
+        ax1.bar(x_indexes + width / 2, df_csi[f'{labels[1]}样本占比'], width, label=f'{labels[1]}样本占比', color=colors[1], hatch="\\" if hatch else None)
 
         ax1.set_ylabel('样本占比: 分箱内样本数 / 样本总数')
         ax1.set_xticks(x_indexes)
@@ -584,10 +589,10 @@ def dataframe_plot(df, row_height=0.4, font_size=14, header_color='#2639E9', row
     return fig
 
 
-def distribution_plot(data, date="date", target="target", save=None, figsize=(10, 6), colors=["#2639E9", "#F76E6C", "#FE7715"], freq="M", anchor=0.94, result=False):
+def distribution_plot(data, date="date", target="target", save=None, figsize=(10, 6), colors=["#2639E9", "#F76E6C", "#FE7715"], freq="M", anchor=0.94, result=False, hatch=True):
     df = data.copy()
     
-    if isinstance(df[date].dtype, object):
+    if 'time' not in str(df[date].dtype):
         df[date] = pd.to_datetime(df[date])
     
     temp = df.set_index(date).assign(
@@ -598,7 +603,7 @@ def distribution_plot(data, date="date", target="target", save=None, figsize=(10
     temp.index = [i.strftime("%Y-%m-%d") for i in temp.index]
 
     fig, ax1 = plt.subplots(1, 1, figsize=figsize)
-    temp.plot(kind='bar', stacked=True, ax=ax1, color=colors[:2], hatch="/", legend=False)
+    temp.plot(kind='bar', stacked=True, ax=ax1, color=colors[:2], hatch="/" if hatch else None, legend=False)
     ax1.tick_params(axis='x', labelrotation=-90)
     ax1.set(xlabel=None)
     ax1.set_ylabel('样本数')
