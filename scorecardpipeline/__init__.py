@@ -28,6 +28,6 @@ __all__ = (
     , "init_logger", "init_setting", "load_pickle", "save_pickle", "germancredit"
     , "ColorScaleRule", "get_column_letter", "column_index_from_string", "seed_everything"
     , "feature_bins", "feature_bin_stats"
-    , "bin_plot", "corr_plot", "ks_plot", "hist_plot", "psi_plot", "dataframe_plot", "distribution_plot"
+    , "bin_plot", "corr_plot", "ks_plot", "hist_plot", "psi_plot", "csi_plot", "dataframe_plot", "distribution_plot"
     , "ExcelWriter", "dataframe2excel",
 )
