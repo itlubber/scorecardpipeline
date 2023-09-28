@@ -294,7 +294,7 @@ def bin_plot(feature_table, desc="", figsize=(10, 6), colors=["#2639E9", "#F76E6
     return fig
 
 
-def corr_plot(data, figure_size=(16, 8),  fontsize=14, mask=False, save=None, annot=True, max_len=35):
+def corr_plot(data, figure_size=(16, 8),  fontsize=14, mask=False, save=None, annot=True, max_len=35, linewidths=0.1, fmt='.2f', linecolor='white', **kwargs):
     if max_len is None:
         corr = data.corr()
     else:
@@ -303,18 +303,22 @@ def corr_plot(data, figure_size=(16, 8),  fontsize=14, mask=False, save=None, an
     corr_mask = np.zeros_like(corr, dtype = np.bool)
     corr_mask[np.triu_indices_from(corr_mask)] = True
 
-    map_plot = toad.tadpole.tadpole.heatmap(
-        corr,
-        mask = corr_mask if mask else None,
-        cmap = sns.diverging_palette(267, 267, n=10, s=100, l=40),
-        vmax = 1,
-        vmin = -1,
-        center = 0,
-        square = True,
-        linewidths = .1,
-        annot = annot,
-        fmt = '.2f',
-        figure_size = figure_size,
+    fig, ax = plt.subplots(figsize=(10, 6))
+    map_plot = sns.heatmap(corr
+        , cmap=sns.diverging_palette(267, 267, n=10, s=100, l=40)
+        , vmax=1
+        , vmin=-1
+        , center=0
+        , square=True
+        , linewidths=linewidths
+        , annot=annot
+        , fmt=fmt
+        , linecolor=linecolor
+        , robust=True
+        , cbar=True
+        , ax=ax
+        , mask=corr_mask if mask else None
+        , **kwargs
     )
 
     map_plot.tick_params(axis='x', labelrotation=270, labelsize=fontsize)
@@ -324,9 +328,9 @@ def corr_plot(data, figure_size=(16, 8),  fontsize=14, mask=False, save=None, an
         if os.path.dirname(save) != "" and not os.path.exists(os.path.dirname(save)):
             os.makedirs(os.path.dirname(save), exist_ok=True)
         
-        plt.savefig(save, dpi=240, format="png", bbox_inches="tight")
+        fig.savefig(save, dpi=240, format="png", bbox_inches="tight")
     
-    return map_plot
+    return fig
 
 
 def ks_plot(score, target, title="", fontsize=14, figsize=(16, 8), save=None, colors=["#2639E9", "#F76E6C", "#FE7715"], anchor=0.945):
