@@ -294,7 +294,7 @@ def bin_plot(feature_table, desc="", figsize=(10, 6), colors=["#2639E9", "#F76E6
     return fig
 
 
-def corr_plot(data, figure_size=(16, 8),  fontsize=14, mask=False, save=None, annot=True, max_len=35, linewidths=0.1, fmt='.2f', linecolor='white', **kwargs):
+def corr_plot(data, figure_size=(16, 8),  fontsize=16, mask=False, save=None, annot=True, max_len=35, linewidths=0.1, fmt='.2f', step=2*5+1, linecolor='white', **kwargs):
     if max_len is None:
         corr = data.corr()
     else:
@@ -303,23 +303,23 @@ def corr_plot(data, figure_size=(16, 8),  fontsize=14, mask=False, save=None, an
     corr_mask = np.zeros_like(corr, dtype = np.bool)
     corr_mask[np.triu_indices_from(corr_mask)] = True
 
-    fig, ax = plt.subplots(figsize=(10, 6))
+    fig, ax = plt.subplots(figsize=figure_size)
     map_plot = sns.heatmap(corr
-        , cmap=sns.diverging_palette(267, 267, n=10, s=100, l=40)
-        , vmax=1
-        , vmin=-1
-        , center=0
-        , square=True
-        , linewidths=linewidths
-        , annot=annot
-        , fmt=fmt
-        , linecolor=linecolor
-        , robust=True
-        , cbar=True
-        , ax=ax
-        , mask=corr_mask if mask else None
-        , **kwargs
-    )
+                            , cmap=sns.diverging_palette(267, 267, n=step, s=100, l=40)
+                            , vmax=1
+                            , vmin=-1
+                            , center=0
+                            , square=True
+                            , linewidths=linewidths
+                            , annot=annot
+                            , fmt=fmt
+                            , linecolor=linecolor
+                            , robust=True
+                            , cbar=True
+                            , ax=ax
+                            , mask=corr_mask if mask else None
+                            , **kwargs
+                        )
 
     map_plot.tick_params(axis='x', labelrotation=270, labelsize=fontsize)
     map_plot.tick_params(axis='y', labelrotation=0, labelsize=fontsize)
