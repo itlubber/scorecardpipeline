@@ -263,16 +263,12 @@ class ExcelWriter:
 
     @staticmethod
     def astype_insertvalue(value, decimal_point=4):
-        if re.search('tuple|time|list|numpy.dtype|bool|str|numpy.ndarray|Interval|Categorical', str(type(value))):
-            value = str(value)
-        elif re.search('int', str(type(value))):
-            value = value
+        if re.search('tuple|list|set|numpy.ndarray', str(type(value))):
+            return str(value)
         elif re.search('float', str(type(value))):
-            value = round(float(value), decimal_point)
+            return round(float(value), decimal_point)
         else:
-            value = 'nan'
-
-        return value
+            return value
 
     @staticmethod
     def calc_continuous_cnt(list_, index_=0):
