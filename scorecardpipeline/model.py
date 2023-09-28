@@ -349,7 +349,7 @@ class ScoreCard(toad.ScoreCard, TransformerMixin):
         for var, rule in self.rules.items():
             end_string = ''
             expression_string = ''
-            total_bins = len(rule['bins'])
+            total_bins = len(rule['scores'])
             if isinstance(rule['bins'][0], (np.ndarray, list)):
                 default_value = 0.
                 mapping = {}
@@ -412,6 +412,9 @@ class ScoreCard(toad.ScoreCard, TransformerMixin):
         pipeline.named_steps['scorecard'].coef_ = np.ones(len(scorecard_mapper.features))
 
         sklearn2pmml(pipeline, pmml, with_repr=True, debug=debug)
+        
+        if debug:
+            return pipeline
     
     @staticmethod
     def KS_bucket(y_pred, y_true, bucket=10, method="quantile"):

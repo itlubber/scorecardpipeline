@@ -20,37 +20,26 @@ from toad.plot import proportion_plot, badrate_plot
 from .utils import *
 
 
-def drop_identical(frame, threshold = 0.95, return_drop = False, exclude = None, target = None):
-    """drop columns by identical
-    Args:
-        frame (DataFrame): dataframe that will be used
-        threshold (number): drop the features whose identical num is greater than threshold. if threshold is float, it will be use as percentage
-        return_drop (bool): if need to return features' name who has been dropped
-        exclude (array-like): list of feature names that will not be dropped
-        target (str): target's name in dataframe
-    Returns:
-        DataFrame: selected dataframe
-        array: list of feature names that has been dropped
-    """
+def drop_identical(frame, threshold=0.95, return_drop=False, exclude=None, target=None):
     cols = frame.columns.copy()
-    
+
     if target is not None:
         cols.drop(target)
 
     if exclude is not None:
         cols = cols.drop(exclude)
 
-    if threshold < 1:
+    if threshold <= 1:
         threshold = len(frame) * threshold
 
     drop_list = []
     for col in cols:
         n = frame[col].value_counts().max()
-        
+
         if n > threshold:
             drop_list.append(col)
 
-    r = frame.drop(columns = drop_list)
+    r = frame.drop(columns=drop_list)
 
     res = (r,)
     if return_drop:
@@ -59,48 +48,102 @@ def drop_identical(frame, threshold = 0.95, return_drop = False, exclude = None,
     return toad.utils.unpack_tuple(res)
 
 
-def select(frame, target = 'target', empty = 0.9, iv = 0.02, corr = 0.7,
-            identical=0.95, return_drop = False, exclude = None):
+def drop_corr(frame, target=None, threshold=0.7, by='IV', return_drop=False, exclude=None):
+    if not isinstance(by, (str, pd.Series)):
+        by = pd.Series(by, index=frame.columns)
+
+    cols = frame.columns.copy()
+
+    if exclude is not None:
+        exclude = exclude if isinstance(exclude, (list, np.ndarray)) else [exclude]
+        cols = cols.drop(exclude)
+
+    f, t = toad.utils.split_target(frame[cols], target)
+    corr = f.select_dtypes("number").corr().abs()
+
+    drops = []
+    ix, cn = np.where(np.triu(corr.values, 1) > threshold)
+
+    if len(ix):
+        graph = np.hstack([ix.reshape((-1, 1)), cn.reshape((-1, 1))])
+        uni, counts = np.unique(graph, return_counts=True)
+        weights = np.zeros(len(corr.index))
+
+        if isinstance(by, pd.Series):
+            weights = by[corr.index].values
+        elif by.upper() == 'IV':
+            for ix in uni:
+                weights[ix] = toad.IV(frame[corr.index[ix]], target=t)
+
+        while True:
+            nodes = uni[np.argwhere(counts == np.amax(counts))].flatten()
+            n = nodes[np.argsort(weights[nodes])[0]]
+            i, c = np.where(graph == n)
+            pairs = graph[(i, 1 - c)]
+
+            if weights[pairs].sum() > weights[n]:
+                dro = [n]
+            else:
+                dro = pairs.tolist()
+            drops += dro
+
+            di, _ = np.where(np.isin(graph, dro))
+            graph = np.delete(graph, di, axis=0)
+
+            if len(graph) <= 0:
+                break
+
+            uni, counts = np.unique(graph, return_counts=True)
+
+    drop_list = corr.index[drops].values
+    r = frame.drop(columns=drop_list)
+
+    res = (r,)
+    if return_drop:
+        res += (drop_list,)
+
+    return toad.utils.unpack_tuple(res)
+
+
+def select(frame, target='target', empty=0.95, iv=0.02, corr=0.7, identical=0.95, return_drop=False, exclude=None):
     """select features by rate of empty, iv and correlation
+
     Args:
         frame (DataFrame)
         target (str): target's name in dataframe
         empty (number): drop the features which empty num is greater than threshold. if threshold is less than `1`, it will be use as percentage
-        identical (number): drop the features which identical num is greater than threshold. if threshold is less than `1`, it will be use as percentage
         iv (float): drop the features whose IV is less than threshold
         corr (float): drop features that has the smallest IV in each groups which correlation is greater than threshold
+        identical (number): drop the features which identical num is greater than threshold. if threshold is less than `1`, it will be use as percentage
         return_drop (bool): if need to return features' name who has been dropped
         exclude (array-like): list of feature name that will not be dropped
+
     Returns:
         DataFrame: selected dataframe
         dict: list of dropped feature names in each step
     """
-    empty_drop, iv_drop, corr_drop, identical_drop = None, None, None, None
+    empty_drop = iv_drop = corr_drop = identical_drop = iv_list = None
 
-    if empty is not False:
-        frame, empty_drop = toad.selection.drop_empty(frame, threshold = empty, return_drop = True, exclude = exclude)
-        
-    if identical is not False:
-        frame, identical_drop = drop_identical(frame, threshold = identical, return_drop = True, exclude = exclude, target = target)
+    if empty:
+        frame, empty_drop = toad.selection.drop_empty(frame, threshold=empty, return_drop=True, exclude=exclude)
 
-    if iv is not False:
-        frame, iv_drop, iv_list = toad.selection.drop_iv(frame, target = target, threshold = iv, return_drop = True, return_iv = True, exclude = exclude)
+    if iv:
+        frame, iv_drop, iv_list = toad.selection.drop_iv(frame, target=target, threshold=iv, return_drop=True, return_iv=True, exclude=exclude)
 
-    if corr is not False:
-        weights = 'IV'
+    if corr:
+        weights = iv_list if iv else 'IV'
+        frame, corr_drop = drop_corr(frame, target=target, threshold=corr, by=weights, return_drop=True, exclude=exclude)
 
-        if iv is not False:
-            weights = iv_list
-
-        frame, corr_drop = toad.selection.drop_corr(frame, target = target, threshold = corr, by = weights, return_drop = True, exclude = exclude)
+    if identical:
+        frame, identical_drop = drop_identical(frame, threshold=identical, return_drop=True, exclude=exclude, target=target)
 
     res = (frame,)
     if return_drop:
         d = {
             'empty': empty_drop,
-            'identical': identical_drop,
             'iv': iv_drop,
             'corr': corr_drop,
+            'identical': identical_drop,
         }
         res += (d,)
 
@@ -108,7 +151,7 @@ def select(frame, target = 'target', empty = 0.9, iv = 0.02, corr = 0.7,
 
 
 class FeatureSelection(TransformerMixin, BaseEstimator):
-    
+
     def __init__(self, target="target", empty=0.95, iv=0.02, corr=0.7, exclude=None, return_drop=True, identical=0.95, remove=None, engine="scorecardpy", target_rm=False):
         """ITLUBBER提供的特征筛选方法
 
@@ -136,13 +179,13 @@ class FeatureSelection(TransformerMixin, BaseEstimator):
         self.target_rm = target_rm
         self.select_columns = None
         self.dropped = None
-    
+
     def fit(self, x, y=None):
         if self.engine == "toad":
             selected = select(x, target=self.target, empty=self.empty, identical=self.identical, iv=self.iv, corr=self.corr, exclude=self.exclude, return_drop=self.return_drop)
         else:
             selected = sc.var_filter(x, y=self.target, iv_limit=self.iv, missing_limit=self.empty, identical_limit=self.identical, var_rm=self.remove, var_kp=self.exclude, return_rm_reason=self.return_drop)
-            
+
         if self.return_drop and isinstance(selected, dict):
             self.dropped = selected["rm"]
             self.select_columns = list(selected["dt"].columns)
@@ -151,18 +194,18 @@ class FeatureSelection(TransformerMixin, BaseEstimator):
             self.select_columns = list(selected[0].columns)
         else:
             self.select_columns = list(selected.columns)
-        
+
         if self.target_rm and self.target in self.select_columns:
             self.select_columns.remove(self.target)
-            
+
         return self
-        
+
     def transform(self, x, y=None):
         return x[[col for col in self.select_columns if col in x.columns]]
 
 
 class StepwiseSelection(TransformerMixin, BaseEstimator):
-    
+
     def __init__(self, target="target", estimator="ols", direction="both", criterion="aic", max_iter=None, return_drop=True, exclude=None, intercept=True, p_value_enter=0.2, p_remove=0.01, p_enter=0.01, target_rm=False):
         """逐步回归筛选方法
 
@@ -194,27 +237,27 @@ class StepwiseSelection(TransformerMixin, BaseEstimator):
         self.exclude = exclude
         self.select_columns = None
         self.dropped = None
-    
+
     def fit(self, x, y=None):
-        selected = toad.selection.stepwise(x, target=self.target, estimator=self.estimator, direction=self.direction, criterion=self.criterion, exclude=self.exclude, intercept=self.intercept, p_value_enter=self.p_value_enter, 
+        selected = toad.selection.stepwise(x, target=self.target, estimator=self.estimator, direction=self.direction, criterion=self.criterion, exclude=self.exclude, intercept=self.intercept, p_value_enter=self.p_value_enter,
                                            p_remove=self.p_remove, p_enter=self.p_enter, return_drop=self.return_drop)
         if self.return_drop:
             self.dropped = pd.DataFrame([(col, "stepwise") for col in selected[1]], columns=["variable", "rm_reason"])
             selected = selected[0]
-        
+
         self.select_columns = list(selected.columns)
-        
+
         if self.target_rm and self.target in self.select_columns:
             self.select_columns.remove(self.target)
-        
+
         return self
-        
+
     def transform(self, x, y=None):
         return x[[col for col in self.select_columns if col in x.columns]]
 
 
 class FeatureImportanceSelector(BaseEstimator, TransformerMixin):
-    
+
     def __init__(self, top_k=126, target="target", selector="catboost", params=None, max_iv=None):
         """基于特征重要性的特征筛选方法
         
@@ -235,36 +278,35 @@ class FeatureImportanceSelector(BaseEstimator, TransformerMixin):
         self.low_importance_feature_names_ = None
         self.select_columns = None
         self.dropped = None
-    
+
     def fit(self, x, y=None):
         x = x.copy()
-        
+
         if self.max_iv is not None:
             self.high_iv_feature_names_ = list(toad.quality(x, target=self.target, cpu_cores=-1, iv_only=True).query(f"iv > {self.max_iv}").index)
             x = x[[c for c in x.columns if c not in self.high_iv_feature_names_]]
-        
+
         X = x.drop(columns=self.target)
         Y = x[self.target]
-        
+
         self.feature_names_ = list(X.columns)
         cat_features_index = [i for i in range(len(self.feature_names_)) if self.feature_names_[i] not in X.select_dtypes("number").columns]
-        
+
         if self.selector == "catboost":
             self.catboost_selector(x=X, y=Y, cat_features=cat_features_index)
         else:
             pass
-        
+
         return self
-        
+
     def transform(self, x, y=None):
         return x[self.select_columns + [self.target]]
-        
-        
+
     def catboost_selector(self, x, y, cat_features=None):
         from catboost import Pool, cv, metrics, CatBoostClassifier
-        
+
         cat_data = Pool(data=x, label=y, cat_features=cat_features)
-        
+
         if self.params is None:
             self.params = {
                 "iterations": 256,
@@ -280,16 +322,16 @@ class FeatureImportanceSelector(BaseEstimator, TransformerMixin):
                 "early_stopping_rounds": 10,
                 "verbose": 0,
             }
-        
+
         cat_model = CatBoostClassifier(**self.params)
         cat_model.fit(cat_data, eval_set=[cat_data])
-        
+
         self.select_columns = [name for score, name in sorted(zip(cat_model.feature_importances_, cat_model.feature_names_), reverse=True)][:self.top_k]
         self.low_importance_feature_names_ = [c for c in x.columns if c not in self.select_columns]
 
 
 class Combiner(TransformerMixin, BaseEstimator):
-    
+
     def __init__(self, target="target", method='chi', empty_separate=False, min_n_bins=2, max_n_bins=None, max_n_prebins=20, min_prebin_size=0.02, min_bin_size=0.05, max_bin_size=None, gamma=0.01, monotonic_trend="auto_asc_desc", adj_rules={}, n_jobs=1):
         """特征分箱封装方法
 
@@ -322,10 +364,10 @@ class Combiner(TransformerMixin, BaseEstimator):
         self.monotonic_trend = monotonic_trend
         self.adj_rules = adj_rules
         self.n_jobs = n_jobs
-        
+
     def update(self, rules):
         self.combiner.update(rules)
-    
+
     def optbinning_bins(self, feature, data=None, target="target", min_n_bins=2, max_n_bins=3, max_n_prebins=10, min_prebin_size=0.02, min_bin_size=0.05, max_bin_size=None, gamma=0.01, monotonic_trend="auto_asc_desc"):
         if data[feature].dropna().nunique() <= min_n_bins:
             splits = []
@@ -352,14 +394,14 @@ class Combiner(TransformerMixin, BaseEstimator):
                     rule = {feature: [s.tolist() if isinstance(s, np.ndarray) else s for s in _combiner.splits] + [[np.nan] if dtype == "categorical" else np.nan]}
                 else:
                     raise Exception("optimalBinning error")
-            
+
             except Exception as e:
                 _combiner = toad.transform.Combiner()
                 _combiner.fit(data[[feature, target]].dropna(), target, method="chi", min_samples=self.min_bin_size, n_bins=self.max_n_bins, empty_separate=False)
                 rule = {feature: [s.tolist() if isinstance(s, np.ndarray) else s for s in _combiner.export()[feature]] + [[np.nan] if dtype == "categorical" else np.nan]}
-        
+
         self.combiner.update(rule)
-    
+
     def fit(self, x, y=None):
         if self.method in ["cart", "mdlp", "uniform"]:
             feature_optbinning_bins = partial(self.optbinning_bins, data=x, target=self.target, min_n_bins=self.min_n_bins, max_n_bins=self.max_n_bins, max_n_prebins=self.max_n_prebins, min_prebin_size=self.min_prebin_size, min_bin_size=self.min_bin_size, max_bin_size=self.max_bin_size, gamma=self.gamma, monotonic_trend=self.monotonic_trend)
@@ -374,27 +416,27 @@ class Combiner(TransformerMixin, BaseEstimator):
                 self.combiner.fit(x, y=self.target, method=self.method, n_bins=self.max_n_bins, empty_separate=self.empty_separate)
             else:
                 self.combiner.fit(x, y=self.target, method=self.method, min_samples=self.min_bin_size, n_bins=self.max_n_bins, empty_separate=self.empty_separate)
-        
+
         self.update(self.adj_rules)
-        
+
         return self
-    
+
     def transform(self, x, y=None, labels=False):
         return self.combiner.transform(x, labels=labels)
 
     def export(self, to_json=None):
         return self.combiner.export(to_json=to_json)
-    
+
     def load(self, from_json=None):
         self.combiner.load(from_json=from_json)
         return self
-    
+
     @classmethod
     def feature_bin_stats(cls, data, feature, target="target", rules=None, method='step', desc="", combiner=None, ks=True, max_n_bins=None, min_bin_size=None, max_bin_size=None, empty_separate=True, return_cols=None, verbose=0, **kwargs):
         if combiner is None:
             if method not in ["chi", "dt", "quantile", "step", "kmeans", "cart", "mdlp", "uniform"]:
                 raise 'method is the one of ["chi", "dt", "quantile", "step", "kmeans", "cart", "mdlp", "uniform"]'
-            
+
             _combiner = cls(
                 target=target
                 , method=method
@@ -407,10 +449,10 @@ class Combiner(TransformerMixin, BaseEstimator):
                 , **kwargs
             )
             _combiner.fit(data[[feature, target]])
-            
+
         else:
             _combiner = deepcopy(combiner)
-            
+
         if rules and len(rules) > 0:
             if isinstance(rules, (list, np.ndarray)):
                 _combiner.update({feature: rules})
@@ -418,17 +460,17 @@ class Combiner(TransformerMixin, BaseEstimator):
                 _combiner.update(rules)
 
         feature_bin_dict = feature_bins(np.array(_combiner[feature]))
-        
+
         df_bin = _combiner.transform(data[[feature, target]], labels=False)
-        
+
         table = df_bin[[feature, target]].groupby([feature, target]).agg(len).unstack()
         table.columns.name = None
-        table = table.rename(columns = {0 : '好样本数', 1 : '坏样本数'}).fillna(0)
+        table = table.rename(columns={0: '好样本数', 1: '坏样本数'}).fillna(0)
         if "好样本数" not in table.columns:
             table["好样本数"] = 0
         if "坏样本数" not in table.columns:
             table["坏样本数"] = 0
-        
+
         table["指标名称"] = feature
         table["指标含义"] = desc
         table = table.reset_index().rename(columns={feature: "分箱"})
@@ -438,73 +480,73 @@ class Combiner(TransformerMixin, BaseEstimator):
         table['好样本占比'] = table['好样本数'] / table['好样本数'].sum()
         table['坏样本占比'] = table['坏样本数'] / table['坏样本数'].sum()
         table['坏样本率'] = table['坏样本数'] / table['样本总数']
-        
+
         table = table.fillna(0.)
-        
-        table['分档WOE值'] = table.apply(lambda x : np.log(x['好样本占比'] / (x['坏样本占比'] + 1e-6)),axis=1)
-        table['分档IV值'] = table.apply(lambda x : (x['好样本占比'] - x['坏样本占比']) * np.log(x['好样本占比'] / (x['坏样本占比'] + 1e-6)), axis=1)
-        
+
+        table['分档WOE值'] = table.apply(lambda x: np.log(x['好样本占比'] / (x['坏样本占比'] + 1e-6)), axis=1)
+        table['分档IV值'] = table.apply(lambda x: (x['好样本占比'] - x['坏样本占比']) * np.log(x['好样本占比'] / (x['坏样本占比'] + 1e-6)), axis=1)
+
         table = table.replace(np.inf, 0).replace(-np.inf, 0)
-        
+
         table['指标IV值'] = table['分档IV值'].sum()
-        
+
         table["LIFT值"] = table['坏样本率'] / (table["坏样本数"].sum() / table["样本总数"].sum())
         table["累积LIFT值"] = (table['坏样本数'].cumsum() / table['样本总数'].cumsum()) / (table["坏样本数"].sum() / table["样本总数"].sum())
-        
+
         if ks:
             table = table.sort_values("分箱")
             table["累积好样本数"] = table["好样本数"].cumsum()
             table["累积坏样本数"] = table["坏样本数"].cumsum()
             table["分档KS值"] = table["累积坏样本数"] / table['坏样本数'].sum() - table["累积好样本数"] / table['好样本数'].sum()
-        
+
         table["分箱"] = table["分箱"].map(feature_bin_dict)
         table = table.set_index(['指标名称', '指标含义', '分箱']).reindex([(feature, desc, b) for b in feature_bin_dict.values()]).fillna(0).reset_index()
-        
+
         if return_cols:
             return table[[c for c in return_cols if c in table.columns]]
         elif ks:
             return table[['指标名称', "指标含义", '分箱', '样本总数', '样本占比', '好样本数', '好样本占比', '坏样本数', '坏样本占比', '坏样本率', '分档WOE值', '分档IV值', '指标IV值', 'LIFT值', '累积LIFT值', '累积好样本数', '累积坏样本数', '分档KS值']]
         else:
             return table[['指标名称', "指标含义", '分箱', '样本总数', '样本占比', '好样本数', '好样本占比', '坏样本数', '坏样本占比', '坏样本率', '分档WOE值', '分档IV值', '指标IV值', 'LIFT值', '累积LIFT值']]
-    
+
     def bin_plot(self, data, x, rule={}, desc="", result=False, save=None, **kwargs):
         feature_table = self.feature_bin_stats(data, x, target=self.target, rules=rule, desc=desc, combiner=self.combiner, ks=True)
         bin_plot(feature_table, desc=desc, save=save, **kwargs)
-        
+
         if result:
             return feature_table
-    
+
     def proportion_plot(self, x, transform=False, labels=False):
         if transform:
             x = self.combiner.transform(x, labels=labels)
         proportion_plot(x)
-    
+
     def corr_plot(self, data, transform=False, figure_size=(20, 15), save=None):
         if transform:
             data = self.combiner.transform(data, labels=False)
-        
+
         corr_plot(data, figure_size=figure_size, save=save)
-    
+
     def badrate_plot(self, data, date_column, feature, labels=True):
         badrate_plot(self.combiner.transform(data[[date_column, feature, self.target]], labels=labels), target=self.target, x=date_column, by=feature)
-    
+
     @property
     def rules(self):
         return self.combiner._rules
-    
+
     @rules.setter
     def rules(self, value):
         self.combiner._rules = value
-    
+
     def __len__(self):
         return len(self.combiner._rules.keys())
-    
+
     def __contains__(self, key):
         return key in self.combiner._rules
-    
+
     def __getitem__(self, key):
         return self.combiner._rules[key]
-    
+
     def __setitem__(self, key, value):
         self.combiner._rules[key] = value
 
@@ -513,7 +555,7 @@ class Combiner(TransformerMixin, BaseEstimator):
 
 
 class WOETransformer(TransformerMixin, BaseEstimator):
-    
+
     def __init__(self, target="target", exclude=None):
         """WOE转换器
 
@@ -524,31 +566,31 @@ class WOETransformer(TransformerMixin, BaseEstimator):
         self.target = target
         self.exclude = exclude if isinstance(exclude, list) else [exclude] if exclude else []
         self.transformer = toad.transform.WOETransformer()
-        
+
     def fit(self, x, y=None):
         self.transformer.fit(x.drop(columns=self.exclude + [self.target]), x[self.target])
         return self
 
     def transform(self, x, y=None):
         return self.transformer.transform(x)
-    
+
     @property
     def rules(self):
         return self.transformer._rules
-    
+
     @rules.setter
     def rules(self, value):
         self.transformer._rules = value
-    
+
     def __len__(self):
         return len(self.transformer._rules.keys())
-    
+
     def __contains__(self, key):
         return key in self.transformer._rules
-    
+
     def __getitem__(self, key):
         return self.transformer._rules[key]
-    
+
     def __setitem__(self, key, value):
         self.transformer._rules[key] = value
 

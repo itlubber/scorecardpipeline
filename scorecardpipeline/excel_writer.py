@@ -118,10 +118,7 @@ class ExcelWriter:
         :return 返回插入元素最后一列之后、最后一行之后的位置
         """
         if isinstance(insert_space, str):
-            try:
-                worksheet[insert_space] = value
-            except:
-                import pdb;pdb.set_trace()
+            worksheet[insert_space] = value
             cell = worksheet[insert_space]
             start_col = re.findall('\D+', insert_space)[0]
             start_row = int(re.findall("\d+", insert_space)[0])

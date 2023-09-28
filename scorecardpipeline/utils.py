@@ -45,9 +45,15 @@ def seed_everything(seed: int, freeze_torch=False):
 
 def init_setting(font_path=None, seed=None, freeze_torch=False, logger=False, **kwargs):
     warnings.filterwarnings("ignore")
+    
     pd.options.display.float_format = '{:.4f}'.format
-    pd.set_option('display.max_colwidth', 300)
-    plt.style.use('seaborn-ticks')
+    pd.set_option("display.max_colwidth", 300)
+    
+    if "seaborn-ticks" in plt.style.available:
+        plt.style.use('seaborn-ticks')
+    else:
+        plt.style.use('seaborn-v0_8-ticks')
+    
     if font_path:
         if not os.path.isfile(font_path):
             import wget
@@ -150,7 +156,7 @@ def feature_bins(bins, decimal = 4):
     return {i if b != "缺失值" else EMPTYBINS: b for i, b in enumerate(l)}
 
 
-def bin_plot(feature_table, desc="", figsize=(10, 6), colors=["#2639E9", "#F76E6C", "#FE7715"], save=None, anchor=0.94, max_len=35, hatch=True):
+def bin_plot(feature_table, desc="", figsize=(10, 6), colors=["#2639E9", "#F76E6C", "#FE7715"], save=None, anchor=0.94, max_len=35, hatch=True, ending="分箱图"):
     """简单策略挖掘：特征分箱图
 
     :param feature_table: 特征分箱的统计信息表，由 feature_bin_stats 运行得到
@@ -187,7 +193,7 @@ def bin_plot(feature_table, desc="", figsize=(10, 6), colors=["#2639E9", "#F76E6
     ax2.xaxis.set_major_formatter(PercentFormatter(1, decimals=0, is_latex=True))
     # ax2.xaxis.set_major_formatter(FuncFormatter(lambda x,_:'{}%'.format(round(x * 100, 4))))
 
-    fig.suptitle(f'{desc}分箱图\n\n')
+    fig.suptitle(f'{desc}{ending}\n\n')
 
     handles1, labels1 = ax1.get_legend_handles_labels()
     handles2, labels2 = ax2.get_legend_handles_labels()
@@ -210,7 +216,7 @@ def corr_plot(data, figure_size=(16, 8),  fontsize=16, mask=False, save=None, an
     else:
         corr = data.rename(columns={c: c if len(str(c)) <= max_len else f"{str(c)[:max_len]}..." for c in data.columns}).corr()
     
-    corr_mask = np.zeros_like(corr, dtype = np.bool)
+    corr_mask = np.zeros_like(corr, dtype=bool)
     corr_mask[np.triu_indices_from(corr_mask)] = True
 
     fig, ax = plt.subplots(figsize=figure_size)
@@ -364,7 +370,7 @@ def hist_plot(score, y_true=None, figsize=(15, 10), bins=30, save=None, labels=[
     return fig
 
 
-def psi_plot(expected, actual, labels=["预期", "实际"], save=None, colors=["#2639E9", "#F76E6C", "#FE7715"], figsize=(15, 8), anchor=0.94, width=0.35, result=False, plot=True, max_len=None, hatch=True):
+def psi_plot(expected, actual, labels=["预期", "实际"], desc="", save=None, colors=["#2639E9", "#F76E6C", "#FE7715"], figsize=(15, 8), anchor=0.94, width=0.35, result=False, plot=True, max_len=None, hatch=True):
     expected = expected.rename(columns={"样本总数": f"{labels[0]}样本数", "样本占比": f"{labels[0]}样本占比", "坏样本率": f"{labels[0]}坏样本率"})
     actual = actual.rename(columns={"样本总数": f"{labels[1]}样本数", "样本占比": f"{labels[1]}样本占比", "坏样本率": f"{labels[1]}坏样本率"})
     df_psi = expected.merge(actual, on="分箱", how="outer").replace(np.nan, 0)
@@ -373,6 +379,7 @@ def psi_plot(expected, actual, labels=["预期", "实际"], save=None, colors=["
     df_psi["分档PSI值"] = (df_psi[f"{labels[1]}% - {labels[0]}%"] * df_psi[f"ln({labels[1]}% / {labels[0]}%)"])
     df_psi = df_psi.fillna(0).replace(np.inf, 0).replace(-np.inf, 0)
     df_psi["总体PSI值"] = df_psi["分档PSI值"].sum()
+    df_psi["指标名称"] = desc
     
     if plot:
         x = df_psi['分箱'].apply(lambda l: l if max_len is None else f"{str(l)[:max_len]}...")
@@ -396,7 +403,7 @@ def psi_plot(expected, actual, labels=["预期", "实际"], save=None, colors=["
 
         ax2.set_ylabel('坏样本率: 坏样本数 / 样本总数')
         
-        fig.suptitle(f"{labels[0]} vs {labels[1]} 群体稳定性指数(PSI): {df_psi['分档PSI值'].sum():.4f}\n\n")
+        fig.suptitle(f"{desc + ' ' if desc else ''}{labels[0]} vs {labels[1]} 群体稳定性指数(PSI): {df_psi['分档PSI值'].sum():.4f}\n\n")
 
         handles1, labels1 = ax1.get_legend_handles_labels()
         handles2, labels2 = ax2.get_legend_handles_labels()
@@ -411,10 +418,10 @@ def psi_plot(expected, actual, labels=["预期", "实际"], save=None, colors=["
             fig.savefig(save, dpi=240, format="png", bbox_inches="tight")
 
     if result:
-        return df_psi[["分箱", f"{labels[0]}样本数", f"{labels[0]}样本占比", f"{labels[0]}坏样本率", f"{labels[1]}样本数", f"{labels[1]}样本占比", f"{labels[1]}坏样本率", f"{labels[1]}% - {labels[0]}%", f"ln({labels[1]}% / {labels[0]}%)", "分档PSI值", "总体PSI值"]]
+        return df_psi[["指标名称", "分箱", f"{labels[0]}样本数", f"{labels[0]}样本占比", f"{labels[0]}坏样本率", f"{labels[1]}样本数", f"{labels[1]}样本占比", f"{labels[1]}坏样本率", f"{labels[1]}% - {labels[0]}%", f"ln({labels[1]}% / {labels[0]}%)", "分档PSI值", "总体PSI值"]]
 
 
-def csi_plot(expected, actual, score_bins, labels=["预期", "实际"], save=None, colors=["#2639E9", "#F76E6C", "#FE7715"], figsize=(15, 8), anchor=0.94, width=0.35, result=False, plot=True, max_len=None, hatch=True):
+def csi_plot(expected, actual, score_bins, labels=["预期", "实际"], desc="", save=None, colors=["#2639E9", "#F76E6C", "#FE7715"], figsize=(15, 8), anchor=0.94, width=0.35, result=False, plot=True, max_len=None, hatch=True):
     expected = expected.rename(columns={"样本总数": f"{labels[0]}样本数", "样本占比": f"{labels[0]}样本占比", "坏样本率": f"{labels[0]}坏样本率"})
     actual = actual.rename(columns={"样本总数": f"{labels[1]}样本数", "样本占比": f"{labels[1]}样本占比", "坏样本率": f"{labels[1]}坏样本率"})
     df_csi = expected.merge(actual, on="分箱", how="outer").replace(np.nan, 0)
@@ -423,6 +430,7 @@ def csi_plot(expected, actual, score_bins, labels=["预期", "实际"], save=Non
     df_csi["分档CSI值"] = (df_csi[f"{labels[1]}% - {labels[0]}%"] * df_csi["对应分数"])
     df_csi = df_csi.fillna(0).replace(np.inf, 0).replace(-np.inf, 0)
     df_csi["总体CSI值"] = df_csi["分档CSI值"].sum()
+    df_csi["指标名称"] = desc
     
     if plot:
         x = df_csi['分箱'].apply(lambda l: l if max_len is None else f"{str(l)[:max_len]}...")
@@ -446,7 +454,7 @@ def csi_plot(expected, actual, score_bins, labels=["预期", "实际"], save=Non
 
         ax2.set_ylabel('坏样本率: 坏样本数 / 样本总数')
         
-        fig.suptitle(f"{labels[0]} vs {labels[1]} 特征稳定性指标(CSI): {df_csi['分档CSI值'].sum():.4f}\n\n")
+        fig.suptitle(f"{desc + ' ' if desc else ''}{labels[0]} vs {labels[1]} 特征稳定性指标(CSI): {df_csi['分档CSI值'].sum():.4f}\n\n")
 
         handles1, labels1 = ax1.get_legend_handles_labels()
         handles2, labels2 = ax2.get_legend_handles_labels()
@@ -461,7 +469,7 @@ def csi_plot(expected, actual, score_bins, labels=["预期", "实际"], save=Non
             fig.savefig(save, dpi=240, format="png", bbox_inches="tight")
     
     if result:
-        return df_csi[["分箱", f"{labels[0]}样本数", f"{labels[0]}样本占比", f"{labels[0]}坏样本率", f"{labels[1]}样本数", f"{labels[1]}样本占比", f"{labels[1]}坏样本率", f"{labels[1]}% - {labels[0]}%", "对应分数", "分档CSI值", "总体CSI值"]]
+        return df_csi[["指标名称", "分箱", f"{labels[0]}样本数", f"{labels[0]}样本占比", f"{labels[0]}坏样本率", f"{labels[1]}样本数", f"{labels[1]}样本占比", f"{labels[1]}坏样本率", f"{labels[1]}% - {labels[0]}%", "对应分数", "分档CSI值", "总体CSI值"]]
 
 
 def dataframe_plot(df, row_height=0.4, font_size=14, header_color='#2639E9', row_colors=['#dae3f3', 'w'], edge_color='w', bbox=[0, 0, 1, 1], header_columns=0, ax=None, save=None, **kwargs):
