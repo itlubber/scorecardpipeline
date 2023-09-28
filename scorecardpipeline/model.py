@@ -472,4 +472,4 @@ class ScoreCard(toad.ScoreCard, TransformerMixin):
         return [v for k, v in pipeline.named_steps.items() if isinstance(v, query)]
     
     def feature_bin_stats(self, data, feature, rules={}, method='step', max_n_bins=10, desc="评分卡分数", ks=False, **kwargs):
-        return feature_bin_stats(data, feature, target=self.target, method=method, max_n_bins=max_n_bins, desc=desc, ks=ks, **kwargs)
+        return Combiner.feature_bin_stats(data, feature, target=self.target, method=method, max_n_bins=max_n_bins, desc=desc, ks=ks, **kwargs)

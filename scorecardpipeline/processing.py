@@ -7,6 +7,7 @@
 
 import numpy as np
 import pandas as pd
+from copy import deepcopy
 from functools import partial
 from concurrent.futures import ProcessPoolExecutor
 from sklearn.base import BaseEstimator, TransformerMixin
@@ -388,8 +389,86 @@ class Combiner(TransformerMixin, BaseEstimator):
         self.combiner.load(from_json=from_json)
         return self
     
+    @classmethod
+    def feature_bin_stats(cls, data, feature, target="target", rules=None, method='step', desc="", combiner=None, ks=True, max_n_bins=None, min_bin_size=None, max_bin_size=None, empty_separate=True, return_cols=None, verbose=0, **kwargs):
+        if combiner is None:
+            if method not in ["chi", "dt", "quantile", "step", "kmeans", "cart", "mdlp", "uniform"]:
+                raise 'method is the one of ["chi", "dt", "quantile", "step", "kmeans", "cart", "mdlp", "uniform"]'
+            
+            _combiner = cls(
+                target=target
+                , method=method
+                , empty_separate=empty_separate
+                , min_n_bins=2
+                , max_n_bins=max_n_bins
+                , max_n_prebins=20
+                , min_bin_size=min_bin_size
+                , max_bin_size=max_bin_size
+                , **kwargs
+            )
+            _combiner.fit(data[[feature, target]])
+            
+        else:
+            _combiner = deepcopy(combiner)
+            
+        if rules and len(rules) > 0:
+            if isinstance(rules, (list, np.ndarray)):
+                _combiner.update({feature: rules})
+            else:
+                _combiner.update(rules)
+
+        feature_bin_dict = feature_bins(np.array(_combiner[feature]))
+        
+        df_bin = _combiner.transform(data[[feature, target]], labels=False)
+        
+        table = df_bin[[feature, target]].groupby([feature, target]).agg(len).unstack()
+        table.columns.name = None
+        table = table.rename(columns = {0 : '好样本数', 1 : '坏样本数'}).fillna(0)
+        if "好样本数" not in table.columns:
+            table["好样本数"] = 0
+        if "坏样本数" not in table.columns:
+            table["坏样本数"] = 0
+        
+        table["指标名称"] = feature
+        table["指标含义"] = desc
+        table = table.reset_index().rename(columns={feature: "分箱"})
+
+        table['样本总数'] = table['好样本数'] + table['坏样本数']
+        table['样本占比'] = table['样本总数'] / table['样本总数'].sum()
+        table['好样本占比'] = table['好样本数'] / table['好样本数'].sum()
+        table['坏样本占比'] = table['坏样本数'] / table['坏样本数'].sum()
+        table['坏样本率'] = table['坏样本数'] / table['样本总数']
+        
+        table = table.fillna(0.)
+        
+        table['分档WOE值'] = table.apply(lambda x : np.log(x['好样本占比'] / (x['坏样本占比'] + 1e-6)),axis=1)
+        table['分档IV值'] = table.apply(lambda x : (x['好样本占比'] - x['坏样本占比']) * np.log(x['好样本占比'] / (x['坏样本占比'] + 1e-6)), axis=1)
+        
+        table = table.replace(np.inf, 0).replace(-np.inf, 0)
+        
+        table['指标IV值'] = table['分档IV值'].sum()
+        
+        table["LIFT值"] = table['坏样本率'] / (table["坏样本数"].sum() / table["样本总数"].sum())
+        table["累积LIFT值"] = (table['坏样本数'].cumsum() / table['样本总数'].cumsum()) / (table["坏样本数"].sum() / table["样本总数"].sum())
+        
+        if ks:
+            table = table.sort_values("分箱")
+            table["累积好样本数"] = table["好样本数"].cumsum()
+            table["累积坏样本数"] = table["坏样本数"].cumsum()
+            table["分档KS值"] = table["累积坏样本数"] / table['坏样本数'].sum() - table["累积好样本数"] / table['好样本数'].sum()
+        
+        table["分箱"] = table["分箱"].map(feature_bin_dict)
+        table = table.set_index(['指标名称', '指标含义', '分箱']).reindex([(feature, desc, b) for b in feature_bin_dict.values()]).fillna(0).reset_index()
+        
+        if return_cols:
+            return table[[c for c in return_cols if c in table.columns]]
+        elif ks:
+            return table[['指标名称', "指标含义", '分箱', '样本总数', '样本占比', '好样本数', '好样本占比', '坏样本数', '坏样本占比', '坏样本率', '分档WOE值', '分档IV值', '指标IV值', 'LIFT值', '累积LIFT值', '累积好样本数', '累积坏样本数', '分档KS值']]
+        else:
+            return table[['指标名称', "指标含义", '分箱', '样本总数', '样本占比', '好样本数', '好样本占比', '坏样本数', '坏样本占比', '坏样本率', '分档WOE值', '分档IV值', '指标IV值', 'LIFT值', '累积LIFT值']]
+    
     def bin_plot(self, data, x, rule={}, desc="", result=False, save=None, **kwargs):
-        feature_table = feature_bin_stats(data, x, target=self.target, rules=rule, desc=desc, combiner=self.combiner, ks=True)
+        feature_table = self.feature_bin_stats(data, x, target=self.target, rules=rule, desc=desc, combiner=self.combiner, ks=True)
         bin_plot(feature_table, desc=desc, save=save, **kwargs)
         
         if result:

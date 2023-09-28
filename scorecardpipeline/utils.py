@@ -150,96 +150,6 @@ def feature_bins(bins, decimal = 4):
     return {i if b != "缺失值" else EMPTYBINS: b for i, b in enumerate(l)}
 
 
-def feature_bin_stats(data, feature, target="target", rules={}, method='step', max_n_bins=None, min_bin_size=None, clip_v=None, desc="", verbose=0, combiner=None, ks=True, **kwargs):
-    if combiner is None:
-        if method not in ['dt', 'chi', 'quantile', 'step', 'kmeans', 'cart']:
-            raise "method is the one of ['dt', 'chi', 'quantile', 'step', 'kmeans', 'cart']"
-        
-        combiner = toad.transform.Combiner()
-        
-        if method in ["cart", "mdlp", "uniform"]:
-            try:
-                y = data[target]
-                if str(data[feature].dtypes) in ["object", "string", "category"]:
-                    dtype = "categorical"
-                    x = data[feature].astype("category").values
-                else:
-                    dtype = "numerical"
-                    x = data[feature].values
-
-                _combiner = OptimalBinning(feature, dtype=dtype, max_n_bins=max_n_bins, **kwargs).fit(x, y)
-                if _combiner.status == "OPTIMAL":
-                    rule = {feature: [s.tolist() if isinstance(s, np.ndarray) else s for s in _combiner.splits] + [[np.nan] if dtype == "categorical" else np.nan]}
-                else:
-                    raise Exception("optimalBinning error")
-            
-            except Exception as e:
-                _combiner = toad.transform.Combiner()
-                _combiner.fit(data[[feature, target]].dropna(), target, method="chi", min_samples=min_bin_size, n_bins=max_n_bins, **kwargs)
-                rule = {feature: [s.tolist() if isinstance(s, np.ndarray) else s for s in _combiner.export()[feature]] + [[np.nan] if dtype == "categorical" else np.nan]}
-        
-            combiner.update(rule)
-        else:
-            if method in ["step", "quantile"]:
-                combiner.fit(data[[feature, target]], y=target, method=method, n_bins=max_n_bins, **kwargs)
-            else:
-                combiner.fit(data[[feature, target]], y=target, method=method, min_samples=min_bin_size, n_bins=max_n_bins, **kwargs)
-    
-    if len(rules) > 0:
-        if isinstance(rules, (list, np.ndarray)):
-            combiner.update({feature: rules})
-        else:
-            combiner.update(rules)
-
-    feature_bin_dict = feature_bins(np.array(combiner[feature]))
-    
-    df_bin = combiner.transform(data[[feature, target]], labels=False)
-    
-    table = df_bin[[feature, target]].groupby([feature, target]).agg(len).unstack()
-    table.columns.name = None
-    table = table.rename(columns = {0 : '好样本数', 1 : '坏样本数'}).fillna(0)
-    if "好样本数" not in table.columns:
-        table["好样本数"] = 0
-    if "坏样本数" not in table.columns:
-        table["坏样本数"] = 0
-    
-    table["指标名称"] = feature
-    table["指标含义"] = desc
-    table = table.reset_index().rename(columns={feature: "分箱"})
-
-    table['样本总数'] = table['好样本数'] + table['坏样本数']
-    table['样本占比'] = table['样本总数'] / table['样本总数'].sum()
-    table['好样本占比'] = table['好样本数'] / table['好样本数'].sum()
-    table['坏样本占比'] = table['坏样本数'] / table['坏样本数'].sum()
-    table['坏样本率'] = table['坏样本数'] / table['样本总数']
-    
-    table = table.fillna(0.)
-    
-    table['分档WOE值'] = table.apply(lambda x : np.log(x['好样本占比'] / (x['坏样本占比'] + 1e-6)),axis=1)
-    table['分档IV值'] = table.apply(lambda x : (x['好样本占比'] - x['坏样本占比']) * np.log(x['好样本占比'] / (x['坏样本占比'] + 1e-6)), axis=1)
-    
-    table = table.replace(np.inf, 0).replace(-np.inf, 0)
-    
-    table['指标IV值'] = table['分档IV值'].sum()
-    
-    table["LIFT值"] = table['坏样本率'] / (table["坏样本数"].sum() / table["样本总数"].sum())
-    table["累积LIFT值"] = (table['坏样本数'].cumsum() / table['样本总数'].cumsum()) / (table["坏样本数"].sum() / table["样本总数"].sum())
-    
-    if ks:
-        table = table.sort_values("分箱")
-        table["累积好样本数"] = table["好样本数"].cumsum()
-        table["累积坏样本数"] = table["坏样本数"].cumsum()
-        table["分档KS值"] = table["累积坏样本数"] / table['坏样本数'].sum() - table["累积好样本数"] / table['好样本数'].sum()
-    
-    table["分箱"] = table["分箱"].map(feature_bin_dict)
-    table = table.set_index(['指标名称', '指标含义', '分箱']).reindex([(feature, desc, b) for b in feature_bin_dict.values()]).fillna(0).reset_index()
-    
-    if ks:
-        return table[['指标名称', "指标含义", '分箱', '样本总数', '样本占比', '好样本数', '好样本占比', '坏样本数', '坏样本占比', '坏样本率', '分档WOE值', '分档IV值', '指标IV值', 'LIFT值', '累积LIFT值', '累积好样本数', '累积坏样本数', '分档KS值']]
-    else:
-        return table[['指标名称', "指标含义", '分箱', '样本总数', '样本占比', '好样本数', '好样本占比', '坏样本数', '坏样本占比', '坏样本率', '分档WOE值', '分档IV值', '指标IV值', 'LIFT值', '累积LIFT值']]
-
-
 def bin_plot(feature_table, desc="", figsize=(10, 6), colors=["#2639E9", "#F76E6C", "#FE7715"], save=None, anchor=0.94, max_len=35, hatch=True):
     """简单策略挖掘：特征分箱图
 
@@ -335,7 +245,7 @@ def corr_plot(data, figure_size=(16, 8),  fontsize=16, mask=False, save=None, an
 
 def ks_plot(score, target, title="", fontsize=14, figsize=(16, 8), save=None, colors=["#2639E9", "#F76E6C", "#FE7715"], anchor=0.945):
         if np.mean(score) < 0 or np.mean(score) > 1:
-            warnings.warn('Since the average of pred is not in [0,1], it is treated as predicted score but not probability.')
+            warnings.warn('Since the average of pred is not in [0,1], it is treated as credit score but not probability.')
             score = -score
 
         df = pd.DataFrame({'label': target, 'pred': score})
