@@ -182,10 +182,10 @@ def inverse_feature_bins(feature_table, bin_col="分箱"):
     extract_bin_vars = [extract_feature_bin(bin_var) for bin_var in bin_vars]
 
     if isinstance(extract_bin_vars[0], tuple):
-        inverse_bin_vars = sorted({s for b in bin_vars for s in extract_feature_bin(b)})[1:-1]
+        inverse_bin_vars = sorted({s for b in extract_bin_vars for s in extract_feature_bin(b)})[1:-1]
         inverse_bin_vars += [np.nan] if has_empty else []
     else:
-        inverse_bin_vars = bin_vars
+        inverse_bin_vars = extract_bin_vars
         inverse_bin_vars += [[np.nan]] if has_empty else []
 
     return inverse_bin_vars
