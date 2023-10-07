@@ -19,7 +19,7 @@ from .excel_writer import ExcelWriter, dataframe2excel
 feature_bin_stats = Combiner.feature_bin_stats
 
 
-__version__ = "0.1.20"
+__version__ = "0.1.21"
 __all__ = (
     "__version__"
     , "FeatureSelection", "FeatureImportanceSelector", "StepwiseSelection", "Combiner", "WOETransformer"
@@ -27,7 +27,7 @@ __all__ = (
     , "Pipeline", "KS", "AUC", "PSI", "F1", "FeatureUnion", "make_pipeline", "make_union"
     , "init_logger", "init_setting", "load_pickle", "save_pickle", "germancredit"
     , "ColorScaleRule", "get_column_letter", "column_index_from_string", "seed_everything"
-    , "feature_bins", "feature_bin_stats"
+    , "feature_bins", "feature_bin_stats", "extract_feature_bin", "inverse_feature_bins"
     , "bin_plot", "corr_plot", "ks_plot", "hist_plot", "psi_plot", "csi_plot", "dataframe_plot", "distribution_plot"
     , "ExcelWriter", "dataframe2excel",
 )
