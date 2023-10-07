@@ -156,6 +156,41 @@ def feature_bins(bins, decimal = 4):
     return {i if b != "缺失值" else EMPTYBINS: b for i, b in enumerate(l)}
 
 
+def extract_feature_bin(bin_var):
+    pattern = re.compile(r"^(\[|\()(-inf|负无穷|[-+]?\d+(\.\d+)?)(\s*,\s*|\s*~\s*)(inf|正无穷|[-+]?\d+(\.\d+)?)?(\]|\))$")
+    match = pattern.match(bin_var)
+    
+    if match:
+        start = -np.inf if match.group(2) in ["-inf", "负无穷"] else float(match.group(2))
+        end = np.inf if match.group(5) in ["inf", "正无穷"] else float(match.group(5))
+        return start, end
+    else:
+        return [np.nan if b == "缺失值" else ("" if b == "空字符串" else b) for b in bin_var.split("%,%" if "%,%" in bin_var else ",")]
+
+
+def inverse_feature_bins(feature_table, bin_col="分箱"):
+    if isinstance(feature_table, pd.DataFrame):
+        bin_vars = feature_table[bin_col].tolist()
+    elif isinstance(feature_table, pd.Series):
+        bin_vars = feature_table.tolist()
+    else:
+        bin_vars = feature_table
+    
+    has_empty = ("缺失值" in bin_vars) | (np.nan in bin_vars)
+    
+    bin_vars = [b for b in bin_vars if b not in ["缺失值", np.nan]]
+    extract_bin_vars = [extract_feature_bin(bin_var) for bin_var in bin_vars]
+
+    if isinstance(extract_bin_vars[0], tuple):
+        inverse_bin_vars = sorted({s for b in bin_vars for s in extract_feature_bin(b)})[1:-1]
+        inverse_bin_vars += [np.nan] if has_empty else []
+    else:
+        inverse_bin_vars = bin_vars
+        inverse_bin_vars += [[np.nan]] if has_empty else []
+
+    return inverse_bin_vars
+
+
 def bin_plot(feature_table, desc="", figsize=(10, 6), colors=["#2639E9", "#F76E6C", "#FE7715"], save=None, anchor=0.94, max_len=35, hatch=True, ending="分箱图"):
     """简单策略挖掘：特征分箱图
 

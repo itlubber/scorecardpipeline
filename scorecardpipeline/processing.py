@@ -432,7 +432,7 @@ class Combiner(TransformerMixin, BaseEstimator):
         return self
 
     @classmethod
-    def feature_bin_stats(cls, data, feature, target="target", rules=None, method='step', desc="", combiner=None, ks=True, max_n_bins=None, min_bin_size=None, max_bin_size=None, empty_separate=True, return_cols=None, verbose=0, **kwargs):
+    def feature_bin_stats(cls, data, feature, target="target", rules=None, method='step', desc="", combiner=None, ks=True, max_n_bins=None, min_bin_size=None, max_bin_size=None, empty_separate=True, return_cols=None, return_rules=False, verbose=0, **kwargs):
         if combiner is None:
             if method not in ["chi", "dt", "quantile", "step", "kmeans", "cart", "mdlp", "uniform"]:
                 raise 'method is the one of ["chi", "dt", "quantile", "step", "kmeans", "cart", "mdlp", "uniform"]'
@@ -503,11 +503,16 @@ class Combiner(TransformerMixin, BaseEstimator):
         table = table.set_index(['指标名称', '指标含义', '分箱']).reindex([(feature, desc, b) for b in feature_bin_dict.values()]).fillna(0).reset_index()
 
         if return_cols:
-            return table[[c for c in return_cols if c in table.columns]]
+            table = table[[c for c in return_cols if c in table.columns]]
         elif ks:
-            return table[['指标名称', "指标含义", '分箱', '样本总数', '样本占比', '好样本数', '好样本占比', '坏样本数', '坏样本占比', '坏样本率', '分档WOE值', '分档IV值', '指标IV值', 'LIFT值', '累积LIFT值', '累积好样本数', '累积坏样本数', '分档KS值']]
+            table = table[['指标名称', "指标含义", '分箱', '样本总数', '样本占比', '好样本数', '好样本占比', '坏样本数', '坏样本占比', '坏样本率', '分档WOE值', '分档IV值', '指标IV值', 'LIFT值', '累积LIFT值', '累积好样本数', '累积坏样本数', '分档KS值']]
         else:
-            return table[['指标名称', "指标含义", '分箱', '样本总数', '样本占比', '好样本数', '好样本占比', '坏样本数', '坏样本占比', '坏样本率', '分档WOE值', '分档IV值', '指标IV值', 'LIFT值', '累积LIFT值']]
+            table = table[['指标名称', "指标含义", '分箱', '样本总数', '样本占比', '好样本数', '好样本占比', '坏样本数', '坏样本占比', '坏样本率', '分档WOE值', '分档IV值', '指标IV值', 'LIFT值', '累积LIFT值']]
+
+        if return_rules:
+            return table, list(_combiner[feature])
+        else:
+            return table
 
     def bin_plot(self, data, x, rule={}, desc="", result=False, save=None, **kwargs):
         feature_table = self.feature_bin_stats(data, x, target=self.target, rules=rule, desc=desc, combiner=self.combiner, ks=True)
