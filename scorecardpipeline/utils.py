@@ -54,12 +54,10 @@ def init_setting(font_path=None, seed=None, freeze_torch=False, logger=False, **
     else:
         plt.style.use('seaborn-v0_8-ticks')
     
-    if font_path:
-        if not os.path.isfile(font_path):
-            import wget
-            font_path = wget.download("https://itlubber.art/upload/matplot_chinese.ttf", 'matplot_chinese.ttf')
-    else:
-        font_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'matplot_chinese.ttf')
+    font_path = font_path or os.path.join(os.path.dirname(os.path.abspath(__file__)), 'matplot_chinese.ttf')
+    if not os.path.isfile(font_path):
+        import wget
+        font_path = wget.download("https://itlubber.art/upload/matplot_chinese.ttf", os.path.join(os.path.dirname(os.path.abspath(__file__)), 'matplot_chinese.ttf'))
     
     font_manager.fontManager.addfont(font_path)
     plt.rcParams['font.family'] = font_manager.FontProperties(fname=font_path).get_name()
