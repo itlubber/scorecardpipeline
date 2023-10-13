@@ -191,7 +191,7 @@ def inverse_feature_bins(feature_table, bin_col="分箱"):
     return inverse_bin_vars
 
 
-def bin_plot(feature_table, desc="", figsize=(10, 6), colors=["#2639E9", "#F76E6C", "#FE7715"], save=None, anchor=0.94, max_len=35, hatch=True, ending="分箱图"):
+def bin_plot(feature_table, desc="", figsize=(10, 6), colors=["#2639E9", "#F76E6C", "#FE7715"], save=None, anchor=0.935, max_len=35, hatch=True, ending="分箱图"):
     """简单策略挖掘：特征分箱图
 
     :param feature_table: 特征分箱的统计信息表，由 feature_bin_stats 运行得到
@@ -417,7 +417,7 @@ def psi_plot(expected, actual, labels=["预期", "实际"], desc="", save=None, 
     df_psi["指标名称"] = desc
     
     if plot:
-        x = df_psi['分箱'].apply(lambda l: l if max_len is None else f"{str(l)[:max_len]}...")
+        x = df_psi['分箱'].apply(lambda l: l if max_len is None or len(str(l)) < max_len else f"{str(l)[:max_len]}...")
         x_indexes = np.arange(len(x))
         fig, ax1 = plt.subplots(figsize=figsize)
 
@@ -468,7 +468,7 @@ def csi_plot(expected, actual, score_bins, labels=["预期", "实际"], desc="",
     df_csi["指标名称"] = desc
     
     if plot:
-        x = df_csi['分箱'].apply(lambda l: l if max_len is None else f"{str(l)[:max_len]}...")
+        x = df_csi['分箱'].apply(lambda l: l if max_len is None or len(str(l)) < max_len else f"{str(l)[:max_len]}...")
         x_indexes = np.arange(len(x))
         fig, ax1 = plt.subplots(figsize=figsize)
 
