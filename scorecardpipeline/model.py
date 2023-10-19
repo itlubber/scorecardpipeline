@@ -317,8 +317,8 @@ class ScoreCard(toad.ScoreCard, TransformerMixin):
                 ["base_score", self.base_score, "基础ODDS对应的分数"],
                 ["rate", self.rate, "设置分数的倍率"],
                 ["pdo", self.pdo, "表示分数增长PDO时，ODDS值增长到RATE倍"],
-                ["B", self.offset, "补偿值，计算方式：pdo / ln(rate)"],
-                ["A", self.factor, "刻度，计算方式：base_score - B * ln(base_odds)"],
+                ["B", self.factor, "补偿值，计算方式：pdo / ln(rate)"],
+                ["A", self.offset, "刻度，计算方式：base_score - B * ln(base_odds)"],
             ],
             columns=["刻度项", "刻度值", "备注"],
         )
