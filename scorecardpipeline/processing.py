@@ -23,10 +23,10 @@ from .utils import *
 def drop_identical(frame, threshold=0.95, return_drop=False, exclude=None, target=None):
     cols = frame.columns.copy()
 
-    if target is not None:
-        cols.drop(target)
+    if target:
+        cols = cols.drop(target)
 
-    if exclude is not None:
+    if exclude:
         cols = cols.drop(exclude)
 
     if threshold <= 1:
@@ -126,7 +126,7 @@ def select(frame, target='target', empty=0.95, iv=0.02, corr=0.7, identical=0.95
 
     if empty:
         frame, empty_drop = toad.selection.drop_empty(frame, threshold=empty, return_drop=True, exclude=exclude)
-
+    
     if iv:
         frame, iv_drop, iv_list = toad.selection.drop_iv(frame, target=target, threshold=iv, return_drop=True, return_iv=True, exclude=exclude)
 
