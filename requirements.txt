@@ -1,6 +1,6 @@
 Cython
 wget
-numpy<=1.23.5
+numpy<=1.23.5,>1.23.1
 pandas
 matplotlib
 seaborn>=0.10.0

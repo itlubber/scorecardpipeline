@@ -39,13 +39,10 @@ def drop_identical(frame, threshold=0.95, return_drop=False, exclude=None, targe
         if n > threshold:
             drop_list.append(col)
 
-    r = frame.drop(columns=drop_list)
-
-    res = (r,)
     if return_drop:
-        res += (np.array(drop_list),)
+        return frame.drop(columns=drop_list), np.array(drop_list)
 
-    return toad.utils.unpack_tuple(res)
+    return frame.drop(columns=drop_list)
 
 
 def drop_corr(frame, target=None, threshold=0.7, by='IV', return_drop=False, exclude=None):
@@ -96,13 +93,11 @@ def drop_corr(frame, target=None, threshold=0.7, by='IV', return_drop=False, exc
             uni, counts = np.unique(graph, return_counts=True)
 
     drop_list = corr.index[drops].values
-    r = frame.drop(columns=drop_list)
-
-    res = (r,)
+    
     if return_drop:
-        res += (drop_list,)
+        return frame.drop(columns=drop_list), drop_list
 
-    return toad.utils.unpack_tuple(res)
+    return frame.drop(columns=drop_list)
 
 
 def select(frame, target='target', empty=0.95, iv=0.02, corr=0.7, identical=0.95, return_drop=False, exclude=None):
@@ -137,17 +132,16 @@ def select(frame, target='target', empty=0.95, iv=0.02, corr=0.7, identical=0.95
     if identical:
         frame, identical_drop = drop_identical(frame, threshold=identical, return_drop=True, exclude=exclude, target=target)
 
-    res = (frame,)
     if return_drop:
-        d = {
+        drop_info = {
             'empty': empty_drop,
             'iv': iv_drop,
             'corr': corr_drop,
             'identical': identical_drop,
         }
-        res += (d,)
+        return frame, drop_info
 
-    return toad.utils.unpack_tuple(res)
+    return frame
 
 
 class FeatureSelection(TransformerMixin, BaseEstimator):
@@ -391,18 +385,24 @@ class Combiner(TransformerMixin, BaseEstimator):
 
                 _combiner = OptimalBinning(feature, dtype=dtype, min_n_bins=min_n_bins, max_n_bins=max_n_bins, max_n_prebins=max_n_prebins, min_prebin_size=min_prebin_size, min_bin_size=min_bin_size, max_bin_size=max_bin_size, monotonic_trend=monotonic_trend, gamma=gamma).fit(x, y)
                 if _combiner.status == "OPTIMAL":
-                    rule = {feature: [s.tolist() if isinstance(s, np.ndarray) else s for s in _combiner.splits] + [[np.nan] if dtype == "categorical" else np.nan]}
+                    rule = {feature: [s.tolist() if isinstance(s, np.ndarray) else s for s in _combiner.splits] + [[None] if dtype == "categorical" else np.nan]}
                 else:
                     raise Exception("optimalBinning error")
 
             except Exception as e:
                 _combiner = toad.transform.Combiner()
                 _combiner.fit(data[[feature, target]].dropna(), target, method="chi", min_samples=self.min_bin_size, n_bins=self.max_n_bins, empty_separate=False)
-                rule = {feature: [s.tolist() if isinstance(s, np.ndarray) else s for s in _combiner.export()[feature]] + [[np.nan] if dtype == "categorical" else np.nan]}
+                rule = {feature: [s.tolist() if isinstance(s, np.ndarray) else s for s in _combiner.export()[feature]] + [[None] if dtype == "categorical" else np.nan]}
 
         self.combiner.update(rule)
 
-    def fit(self, x, y=None):
+    def fit(self, x: pd.DataFrame, y=None):
+        x = x.copy()
+        
+        # 处理数据集中分类变量包含 np.nan，toad 分箱后被转为 'nan' 字符串的问题
+        cat_cols = list(x.drop(columns=self.target).select_dtypes(exclude="number").columns)
+        x[cat_cols] = x[cat_cols].replace(np.nan, None)
+        
         if self.method in ["cart", "mdlp", "uniform"]:
             feature_optbinning_bins = partial(self.optbinning_bins, data=x, target=self.target, min_n_bins=self.min_n_bins, max_n_bins=self.max_n_bins, max_n_prebins=self.max_n_prebins, min_prebin_size=self.min_prebin_size, min_bin_size=self.min_bin_size, max_bin_size=self.max_bin_size, gamma=self.gamma, monotonic_trend=self.monotonic_trend)
             if self.n_jobs > 1:
