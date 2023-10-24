@@ -15,6 +15,8 @@ import toad
 import scipy
 from statsmodels.stats.outliers_influence import variance_inflation_factor
 from sklearn.metrics import classification_report
+from sklearn.utils._array_api import get_namespace
+from sklearn.utils.extmath import safe_sparse_dot
 from sklearn.linear_model import LogisticRegression
 from sklearn.utils.validation import check_is_fitted
 from sklearn.base import BaseEstimator, TransformerMixin, ClassifierMixin
@@ -127,6 +129,18 @@ class ITLubberLogisticRegression(LogisticRegression):
         self.p_val_coef_ = scipy.stats.norm.sf(abs(self.z_coef_)) * 2
 
         return self
+
+    def decision_function(self, x):
+        check_is_fitted(self)
+
+        x = x.copy()
+        if isinstance(x, pd.DataFrame) and self.target in x.columns:
+            x = x.drop(columns=self.target)
+
+        xp, _ = get_namespace(x)
+        x = self._validate_data(x, accept_sparse="csr", reset=False)
+        scores = safe_sparse_dot(x, self.coef_.T, dense_output=True) + self.intercept_
+        return xp.reshape(scores, -1) if scores.shape[1] == 1 else scores
     
     def corr(self, data, save=None, annot=True):
         corr_plot(data.drop(columns=[self.target]), save=save, annot=annot)
