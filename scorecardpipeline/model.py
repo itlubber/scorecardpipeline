@@ -133,7 +133,6 @@ class ITLubberLogisticRegression(LogisticRegression):
     def decision_function(self, x):
         check_is_fitted(self)
 
-        x = x.copy()
         if isinstance(x, pd.DataFrame) and self.target in x.columns:
             x = x.drop(columns=self.target)
 
