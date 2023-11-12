@@ -69,9 +69,11 @@ def init_setting(font_path=None, seed=None, freeze_torch=False, logger=False, **
     else:
         plt.style.use('seaborn-v0_8-ticks')
 
-    if font_path.lower() in [font.fname.lower() for font in font_manager.fontManager.ttflist]:
+    if font_path is not None and font_path.lower() in [font.fname.lower() for font in font_manager.fontManager.ttflist]:
         plt.rcParams['font.family'] = font_path
     else:
+        font_path = font_path or os.path.join(os.path.dirname(os.path.abspath(__file__)), 'matplot_chinese.ttf')
+
         if not os.path.isfile(font_path):
             import wget
             font_path = wget.download(
