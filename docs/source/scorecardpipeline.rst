@@ -6,13 +6,6 @@ scorecardpipeline
    :undoc-members:
    :show-inheritance:
 
-scorecardpipeline.model
-======================================
-
-.. automodule:: scorecardpipeline.model
-   :members:
-   :undoc-members:
-   :show-inheritance:
 
 scorecardpipeline.processing
 ======================================
@@ -22,13 +15,15 @@ scorecardpipeline.processing
    :undoc-members:
    :show-inheritance:
 
-scorecardpipeline.excel\_writer
+
+scorecardpipeline.model
 ======================================
 
-.. automodule:: scorecardpipeline.excel_writer
+.. automodule:: scorecardpipeline.model
    :members:
    :undoc-members:
    :show-inheritance:
+
 
 scorecardpipeline.utils
 ======================================
@@ -37,6 +32,16 @@ scorecardpipeline.utils
    :members:
    :undoc-members:
    :show-inheritance:
+
+
+scorecardpipeline.excel\_writer
+======================================
+
+.. automodule:: scorecardpipeline.excel_writer
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 
 scorecardpipeline.logger
 ======================================
