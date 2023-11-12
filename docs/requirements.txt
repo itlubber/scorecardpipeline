@@ -29,4 +29,3 @@ nbformat==5.9.2
 nbsphinx
 ipykernel
 docutils==0.16
-git+https://github.com/itlubber/scorecardpipeline.git
