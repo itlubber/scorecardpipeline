@@ -21,6 +21,19 @@ from .utils import *
 
 
 def drop_identical(frame, threshold=0.95, return_drop=False, exclude=None, target=None):
+    """
+    剔除数据集中单一值占比过高的特征
+
+    :param frame: 需要进行特征单一值占比过高筛选的数据集
+    :param threshold: 单一值占比阈值，超过阈值剔除特征
+    :param return_drop: 是否返回特征剔除信息，默认 False
+    :param exclude: 是否排除某些特征，不进行单一值占比筛选，默认为 None
+    :param target: 数据集中的目标变量列名，默认为 None，即数据集中不包含 target
+
+    :return:
+        + 筛选后的数据集: pd.DataFrame，剔除单一值占比过高特征的数据集
+        + 剔除的特征: list / np.ndarray，当 return_drop 设置为 True 时，返回被剔除的单一值占比过高的特征列表
+    """
     cols = frame.columns.copy()
 
     if target:
@@ -46,6 +59,20 @@ def drop_identical(frame, threshold=0.95, return_drop=False, exclude=None, targe
 
 
 def drop_corr(frame, target=None, threshold=0.7, by='IV', return_drop=False, exclude=None):
+    """
+    剔除数据集中特征相关性过高的特征
+
+    :param frame: 需要进行特征相关性过高筛选的数据集
+    :param target: 数据集中的目标变量列名，默认为 None
+    :param threshold: 相关性阈值，超过阈值剔除特征
+    :param by: 剔除指标的依据，两个特征相关性超过阈值时，保留指标更大的特征，默认根据 IV 进行判断
+    :param return_drop: 是否返回特征剔除信息，默认 False
+    :param exclude: 是否排除某些特征，不进行单一值占比筛选，默认为 None
+
+    :return:
+        + 筛选后的数据集: pd.DataFrame，剔除特征相关性过高的数据集
+        + 剔除的特征: list，当 return_drop 设置为 True 时，返回被剔除的相关性过高的特征列表
+    """
     if not isinstance(by, (str, pd.Series)):
         by = pd.Series(by, index=frame.columns)
 
@@ -101,21 +128,21 @@ def drop_corr(frame, target=None, threshold=0.7, by='IV', return_drop=False, exc
 
 
 def select(frame, target='target', empty=0.95, iv=0.02, corr=0.7, identical=0.95, return_drop=False, exclude=None):
-    """select features by rate of empty, iv and correlation
+    """
+    根据缺失率、IV指标、相关性、单一值占比等进行特征筛选，返回特征剔除后的数据集和剔除的特征信息
 
-    Args:
-        frame (DataFrame)
-        target (str): target's name in dataframe
-        empty (number): drop the features which empty num is greater than threshold. if threshold is less than `1`, it will be use as percentage
-        iv (float): drop the features whose IV is less than threshold
-        corr (float): drop features that has the smallest IV in each groups which correlation is greater than threshold
-        identical (number): drop the features which identical num is greater than threshold. if threshold is less than `1`, it will be use as percentage
-        return_drop (bool): if need to return features' name who has been dropped
-        exclude (array-like): list of feature name that will not be dropped
+    :param frame: 需要进行特征筛选的数据集
+    :param target: 数据集中的目标变量列名，默认为 target
+    :param empty: 缺失率阈值，超过阈值剔除特征
+    :param iv: IV 阈值，低于阈值剔除特征
+    :param corr: 相关性阈值，超过阈值剔除 IV 较小的特征
+    :param identical: 单一值占比阈值，超过阈值剔除特征
+    :param return_drop: 是否返回剔除特征信息，默认 False
+    :param exclude: 是否排除某些特征，不进行特征筛选，默认为 None
 
-    Returns:
-        DataFrame: selected dataframe
-        dict: list of dropped feature names in each step
+    :return:
+        + 筛选后的数据集: pd.DataFrame，特征筛选后的数据集
+        + 剔除的特征信息: dict，当 return_drop 设置为 True 时，返回被剔除特征信息
     """
     empty_drop = iv_drop = corr_drop = identical_drop = iv_list = None
 
@@ -147,19 +174,18 @@ def select(frame, target='target', empty=0.95, iv=0.02, corr=0.7, identical=0.95
 class FeatureSelection(TransformerMixin, BaseEstimator):
 
     def __init__(self, target="target", empty=0.95, iv=0.02, corr=0.7, exclude=None, return_drop=True, identical=0.95, remove=None, engine="scorecardpy", target_rm=False):
-        """ITLUBBER提供的特征筛选方法
+        """特征筛选方法
 
-        Args:
-            target: 数据集中标签名称，默认 target
-            empty: 空值率，默认 0.95, 即空值占比超过 95% 的特征会被剔除
-            iv: IV值，默认 0.02，即iv值小于 0.02 时特征会被剔除
-            corr: 相关性，默认 0.7，即特征之间相关性大于 0.7 时会剔除iv较小的特征
-            identical: 唯一值占比，默认 0.95，即当特征的某个值占比超过 95% 时，特征会被剔除
-            engine: 特征筛选使用的引擎，可选 "toad", "scorecardpy" 两种，默认 scorecardpy
-            remove: 引擎使用 scorecardpy 时，可以传入需要强制删除的变量
-            return_drop: 是否返回删除信息，默认 True，即默认返回删除特征信息
-            target_rm: 是否剔除标签，默认 False，即不剔除
-            exclude: 是否需要强制保留某些特征
+        :param target: 数据集中标签名称，默认 target
+        :param empty: 空值率，默认 0.95, 即空值占比超过 95% 的特征会被剔除
+        :param iv: IV值，默认 0.02，即iv值小于 0.02 时特征会被剔除
+        :param corr: 相关性，默认 0.7，即特征之间相关性大于 0.7 时会剔除iv较小的特征
+        :param identical: 单一值占比，默认 0.95，即当特征的某个值占比超过 95% 时，特征会被剔除
+        :param exclude: 是否需要强制保留某些特征
+        :param return_drop: 是否返回删除信息，默认 True，即默认返回删除特征信息
+        :param remove: 引擎使用 scorecardpy 时，可以传入需要强制删除的变量
+        :param engine: 特征筛选使用的引擎，可选 "toad", "scorecardpy" 两种，默认 scorecardpy
+        :param target_rm: 是否剔除标签，默认 False，即不剔除
         """
         self.engine = engine
         self.target = target
@@ -175,6 +201,12 @@ class FeatureSelection(TransformerMixin, BaseEstimator):
         self.dropped = None
 
     def fit(self, x, y=None):
+        """训练特征筛选方法
+
+        :param x: 数据集，需要包含目标变量
+
+        :return: 训练后的 FeatureSelection
+        """
         if self.engine == "toad":
             selected = select(x, target=self.target, empty=self.empty, identical=self.identical, iv=self.iv, corr=self.corr, exclude=self.exclude, return_drop=self.return_drop)
         else:
@@ -195,27 +227,32 @@ class FeatureSelection(TransformerMixin, BaseEstimator):
         return self
 
     def transform(self, x, y=None):
+        """特征筛选转换器
+
+        :param x: 需要进行特征筛选的数据集
+
+        :return: pd.DataFrame，特征筛选后的数据集
+        """
         return x[[col for col in self.select_columns if col in x.columns]]
 
 
 class StepwiseSelection(TransformerMixin, BaseEstimator):
 
     def __init__(self, target="target", estimator="ols", direction="both", criterion="aic", max_iter=None, return_drop=True, exclude=None, intercept=True, p_value_enter=0.2, p_remove=0.01, p_enter=0.01, target_rm=False):
-        """逐步回归筛选方法
+        """逐步回归特征筛选方法
 
-        Args:
-            target: 数据集中标签名称，默认 target
-            estimator: 预估器，默认 ols，可选 "ols", "lr", "lasso", "ridge"，通常默认即可
-            direction: 逐步回归方向，默认both，可选 "forward", "backward", "both"，通常默认即可
-            criterion: 评价指标，默认 aic，可选 "aic", "bic", "ks", "auc"，通常默认即可
-            max_iter: 最大迭代次数，sklearn中使用的参数，默认为 None
-            return_drop: 是否返回特征剔除信息，默认 True
-            exclude: 强制保留的某些特征
-            intercept: 是否包含截距，默认为 True
-            p_value_enter: 特征进入的 p 值，用于前向筛选时决定特征是否进入模型
-            p_remove: 特征剔除的 p 值，用于后向剔除时决定特征是否要剔除
-            p_enter: 特征 p 值，用于判断双向逐步回归是否剔除或者准入特征
-            target_rm: 是否剔除数据集中的标签，默认为 False，即剔除数据集中的标签
+        :param target: 数据集中标签名称，默认 target
+        :param estimator: 预估器，默认 ols，可选 "ols", "lr", "lasso", "ridge"，通常默认即可
+        :param direction: 逐步回归方向，默认both，可选 "forward", "backward", "both"，通常默认即可
+        :param criterion: 评价指标，默认 aic，可选 "aic", "bic", "ks", "auc"，通常默认即可
+        :param max_iter: 最大迭代次数，sklearn中使用的参数，默认为 None
+        :param return_drop: 是否返回特征剔除信息，默认 True
+        :param exclude: 强制保留的某些特征
+        :param intercept: 是否包含截距，默认为 True
+        :param p_value_enter: 特征进入的 p 值，用于前向筛选时决定特征是否进入模型
+        :param p_remove: 特征剔除的 p 值，用于后向剔除时决定特征是否要剔除
+        :param p_enter: 特征 p 值，用于判断双向逐步回归是否剔除或者准入特征
+        :param target_rm: 是否剔除数据集中的标签，默认为 False，即剔除数据集中的标签
         """
         self.target = target
         self.intercept = intercept
@@ -233,6 +270,12 @@ class StepwiseSelection(TransformerMixin, BaseEstimator):
         self.dropped = None
 
     def fit(self, x, y=None):
+        """训练逐步回归特征筛选方法
+
+        :param x: 数据集，需要包含目标变量
+
+        :return: 训练后的 StepwiseSelection
+        """
         selected = toad.selection.stepwise(x, target=self.target, estimator=self.estimator, direction=self.direction, criterion=self.criterion, exclude=self.exclude, intercept=self.intercept, p_value_enter=self.p_value_enter,
                                            p_remove=self.p_remove, p_enter=self.p_enter, return_drop=self.return_drop)
         if self.return_drop:
@@ -247,6 +290,12 @@ class StepwiseSelection(TransformerMixin, BaseEstimator):
         return self
 
     def transform(self, x, y=None):
+        """逐步回归特征筛选转换器
+
+        :param x: 需要进行特征筛选的数据集
+
+        :return: pd.DataFrame，特征筛选后的数据集
+        """
         return x[[col for col in self.select_columns if col in x.columns]]
 
 
@@ -254,13 +303,12 @@ class FeatureImportanceSelector(BaseEstimator, TransformerMixin):
 
     def __init__(self, top_k=126, target="target", selector="catboost", params=None, max_iv=None):
         """基于特征重要性的特征筛选方法
-        
-        Args:
-            target: 数据集中标签名称，默认 target
-            top_k: 依据特征重要性进行排序，筛选最重要的 top_k 个特征
-            max_iv: 是否需要删除 IV 过高的特征，建议设置为 1.0
-            selector: 特征选择器，目前只支持 catboost ，可以支持数据集中包含字符串的数据
-            params: selector 的参数，不传使用默认参数
+
+        :param top_k: 依据特征重要性进行排序，筛选最重要的 top_k 个特征
+        :param target: 数据集中标签名称，默认 target
+        :param selector: 特征选择器，目前只支持 catboost ，可以支持数据集中包含字符串的数据
+        :param params: selector 的参数，不传使用默认参数
+        :param max_iv: 是否需要删除 IV 过高的特征，建议设置为 1.0
         """
         self.target = target
         self.top_k = top_k
@@ -274,6 +322,12 @@ class FeatureImportanceSelector(BaseEstimator, TransformerMixin):
         self.dropped = None
 
     def fit(self, x, y=None):
+        """特征重要性筛选器训练
+
+        :param x: 数据集，需要包含目标变量
+
+        :return: 训练后的 FeatureImportanceSelector
+        """
         x = x.copy()
 
         if self.max_iv is not None:
@@ -294,9 +348,21 @@ class FeatureImportanceSelector(BaseEstimator, TransformerMixin):
         return self
 
     def transform(self, x, y=None):
+        """特征重要性筛选器转换方法
+
+        :param x: 需要进行特征筛选的数据集
+
+        :return: pd.DataFrame，特征筛选后的数据集
+        """
         return x[self.select_columns + [self.target]]
 
     def catboost_selector(self, x, y, cat_features=None):
+        """基于 `CatBoost` 的特征重要性筛选器
+
+        :param x: 需要进行特征重要性筛选的数据集，不包含目标变量
+        :param y: 数据集中对应的目标变量值
+        :param cat_features: 类别型特征的索引
+        """
         from catboost import Pool, cv, metrics, CatBoostClassifier
 
         cat_data = Pool(data=x, label=y, cat_features=cat_features)
@@ -329,20 +395,19 @@ class Combiner(TransformerMixin, BaseEstimator):
     def __init__(self, target="target", method='chi', empty_separate=False, min_n_bins=2, max_n_bins=None, max_n_prebins=20, min_prebin_size=0.02, min_bin_size=0.05, max_bin_size=None, gamma=0.01, monotonic_trend="auto_asc_desc", adj_rules={}, n_jobs=1):
         """特征分箱封装方法
 
-        Args:
-            target: 数据集中标签名称，默认 target
-            method: 特征分箱方法，可选 "chi", "dt", "quantile", "step", "kmeans", "cart", "mdlp", "uniform", 参考 toad.Combiner & optbinning.OptimalBinning
-            empty_separate: 是否空值单独一箱, 默认 False，推荐设置为 True
-            min_n_bins: 最小分箱数，默认 2，即最小拆分2箱
-            max_n_bins: 最大分箱数，默认 None，即不限制拆分箱数，推荐设置 3 ～ 5，不宜过多，偶尔使用 optbinning 时不起效
-            max_n_prebins: 使用 optbinning 时预分箱数量
-            min_prebin_size: 使用 optbinning 时预分箱叶子结点（或者每箱）样本占比，默认 2%
-            min_bin_size: 使用 optbinning 正式分箱叶子结点（或者每箱）最小样本占比，默认 5%
-            max_bin_size: 使用 optbinning 正式分箱叶子结点（或者每箱）最大样本占比，默认 None
-            gamma: 使用 optbinning 分箱时限制过拟合的正则化参数，值越大惩罚越多，默认 0。01
-            monotonic_trend: 使用 optbinning 正式分箱时的坏率策略，默认 auto，可选 "auto", "auto_heuristic", "auto_asc_desc", "ascending", "descending", "convex", "concave", "peak", "valley", "peak_heuristic", "valley_heuristic"
-            adj_rules: 自定义分箱规则，toad.Combiner 能够接收的形式
-            n_jobs: 使用多进程加速的worker数量，默认单进程
+        :param target: 数据集中标签名称，默认 target
+        :param method: 特征分箱方法，可选 "chi", "dt", "quantile", "step", "kmeans", "cart", "mdlp", "uniform", 参考 toad.Combiner: https://github.com/amphibian-dev/toad/blob/master/toad/transform.py#L178-L355 & optbinning.OptimalBinning: https://gnpalencia.org/optbinning/
+        :param empty_separate: 是否空值单独一箱, 默认 False，推荐设置为 True
+        :param min_n_bins: 最小分箱数，默认 2，即最小拆分2箱
+        :param max_n_bins: 最大分箱数，默认 None，即不限制拆分箱数，推荐设置 3 ～ 5，不宜过多，偶尔使用 optbinning 时不起效
+        :param max_n_prebins: 使用 optbinning 时预分箱数量
+        :param min_prebin_size: 使用 optbinning 时预分箱叶子结点（或者每箱）样本占比，默认 2%
+        :param min_bin_size: 使用 optbinning 正式分箱叶子结点（或者每箱）最小样本占比，默认 5%
+        :param max_bin_size: 使用 optbinning 正式分箱叶子结点（或者每箱）最大样本占比，默认 None
+        :param gamma: 使用 optbinning 分箱时限制过拟合的正则化参数，值越大惩罚越多，默认 0.01
+        :param monotonic_trend: 使用 optbinning 正式分箱时的坏率策略，默认 auto，可选 "auto", "auto_heuristic", "auto_asc_desc", "ascending", "descending", "convex", "concave", "peak", "valley", "peak_heuristic", "valley_heuristic"
+        :param adj_rules: 自定义分箱规则，toad.Combiner 能够接收的形式
+        :param n_jobs: 使用多进程加速的worker数量，默认单进程
         """
         self.combiner = toad.transform.Combiner()
         self.method = method
@@ -360,9 +425,27 @@ class Combiner(TransformerMixin, BaseEstimator):
         self.n_jobs = n_jobs
 
     def update(self, rules):
+        """更新 Combiner 中特征的分箱规则
+
+        :param rules: dict，需要更新规则，格式如下：{特征名称: 分箱规则}
+        """
         self.combiner.update(rules)
 
     def optbinning_bins(self, feature, data=None, target="target", min_n_bins=2, max_n_bins=3, max_n_prebins=10, min_prebin_size=0.02, min_bin_size=0.05, max_bin_size=None, gamma=0.01, monotonic_trend="auto_asc_desc"):
+        """基于 optbinning.OptimalBinning 的特征分箱方法，使用 optbinning.OptimalBinning 分箱失败时，使用 toad.transform.Combiner 的卡方分箱处理
+
+        :param feature: 需要进行分箱的特征名称
+        :param data: 训练数据集
+        :param target: 数据集中标签名称，默认 target
+        :param min_n_bins: 最小分箱数，默认 2，即最小拆分2箱
+        :param max_n_bins: 最大分箱数，默认 None，即不限制拆分箱数，推荐设置 3 ～ 5，不宜过多，偶尔不起效
+        :param max_n_prebins: 使用 optbinning 时预分箱数量
+        :param min_prebin_size: 使用 optbinning 时预分箱叶子结点（或者每箱）样本占比，默认 2%
+        :param min_bin_size: 使用 optbinning 正式分箱叶子结点（或者每箱）最小样本占比，默认 5%
+        :param max_bin_size: 使用 optbinning 正式分箱叶子结点（或者每箱）最大样本占比，默认 None
+        :param gamma: 使用 optbinning 分箱时限制过拟合的正则化参数，值越大惩罚越多，默认 0.01
+        :param monotonic_trend: 使用 optbinning 正式分箱时的坏率策略，默认 auto，可选 "auto", "auto_heuristic", "auto_asc_desc", "ascending", "descending", "convex", "concave", "peak", "valley", "peak_heuristic", "valley_heuristic"
+        """
         if data[feature].dropna().nunique() <= min_n_bins:
             splits = []
             for v in data[feature].dropna().unique():
@@ -397,6 +480,12 @@ class Combiner(TransformerMixin, BaseEstimator):
         self.combiner.update(rule)
 
     def fit(self, x: pd.DataFrame, y=None):
+        """特征分箱训练
+
+        :param x: 需要分箱的数据集，需要包含目标变量
+
+        :return: Combiner，训练完成的分箱器
+        """
         x = x.copy()
         
         # 处理数据集中分类变量包含 np.nan，toad 分箱后被转为 'nan' 字符串的问题
@@ -422,17 +511,58 @@ class Combiner(TransformerMixin, BaseEstimator):
         return self
 
     def transform(self, x, y=None, labels=False):
+        """特征分箱转换方法
+
+        :param x: 需要进行分箱转换的数据集
+        :param labels: 进行分箱转换时是否转换为分箱信息，默认 False，即转换为分箱索引
+
+        :return: pd.DataFrame，分箱转换后的数据集
+        """
         return self.combiner.transform(x, labels=labels)
 
     def export(self, to_json=None):
+        """特征分箱器导出 json 保存
+
+        :param to_json: json 文件的路径
+
+        :return: dict，特征分箱信息
+        """
         return self.combiner.export(to_json=to_json)
 
     def load(self, from_json=None):
+        """特征分箱器加载离线保存的 json 文件
+
+        :param from_json: json 文件的路径
+
+        :return: Combiner，特征分箱器
+        """
         self.combiner.load(from_json=from_json)
         return self
 
     @classmethod
     def feature_bin_stats(cls, data, feature, target="target", rules=None, method='step', desc="", combiner=None, ks=True, max_n_bins=None, min_bin_size=None, max_bin_size=None, empty_separate=True, return_cols=None, return_rules=False, verbose=0, **kwargs):
+        """特征分箱统计表，汇总统计特征每个分箱的各项指标信息
+
+        :param data: 需要查看分箱统计表的数据集
+        :param feature: 需要查看的分箱统计表的特征名称
+        :param target: 数据集中标签名称，默认 target
+        :param rules: 根据自定义的规则查看特征分箱统计表，支持 list（单个特征分箱规则） 或 dict（多个特征分箱规则） 格式传入
+        :param combiner: 提前训练好的特征分箱器，优先级小于 rules
+        :param method: 特征分箱方法，当传入 rules 或 combiner 时失效，可选 "chi", "dt", "quantile", "step", "kmeans", "cart", "mdlp", "uniform", 参考 toad.Combiner: https://github.com/amphibian-dev/toad/blob/master/toad/transform.py#L178-L355 & optbinning.OptimalBinning: https://gnpalencia.org/optbinning/
+        :param desc: 特征描述信息，大部分时候用于传入特征对应的中文名称或者释义
+        :param ks: 是否统计 KS 信息
+        :param max_n_bins: 最大分箱数，默认 None，即不限制拆分箱数，推荐设置 3 ～ 5，不宜过多，偶尔使用 optbinning 时不起效
+        :param min_bin_size: 使用 optbinning 正式分箱叶子结点（或者每箱）最小样本占比，默认 5%
+        :param max_bin_size: 使用 optbinning 正式分箱叶子结点（或者每箱）最大样本占比，默认 None
+        :param empty_separate: 是否空值单独一箱, 默认 False，推荐设置为 True
+        :param return_cols: list，指定返回部分特征分箱统计表的列，默认 None
+        :param return_rules: 是否返回特征分箱信息，默认 False
+        :param kwargs: scorecardpipeline.processing.Combiner 的其他参数
+
+        :return:
+            + 特征分箱统计表: pd.DataFrame
+            + 特征分箱信息: list，当参数 return_rules 为 True 时返回
+        """
         if combiner is None:
             if method not in ["chi", "dt", "quantile", "step", "kmeans", "cart", "mdlp", "uniform"]:
                 raise 'method is the one of ["chi", "dt", "quantile", "step", "kmeans", "cart", "mdlp", "uniform"]'
@@ -515,47 +645,109 @@ class Combiner(TransformerMixin, BaseEstimator):
             return table
 
     def bin_plot(self, data, x, rule={}, desc="", result=False, save=None, **kwargs):
+        """特征分箱图
+
+        :param data: 需要查看分箱图的数据集
+        :param x: 需要查看的分箱图的特征名称
+        :param rule: 自定义的特征分箱规则，不会修改已训练好的特征分箱信息
+        :param desc: 特征描述信息，大部分时候用于传入特征对应的中文名称或者释义
+        :param result: 是否返回特征分箱统计表，默认 False
+        :param save: 图片保存的地址，如果传入路径中有文件夹不存在，会新建相关文件夹，默认 None
+        :param kwargs: scorecardpipeline.utils.bin_plot 方法其他的参数，参考：http://localhost:63342/scorecardpipeline/docs/build/html/scorecardpipeline.html#scorecardpipeline.utils.bin_plot
+        :return: pd.DataFrame，特征分箱统计表，当 result 参数为 True 时返回
+        """
         feature_table = self.feature_bin_stats(data, x, target=self.target, rules=rule, desc=desc, combiner=self.combiner, ks=True)
         bin_plot(feature_table, desc=desc, save=save, **kwargs)
 
         if result:
             return feature_table
 
-    def proportion_plot(self, x, transform=False, labels=False):
+    def proportion_plot(self, data, x, transform=False, labels=False, keys=None):
+        """数据集中特征的分布情况
+
+        :param data: 需要查看样本分布的数据集
+        :param x: 需要查看样本分布的特征名称
+        :param transform: 是否进行分箱转换，默认 False，当特征为数值型变量时推荐转换分箱后在查看数据分布
+        :param labels: 进行分箱转换时是否转换为分箱信息，默认 False，即转换为分箱索引
+        :param keys: 根据某个 key 划分数据集查看数据分布情况，默认 None
+        """
         if transform:
             x = self.combiner.transform(x, labels=labels)
-        proportion_plot(x)
+
+        proportion_plot(x, keys=keys)
 
     def corr_plot(self, data, transform=False, figure_size=(20, 15), save=None):
+        """特征相关图
+
+        :param data: 需要查看特征相关性的数据集
+        :param transform: 是否进行分箱转换，默认 False
+        :param figure_size: 图像大小，默认 (20, 15)
+        :param save: 图片保存的地址，如果传入路径中有文件夹不存在，会新建相关文件夹，默认 None
+        """
         if transform:
             data = self.combiner.transform(data, labels=False)
 
         corr_plot(data, figure_size=figure_size, save=save)
 
     def badrate_plot(self, data, date_column, feature, labels=True):
+        """查看不同时间段的分箱是否平稳，线敞口随时间变化而增大为优，代表了特征在更新的时间区分度更强。线之前没有交叉为优，代表分箱稳定
+
+        :param data: 需要查看分箱平稳情况的数据集，需包含时间列
+        :param feature: 需要查看分箱平稳性的特征名称
+        :param date_column: 数据集中的日期列名称
+        :param labels: 进行分箱转换时是否转换为分箱信息，默认 True，即转换为分箱
+        """
         badrate_plot(self.combiner.transform(data[[date_column, feature, self.target]], labels=labels), target=self.target, x=date_column, by=feature)
 
     @property
     def rules(self):
+        """dict，特征分箱明细信息"""
         return self.combiner._rules
 
     @rules.setter
     def rules(self, value):
+        """设置分箱信息
+
+        :param value: 特征分箱
+        """
         self.combiner._rules = value
 
     def __len__(self):
+        """返回特征分箱器特征的个数
+
+        :return: int，分箱器中特征的个数
+        """
         return len(self.combiner._rules.keys())
 
     def __contains__(self, key):
+        """查看某个特征是否在分箱器中
+
+        :param key: 特征名称
+        :return: bool，是否在分箱器中
+        """
         return key in self.combiner._rules
 
     def __getitem__(self, key):
+        """获取某个特征的分箱信息
+
+        :param key: 特征名称
+        :return: list，特征分箱信息
+        """
         return self.combiner._rules[key]
 
     def __setitem__(self, key, value):
+        """设置某个特征的分箱信息
+
+        :param key: 特征名称
+        :param value: 分箱规则
+        """
         self.combiner._rules[key] = value
 
     def __iter__(self):
+        """分箱规则的迭代器
+
+        :return: iter，迭代器
+        """
         return iter(self.combiner._rules)
 
 
@@ -564,23 +756,34 @@ class WOETransformer(TransformerMixin, BaseEstimator):
     def __init__(self, target="target", exclude=None):
         """WOE转换器
 
-        Args:
-            target: 数据集中标签名称，默认 target
-            exclude: 不需要转换 woe 的列
+        :param target: 数据集中标签名称，默认 target
+        :param exclude: 不需要转换 woe 的列
         """
         self.target = target
         self.exclude = exclude if isinstance(exclude, list) else [exclude] if exclude else []
         self.transformer = toad.transform.WOETransformer()
 
     def fit(self, x, y=None):
+        """WOE转换器训练
+
+        :param x: Combiner 转换后的数据（label 为 False），需要包含目标变量
+        :return: WOETransformer，训练完成的WOE转换器
+        """
         self.transformer.fit(x.drop(columns=self.exclude + [self.target]), x[self.target])
         return self
 
     def transform(self, x, y=None):
+        """特征WOE转换方法
+
+        :param x: 需要进行WOE转换的数据集
+
+        :return: pd.DataFrame，WOE转换后的数据集
+        """
         return self.transformer.transform(x)
 
     @property
     def rules(self):
+        """dict，特征 WOE 明细信息"""
         return self.transformer._rules
 
     @rules.setter
