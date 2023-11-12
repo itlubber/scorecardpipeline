@@ -43,7 +43,6 @@ extensions = [
     "sphinx_design",
     "sphinx_thebe",
     "sphinx_copybutton",
-    "sphinx_nefertiti",
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -68,6 +67,8 @@ exclude_patterns = []
 # a list of builtin themes.
 #
 # html_theme = "sphinx_rtd_theme"
+
+import sphinx_nefertiti
 
 html_theme = 'sphinx_nefertiti'
 html_theme_options = {
