@@ -1,11 +1,11 @@
 absl-py==1.4.0
 alabaster==0.7.13
-appnope @ file:///home/conda/feedstock_root/build_artifacts/appnope_1649077682618/work
-asttokens @ file:///home/conda/feedstock_root/build_artifacts/asttokens_1670263926556/work
+appnope
+asttokens
 attrs==23.1.0
 Babel==2.13.1
-backcall @ file:///home/conda/feedstock_root/build_artifacts/backcall_1592338393461/work
-backports.functools-lru-cache @ file:///home/conda/feedstock_root/build_artifacts/backports.functools_lru_cache_1618230623929/work
+backcall
+backports.functools-lru-cache
 certifi==2023.7.22
 cffi==1.15.1
 charset-normalizer==3.3.2
@@ -13,7 +13,7 @@ click==8.1.7
 cloudpickle==3.0.0
 colorama==0.4.6
 colour==0.1.5
-comm @ file:///home/conda/feedstock_root/build_artifacts/comm_1679481329611/work
+comm
 commonmark==0.9.1
 contourpy==1.0.7
 cssselect2==0.7.0
@@ -21,8 +21,8 @@ cvxpy==1.3.1
 cycler==0.11.0
 Cython==0.29.34
 dataclass-wizard==0.22.2
-debugpy @ file:///Users/runner/miniforge3/conda-bld/debugpy_1680755597432/work
-decorator @ file:///home/conda/feedstock_root/build_artifacts/decorator_1641555617451/work
+debugpy
+decorator
 defusedxml==0.7.1
 docutils==0.18.1
 ecos==2.0.12
@@ -35,7 +35,7 @@ greenlet==3.0.1
 hyperopt==0.2.7
 idna==3.4
 imagesize==1.4.1
-importlib-metadata @ file:///home/conda/feedstock_root/build_artifacts/importlib-metadata_1682176699712/work
+importlib-metadata
 importlib-resources==5.12.0
 iniconfig==2.0.0
 Jinja2==3.0.3
@@ -45,7 +45,7 @@ Markdown==3.5.1
 markdown-it-py==2.2.0
 MarkupSafe==2.1.3
 matplotlib==3.7.1
-matplotlib-inline @ file:///home/conda/feedstock_root/build_artifacts/matplotlib-inline_1660814786464/work
+matplotlib-inline
 mdit-py-plugins==0.3.5
 mdurl==0.1.2
 mergedeep==1.3.4
@@ -57,21 +57,21 @@ myst-parser==0.18.1
 nbclient==0.7.4
 nbformat==5.9.2
 osqp==0.6.2.post9
-packaging @ file:///home/conda/feedstock_root/build_artifacts/packaging_1681337016113/work
-parso @ file:///home/conda/feedstock_root/build_artifacts/parso_1638334955874/work
+packaging
+parso
 pathspec==0.11.2
 patsy==0.5.3
-pexpect @ file:///home/conda/feedstock_root/build_artifacts/pexpect_1667297516076/work
-pickleshare @ file:///home/conda/feedstock_root/build_artifacts/pickleshare_1602536217715/work
+pexpect
+pickleshare
 pkgutil_resolve_name==1.3.10
-platformdirs @ file:///home/conda/feedstock_root/build_artifacts/platformdirs_1683850015520/work
+platformdirs
 pluggy==1.0.0
-prompt-toolkit @ file:///home/conda/feedstock_root/build_artifacts/prompt-toolkit_1677600924538/work
-psutil @ file:///Users/runner/miniforge3/conda-bld/psutil_1681775314478/work
-ptyprocess @ file:///home/conda/feedstock_root/build_artifacts/ptyprocess_1609419310487/work/dist/ptyprocess-0.7.0-py2.py3-none-any.whl
-pure-eval @ file:///home/conda/feedstock_root/build_artifacts/pure_eval_1642875951954/work
+prompt-toolkit
+psutil
+ptyprocess
+pure-eval
 pycparser==2.21
-Pygments @ file:///home/conda/feedstock_root/build_artifacts/pygments_1681904169130/work
+Pygments
 pymdown-extensions==10.3.1
 pyparsing==3.0.9
 pytest==7.3.1
