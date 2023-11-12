@@ -1,0 +1,1073 @@
+
+
+<!DOCTYPE html>
+<html class="no-js" lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="docsearch:name" content="scorecardpipeline" />
+    <meta name="docsearch:package_type" content="" />
+    <meta name="docsearch:release" content="0.1.25" />
+    <meta name="docsearch:version" content="" />
+    
+      <title>scorecardpipeline.processing &mdash; scorecardpipeline 0.1.25 文档</title>
+    
+    <link rel="stylesheet" href="../../_static/bootstrap-icons.css" type="text/css" />
+          <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=e7352e39" />
+          <link rel="stylesheet" type="text/css" href="../../_static/sphinx-thebe.css?v=4fa983c6" />
+          <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+          <link id="pygments_dark_css" media="(prefers-color-scheme: dark)" rel="stylesheet" type="text/css" href="../../_static/pygments_dark.css?v=e15ddae3" />
+          <link rel="stylesheet" type="text/css" href="../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css?v=0a3b3ea7" />
+          <link rel="stylesheet" type="text/css" href="../../_static/colorsets/sphinx-nefertiti-indigo.min.css" />
+          <link rel="stylesheet" type="text/css" href="../../_static/fonts/nunito/stylesheet.css" />
+          <link rel="stylesheet" type="text/css" href="../../_static/fonts/red-hat-mono/stylesheet.css" />
+          <link rel="stylesheet" type="text/css" href="../../_static/fonts/nunito/stylesheet.css" />
+          <link rel="stylesheet" type="text/css" href="../../_static/fonts/nunito/stylesheet.css" />
+          <link rel="stylesheet" type="text/css" href="../../_static/fonts/nunito/stylesheet.css" />
+          <link rel="stylesheet" type="text/css" href="../../_static/pygments_dark.css?v=e15ddae3" />
+        <link rel="index" title="索引" href="../../genindex.html" />
+        <link rel="search" title="搜索" href="../../search.html" />
+        <link rel="top" title="scorecardpipeline 0.1.25 文档" href="#" />
+        <link rel="up" title="模块代码" href="../index.html" />
+    <style>
+      :root {
+        --nftt-body-font-family: "Nunito", var(--nftt-font-sans-serif) !important;
+        --nftt-font-monospace: "Red Hat Mono", var(--nftt-font-family-monospace) !important;
+        --nftt-project-name-font: "Nunito", var(--nftt-body-font-family);
+        --nftt-documentation-font: "Nunito", var(--nftt-body-font-family);
+        --nftt-doc-headers-font: "Nunito", var(--nftt-documentation-font);}
+      h1 *, h2 *, h3 *, h4 *, h5 *, h6 * { font-size: inherit; }
+    </style>
+  </head>
+  <body>
+    <header class="navbar navbar-expand-lg navbar-dark nftt-navbar flex-column fixed-top">
+      <div class="skip-links container-xxl visually-hidden-focusable overflow-hidden justify-content-start">
+        <div class="border-bottom mb-2 pb-2 w-100">
+          <a class="d-none d-md-inline-flex p-2 m-1" href="#sidebar-filter">Skip to docs navigation</a>
+          <a class="d-inline-flex p-2 m-1" href="#content">Skip to main content</a>
+        </div>
+      </div>
+      <nav class="container-xxl nftt-gutter flex-wrap flex-lg-nowrap" aria-label="Main navigation">
+        <div class="nftt-navbar-toggler">
+          <button class="navbar-toggler p-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebar" aria-controls="sidebar" aria-label="Toggle documentation navigation">
+            <i class="bi bi-list"></i>
+          </button>
+        </div>
+          <a href="../../index.html"
+              
+              class="navbar-brand p-0 me-0 md-lg-2"
+          ><span class="brand-text">scorecardpipeline</span></a>
+        
+        <div class="d-flex d-lg-none">
+          <button class="navbar-toggler p-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#nfttSearch" aria-controls="nfttSearch" aria-label="Search">
+            <i class="bi bi-search"></i>
+          </button>
+          <button class="navbar-toggler p-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#nfttNavbar" aria-controls="nfttNavbar" aria-label="Toggle navigation">
+            <i class="bi bi-three-dots"></i>
+          </button>
+        </div>
+        
+<div class="offcanvas-lg offcanvas-end flex-grow-1" tabindex="-1" id="nfttSearch" aria-labelledby="nfttSearchOffcanvasLabel" data-bs-scroll="true">
+  <div class="offcanvas-header px-4 pb-0">
+    <h5 class="offcanvas-title fw-bold" id="nfttSearchOffcanvasLabel">Search the documentation</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close" data-bs-target="#nfttSearch"></button>
+  </div>
+  <div class="offcanvas-body p-4 pt-0 p-lg-0 px-lg-3">
+    <hr class="d-lg-none text-white-50">
+    <ul class="navbar-nav flex-row align-items-center flex-wrap ms-md-auto">
+      <li class="nav-item col-12 col-lg-auto">
+        <form id="nftt-search-form" action="../../search.html" method="get">
+          <div class="input-group">
+            <input type="text" name="q" class="form-control" placeholder="Search docs" aria-label="Search" aria-describedby="button-search">
+            <input type="hidden" name="check_keywords" value="yes" />
+            <input type="hidden" name="area" value="default" />
+            <button class="btn btn-primary" type="submit" id="button-search" aria-label="Search"><i class="bi bi-search"></i></button>
+          </div>
+        </form>
+      </li>
+    </ul>
+  </div>
+</div>
+
+        <div class="offcanvas-lg offcanvas-end" tabindex="-1" id="nfttNavbar" aria-labelledby="nfttNavbarOffcanvasLabel" data-bs-scroll="true">
+          <div class="offcanvas-header px-4 pb-0">
+            <div class="offcanvas-title text-white fw-bold" id="nfttNavbarOffcanvasLabel"><span class="brand-text">Nefertiti for Sphinx</span></div>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close" data-bs-target="#nfttNavbar"></button>
+          </div>
+          <div class="offcanvas-body p-4 pt-0 p-lg-0">
+            <hr class="d-lg-none text-white-50">
+            <ul class="navbar-nav flex-row align-items-center flex-wrap ms-md-auto">
+              
+              <!-- version_dropdown.html -->
+
+              
+              <!-- colorscheme_dropdown.html -->
+<li class="nav-item dropdown">
+  <a class="nav-link d-flex py-2 px-0 px-lg-2 dropdown-toggle align-items-center" id="snftt-luz" href="#" data-bs-toggle="dropdown" data-bs-display="static" aria-expanded="false" aria-label="Toggle light/dark">
+    <i class="bi bi-circle-half" data-snftt-luz-icon-active></i>
+    <span id="snftt-luz-text" class="d-lg-none small ms-2">Toggle light/dark</span>
+  </a>
+  <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="snftt-luz-text">
+    <li>
+      <h6 class="dropdown-header">Light/dark</h6>
+    </li>
+    <li>
+      <a class="dropdown-item d-flex align-items-center" data-snftt-luz="light" href="#" aria-pressed="false">
+        <span class="small">
+          <i class="bi bi-sun" data-snftt-luz-icon="light"></i>
+        </span>
+        <span class="small ms-3">Light</span>
+        <i class="bi bi-check ms-auto"></i>
+      </a>
+    </li>
+    <li>
+      <a class="dropdown-item d-flex align-items-center" data-snftt-luz="dark" href="#" aria-pressed="false">
+        <span class="small">
+          <i class="bi bi-moon-stars" data-snftt-luz-icon="dark"></i>
+        </span>
+        <span class="small ms-3">Dark</span>
+        <i class="bi bi-check ms-auto"></i>
+      </a>
+    </li>
+    <li>
+      <a class="dropdown-item current d-flex align-items-center" data-snftt-luz="default" href="#" aria-pressed="false">
+        <span class="small">
+          <i class="bi bi-circle-half" data-snftt-luz-icon="default"></i>
+        </span>
+        <span class="small ms-3">Default</span>
+        <i class="bi bi-check ms-auto"></i>
+      </a>
+    </li>
+  </ul>
+</li>
+            </ul>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <div class="container-xxl nftt-gutter nftt-layout">
+      <aside class="nftt-sidebar">
+        <div class="title d-none d-md-block">
+          <i class="bi bi-book"></i>&nbsp;&nbsp;<span>Table of contents</span>
+        </div>
+        <div id="sidebar" tabindex="-1" class="offcanvas-lg offcanvas-start" aria-labelledby="nfttSidebarOffcanvasLabel">
+            <!-- danirus sidebartemplate: "globaltoc.html" --><div class="offcanvas-header border-bottom">
+  <h5 class="offcanvas-title" id="nfttSidebarOffcanvasLabel">
+    Table of contents
+  </h5>
+  <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close" data-bs-target="#sidebar"></button>
+</div>
+
+<div class="offcanvas-body">
+  <nav class="toc" aria-label="Main menu">
+    <div class="mb-3 p-1 pt-3 pb-4 border-bottom">
+      <input id="sidebar-filter" type="text" name="filter" class="form-control form-control-sm" placeholder="filter" aria-label="filter">
+    </div>
+    <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../modules.html">scorecardpipeline</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../scorecardpipeline.html">scorecardpipeline</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../scorecardpipeline.html#module-scorecardpipeline.processing">scorecardpipeline.processing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../scorecardpipeline.html#module-scorecardpipeline.model">scorecardpipeline.model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../scorecardpipeline.html#module-scorecardpipeline.utils">scorecardpipeline.utils</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../scorecardpipeline.html#module-scorecardpipeline.excel_writer">scorecardpipeline.excel_writer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../scorecardpipeline.html#module-scorecardpipeline.logger">scorecardpipeline.logger</a></li>
+</ul>
+</li>
+</ul>
+
+  </nav>
+  <template data-toggle-item-template>
+    <button class="btn btn-sm btn-link toctree-expand" type="button">
+      <i class="bi bi-caret-right"></i>
+      <span class="visually-hidden">Toggle menu contents</span>
+    </button>
+  </template>
+</div>
+        </div>
+      </aside>
+      <main class="nftt-main">
+        <article id="content" class="nftt-content" role="main">
+    <h1>scorecardpipeline.processing 源代码</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">@Time    : 2023/05/21 16:23</span>
+<span class="sd">@Author  : itlubber</span>
+<span class="sd">@Site    : itlubber.art</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">deepcopy</span>
+<span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">partial</span>
+<span class="kn">from</span> <span class="nn">concurrent.futures</span> <span class="kn">import</span> <span class="n">ProcessPoolExecutor</span>
+<span class="kn">from</span> <span class="nn">sklearn.base</span> <span class="kn">import</span> <span class="n">BaseEstimator</span><span class="p">,</span> <span class="n">TransformerMixin</span>
+
+<span class="kn">import</span> <span class="nn">toad</span>
+<span class="kn">import</span> <span class="nn">scorecardpy</span> <span class="k">as</span> <span class="nn">sc</span>
+<span class="kn">from</span> <span class="nn">optbinning</span> <span class="kn">import</span> <span class="n">OptimalBinning</span>
+<span class="kn">from</span> <span class="nn">toad.plot</span> <span class="kn">import</span> <span class="n">proportion_plot</span><span class="p">,</span> <span class="n">badrate_plot</span>
+
+<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="o">*</span>
+
+
+<div class="viewcode-block" id="drop_identical"><a class="viewcode-back" href="../../scorecardpipeline.html#scorecardpipeline.drop_identical">[文档]</a><span class="k">def</span> <span class="nf">drop_identical</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="mf">0.95</span><span class="p">,</span> <span class="n">return_drop</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">exclude</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    剔除数据集中单一值占比过高的特征</span>
+
+<span class="sd">    :param frame: 需要进行特征单一值占比过高筛选的数据集</span>
+<span class="sd">    :param threshold: 单一值占比阈值，超过阈值剔除特征</span>
+<span class="sd">    :param return_drop: 是否返回特征剔除信息，默认 False</span>
+<span class="sd">    :param exclude: 是否排除某些特征，不进行单一值占比筛选，默认为 None</span>
+<span class="sd">    :param target: 数据集中的目标变量列名，默认为 None，即数据集中不包含 target</span>
+
+<span class="sd">    :return:</span>
+<span class="sd">        + 筛选后的数据集: pd.DataFrame，剔除单一值占比过高特征的数据集</span>
+<span class="sd">        + 剔除的特征: list / np.ndarray，当 return_drop 设置为 True 时，返回被剔除的单一值占比过高的特征列表</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">cols</span> <span class="o">=</span> <span class="n">frame</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">target</span><span class="p">:</span>
+        <span class="n">cols</span> <span class="o">=</span> <span class="n">cols</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">target</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">exclude</span><span class="p">:</span>
+        <span class="n">cols</span> <span class="o">=</span> <span class="n">cols</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">exclude</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">threshold</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">threshold</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">frame</span><span class="p">)</span> <span class="o">*</span> <span class="n">threshold</span>
+
+    <span class="n">drop_list</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">cols</span><span class="p">:</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="n">frame</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">value_counts</span><span class="p">()</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">n</span> <span class="o">&gt;</span> <span class="n">threshold</span><span class="p">:</span>
+            <span class="n">drop_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">col</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">return_drop</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">frame</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">drop_list</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">drop_list</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">frame</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">drop_list</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="drop_corr"><a class="viewcode-back" href="../../scorecardpipeline.html#scorecardpipeline.drop_corr">[文档]</a><span class="k">def</span> <span class="nf">drop_corr</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="mf">0.7</span><span class="p">,</span> <span class="n">by</span><span class="o">=</span><span class="s1">&#39;IV&#39;</span><span class="p">,</span> <span class="n">return_drop</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">exclude</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    剔除数据集中特征相关性过高的特征</span>
+
+<span class="sd">    :param frame: 需要进行特征相关性过高筛选的数据集</span>
+<span class="sd">    :param target: 数据集中的目标变量列名，默认为 None</span>
+<span class="sd">    :param threshold: 相关性阈值，超过阈值剔除特征</span>
+<span class="sd">    :param by: 剔除指标的依据，两个特征相关性超过阈值时，保留指标更大的特征，默认根据 IV 进行判断</span>
+<span class="sd">    :param return_drop: 是否返回特征剔除信息，默认 False</span>
+<span class="sd">    :param exclude: 是否排除某些特征，不进行单一值占比筛选，默认为 None</span>
+
+<span class="sd">    :return:</span>
+<span class="sd">        + 筛选后的数据集: pd.DataFrame，剔除特征相关性过高的数据集</span>
+<span class="sd">        + 剔除的特征: list，当 return_drop 设置为 True 时，返回被剔除的相关性过高的特征列表</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">by</span><span class="p">,</span> <span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">)):</span>
+        <span class="n">by</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">by</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">frame</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+
+    <span class="n">cols</span> <span class="o">=</span> <span class="n">frame</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">exclude</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">exclude</span> <span class="o">=</span> <span class="n">exclude</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">exclude</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">))</span> <span class="k">else</span> <span class="p">[</span><span class="n">exclude</span><span class="p">]</span>
+        <span class="n">cols</span> <span class="o">=</span> <span class="n">cols</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">exclude</span><span class="p">)</span>
+
+    <span class="n">f</span><span class="p">,</span> <span class="n">t</span> <span class="o">=</span> <span class="n">toad</span><span class="o">.</span><span class="n">utils</span><span class="o">.</span><span class="n">split_target</span><span class="p">(</span><span class="n">frame</span><span class="p">[</span><span class="n">cols</span><span class="p">],</span> <span class="n">target</span><span class="p">)</span>
+    <span class="n">corr</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">select_dtypes</span><span class="p">(</span><span class="s2">&quot;number&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">corr</span><span class="p">()</span><span class="o">.</span><span class="n">abs</span><span class="p">()</span>
+
+    <span class="n">drops</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">ix</span><span class="p">,</span> <span class="n">cn</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">triu</span><span class="p">(</span><span class="n">corr</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">threshold</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ix</span><span class="p">):</span>
+        <span class="n">graph</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">([</span><span class="n">ix</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)),</span> <span class="n">cn</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))])</span>
+        <span class="n">uni</span><span class="p">,</span> <span class="n">counts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">graph</span><span class="p">,</span> <span class="n">return_counts</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">weights</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">corr</span><span class="o">.</span><span class="n">index</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">by</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">):</span>
+            <span class="n">weights</span> <span class="o">=</span> <span class="n">by</span><span class="p">[</span><span class="n">corr</span><span class="o">.</span><span class="n">index</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+        <span class="k">elif</span> <span class="n">by</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;IV&#39;</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">ix</span> <span class="ow">in</span> <span class="n">uni</span><span class="p">:</span>
+                <span class="n">weights</span><span class="p">[</span><span class="n">ix</span><span class="p">]</span> <span class="o">=</span> <span class="n">toad</span><span class="o">.</span><span class="n">IV</span><span class="p">(</span><span class="n">frame</span><span class="p">[</span><span class="n">corr</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="n">ix</span><span class="p">]],</span> <span class="n">target</span><span class="o">=</span><span class="n">t</span><span class="p">)</span>
+
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">nodes</span> <span class="o">=</span> <span class="n">uni</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">argwhere</span><span class="p">(</span><span class="n">counts</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">amax</span><span class="p">(</span><span class="n">counts</span><span class="p">))]</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+            <span class="n">n</span> <span class="o">=</span> <span class="n">nodes</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">weights</span><span class="p">[</span><span class="n">nodes</span><span class="p">])[</span><span class="mi">0</span><span class="p">]]</span>
+            <span class="n">i</span><span class="p">,</span> <span class="n">c</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">graph</span> <span class="o">==</span> <span class="n">n</span><span class="p">)</span>
+            <span class="n">pairs</span> <span class="o">=</span> <span class="n">graph</span><span class="p">[(</span><span class="n">i</span><span class="p">,</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">c</span><span class="p">)]</span>
+
+            <span class="k">if</span> <span class="n">weights</span><span class="p">[</span><span class="n">pairs</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">&gt;</span> <span class="n">weights</span><span class="p">[</span><span class="n">n</span><span class="p">]:</span>
+                <span class="n">dro</span> <span class="o">=</span> <span class="p">[</span><span class="n">n</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">dro</span> <span class="o">=</span> <span class="n">pairs</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+            <span class="n">drops</span> <span class="o">+=</span> <span class="n">dro</span>
+
+            <span class="n">di</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">graph</span><span class="p">,</span> <span class="n">dro</span><span class="p">))</span>
+            <span class="n">graph</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="n">graph</span><span class="p">,</span> <span class="n">di</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">graph</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">break</span>
+
+            <span class="n">uni</span><span class="p">,</span> <span class="n">counts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">graph</span><span class="p">,</span> <span class="n">return_counts</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">drop_list</span> <span class="o">=</span> <span class="n">corr</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="n">drops</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+    
+    <span class="k">if</span> <span class="n">return_drop</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">frame</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">drop_list</span><span class="p">),</span> <span class="n">drop_list</span>
+
+    <span class="k">return</span> <span class="n">frame</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">drop_list</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="select"><a class="viewcode-back" href="../../scorecardpipeline.html#scorecardpipeline.select">[文档]</a><span class="k">def</span> <span class="nf">select</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="s1">&#39;target&#39;</span><span class="p">,</span> <span class="n">empty</span><span class="o">=</span><span class="mf">0.95</span><span class="p">,</span> <span class="n">iv</span><span class="o">=</span><span class="mf">0.02</span><span class="p">,</span> <span class="n">corr</span><span class="o">=</span><span class="mf">0.7</span><span class="p">,</span> <span class="n">identical</span><span class="o">=</span><span class="mf">0.95</span><span class="p">,</span> <span class="n">return_drop</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">exclude</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    根据缺失率、IV指标、相关性、单一值占比等进行特征筛选，返回特征剔除后的数据集和剔除的特征信息</span>
+
+<span class="sd">    :param frame: 需要进行特征筛选的数据集</span>
+<span class="sd">    :param target: 数据集中的目标变量列名，默认为 target</span>
+<span class="sd">    :param empty: 缺失率阈值，超过阈值剔除特征</span>
+<span class="sd">    :param iv: IV 阈值，低于阈值剔除特征</span>
+<span class="sd">    :param corr: 相关性阈值，超过阈值剔除 IV 较小的特征</span>
+<span class="sd">    :param identical: 单一值占比阈值，超过阈值剔除特征</span>
+<span class="sd">    :param return_drop: 是否返回剔除特征信息，默认 False</span>
+<span class="sd">    :param exclude: 是否排除某些特征，不进行特征筛选，默认为 None</span>
+
+<span class="sd">    :return:</span>
+<span class="sd">        + 筛选后的数据集: pd.DataFrame，特征筛选后的数据集</span>
+<span class="sd">        + 剔除的特征信息: dict，当 return_drop 设置为 True 时，返回被剔除特征信息</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">empty_drop</span> <span class="o">=</span> <span class="n">iv_drop</span> <span class="o">=</span> <span class="n">corr_drop</span> <span class="o">=</span> <span class="n">identical_drop</span> <span class="o">=</span> <span class="n">iv_list</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">if</span> <span class="n">empty</span><span class="p">:</span>
+        <span class="n">frame</span><span class="p">,</span> <span class="n">empty_drop</span> <span class="o">=</span> <span class="n">toad</span><span class="o">.</span><span class="n">selection</span><span class="o">.</span><span class="n">drop_empty</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="n">empty</span><span class="p">,</span> <span class="n">return_drop</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exclude</span><span class="o">=</span><span class="n">exclude</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="n">iv</span><span class="p">:</span>
+        <span class="n">frame</span><span class="p">,</span> <span class="n">iv_drop</span><span class="p">,</span> <span class="n">iv_list</span> <span class="o">=</span> <span class="n">toad</span><span class="o">.</span><span class="n">selection</span><span class="o">.</span><span class="n">drop_iv</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="n">target</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="n">iv</span><span class="p">,</span> <span class="n">return_drop</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">return_iv</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exclude</span><span class="o">=</span><span class="n">exclude</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">corr</span><span class="p">:</span>
+        <span class="n">weights</span> <span class="o">=</span> <span class="n">iv_list</span> <span class="k">if</span> <span class="n">iv</span> <span class="k">else</span> <span class="s1">&#39;IV&#39;</span>
+        <span class="n">frame</span><span class="p">,</span> <span class="n">corr_drop</span> <span class="o">=</span> <span class="n">drop_corr</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="n">target</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="n">corr</span><span class="p">,</span> <span class="n">by</span><span class="o">=</span><span class="n">weights</span><span class="p">,</span> <span class="n">return_drop</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exclude</span><span class="o">=</span><span class="n">exclude</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">identical</span><span class="p">:</span>
+        <span class="n">frame</span><span class="p">,</span> <span class="n">identical_drop</span> <span class="o">=</span> <span class="n">drop_identical</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="n">identical</span><span class="p">,</span> <span class="n">return_drop</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exclude</span><span class="o">=</span><span class="n">exclude</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="n">target</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">return_drop</span><span class="p">:</span>
+        <span class="n">drop_info</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;empty&#39;</span><span class="p">:</span> <span class="n">empty_drop</span><span class="p">,</span>
+            <span class="s1">&#39;iv&#39;</span><span class="p">:</span> <span class="n">iv_drop</span><span class="p">,</span>
+            <span class="s1">&#39;corr&#39;</span><span class="p">:</span> <span class="n">corr_drop</span><span class="p">,</span>
+            <span class="s1">&#39;identical&#39;</span><span class="p">:</span> <span class="n">identical_drop</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="k">return</span> <span class="n">frame</span><span class="p">,</span> <span class="n">drop_info</span>
+
+    <span class="k">return</span> <span class="n">frame</span></div>
+
+
+<div class="viewcode-block" id="FeatureSelection"><a class="viewcode-back" href="../../scorecardpipeline.html#scorecardpipeline.FeatureSelection">[文档]</a><span class="k">class</span> <span class="nc">FeatureSelection</span><span class="p">(</span><span class="n">TransformerMixin</span><span class="p">,</span> <span class="n">BaseEstimator</span><span class="p">):</span>
+
+<div class="viewcode-block" id="FeatureSelection.__init__"><a class="viewcode-back" href="../../scorecardpipeline.html#scorecardpipeline.FeatureSelection.__init__">[文档]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="s2">&quot;target&quot;</span><span class="p">,</span> <span class="n">empty</span><span class="o">=</span><span class="mf">0.95</span><span class="p">,</span> <span class="n">iv</span><span class="o">=</span><span class="mf">0.02</span><span class="p">,</span> <span class="n">corr</span><span class="o">=</span><span class="mf">0.7</span><span class="p">,</span> <span class="n">exclude</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">return_drop</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">identical</span><span class="o">=</span><span class="mf">0.95</span><span class="p">,</span> <span class="n">remove</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">engine</span><span class="o">=</span><span class="s2">&quot;scorecardpy&quot;</span><span class="p">,</span> <span class="n">target_rm</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;特征筛选方法</span>
+
+<span class="sd">        :param target: 数据集中标签名称，默认 target</span>
+<span class="sd">        :param empty: 空值率，默认 0.95, 即空值占比超过 95% 的特征会被剔除</span>
+<span class="sd">        :param iv: IV值，默认 0.02，即iv值小于 0.02 时特征会被剔除</span>
+<span class="sd">        :param corr: 相关性，默认 0.7，即特征之间相关性大于 0.7 时会剔除iv较小的特征</span>
+<span class="sd">        :param identical: 单一值占比，默认 0.95，即当特征的某个值占比超过 95% 时，特征会被剔除</span>
+<span class="sd">        :param exclude: 是否需要强制保留某些特征</span>
+<span class="sd">        :param return_drop: 是否返回删除信息，默认 True，即默认返回删除特征信息</span>
+<span class="sd">        :param remove: 引擎使用 scorecardpy 时，可以传入需要强制删除的变量</span>
+<span class="sd">        :param engine: 特征筛选使用的引擎，可选 &quot;toad&quot;, &quot;scorecardpy&quot; 两种，默认 scorecardpy</span>
+<span class="sd">        :param target_rm: 是否剔除标签，默认 False，即不剔除</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">engine</span> <span class="o">=</span> <span class="n">engine</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">target</span> <span class="o">=</span> <span class="n">target</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">empty</span> <span class="o">=</span> <span class="n">empty</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">identical</span> <span class="o">=</span> <span class="n">identical</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">iv</span> <span class="o">=</span> <span class="n">iv</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">corr</span> <span class="o">=</span> <span class="n">corr</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">exclude</span> <span class="o">=</span> <span class="n">exclude</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">remove</span> <span class="o">=</span> <span class="n">remove</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">return_drop</span> <span class="o">=</span> <span class="n">return_drop</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">target_rm</span> <span class="o">=</span> <span class="n">target_rm</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">select_columns</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dropped</span> <span class="o">=</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="FeatureSelection.fit"><a class="viewcode-back" href="../../scorecardpipeline.html#scorecardpipeline.FeatureSelection.fit">[文档]</a>    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;训练特征筛选方法</span>
+
+<span class="sd">        :param x: 数据集，需要包含目标变量</span>
+
+<span class="sd">        :return: 训练后的 FeatureSelection</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">engine</span> <span class="o">==</span> <span class="s2">&quot;toad&quot;</span><span class="p">:</span>
+            <span class="n">selected</span> <span class="o">=</span> <span class="n">select</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="p">,</span> <span class="n">empty</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">empty</span><span class="p">,</span> <span class="n">identical</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">identical</span><span class="p">,</span> <span class="n">iv</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">iv</span><span class="p">,</span> <span class="n">corr</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">corr</span><span class="p">,</span> <span class="n">exclude</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">exclude</span><span class="p">,</span> <span class="n">return_drop</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">return_drop</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">selected</span> <span class="o">=</span> <span class="n">sc</span><span class="o">.</span><span class="n">var_filter</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="p">,</span> <span class="n">iv_limit</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">iv</span><span class="p">,</span> <span class="n">missing_limit</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">empty</span><span class="p">,</span> <span class="n">identical_limit</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">identical</span><span class="p">,</span> <span class="n">var_rm</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">remove</span><span class="p">,</span> <span class="n">var_kp</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">exclude</span><span class="p">,</span> <span class="n">return_rm_reason</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">return_drop</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">return_drop</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">selected</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dropped</span> <span class="o">=</span> <span class="n">selected</span><span class="p">[</span><span class="s2">&quot;rm&quot;</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">select_columns</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">selected</span><span class="p">[</span><span class="s2">&quot;dt&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">return_drop</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">selected</span><span class="p">,</span> <span class="p">(</span><span class="nb">tuple</span><span class="p">,</span> <span class="nb">list</span><span class="p">)):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dropped</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">([(</span><span class="n">feature</span><span class="p">,</span> <span class="n">reason</span><span class="p">)</span> <span class="k">for</span> <span class="n">reason</span><span class="p">,</span> <span class="n">features</span> <span class="ow">in</span> <span class="n">selected</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">for</span> <span class="n">feature</span> <span class="ow">in</span> <span class="n">features</span><span class="p">],</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;variable&quot;</span><span class="p">,</span> <span class="s2">&quot;rm_reason&quot;</span><span class="p">])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">select_columns</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">selected</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">select_columns</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">selected</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_rm</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">select_columns</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">select_columns</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+<div class="viewcode-block" id="FeatureSelection.transform"><a class="viewcode-back" href="../../scorecardpipeline.html#scorecardpipeline.FeatureSelection.transform">[文档]</a>    <span class="k">def</span> <span class="nf">transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;特征筛选转换器</span>
+
+<span class="sd">        :param x: 需要进行特征筛选的数据集</span>
+
+<span class="sd">        :return: pd.DataFrame，特征筛选后的数据集</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">x</span><span class="p">[[</span><span class="n">col</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">select_columns</span> <span class="k">if</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">x</span><span class="o">.</span><span class="n">columns</span><span class="p">]]</span></div></div>
+
+
+<div class="viewcode-block" id="StepwiseSelection"><a class="viewcode-back" href="../../scorecardpipeline.html#scorecardpipeline.StepwiseSelection">[文档]</a><span class="k">class</span> <span class="nc">StepwiseSelection</span><span class="p">(</span><span class="n">TransformerMixin</span><span class="p">,</span> <span class="n">BaseEstimator</span><span class="p">):</span>
+
+<div class="viewcode-block" id="StepwiseSelection.__init__"><a class="viewcode-back" href="../../scorecardpipeline.html#scorecardpipeline.StepwiseSelection.__init__">[文档]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="s2">&quot;target&quot;</span><span class="p">,</span> <span class="n">estimator</span><span class="o">=</span><span class="s2">&quot;ols&quot;</span><span class="p">,</span> <span class="n">direction</span><span class="o">=</span><span class="s2">&quot;both&quot;</span><span class="p">,</span> <span class="n">criterion</span><span class="o">=</span><span class="s2">&quot;aic&quot;</span><span class="p">,</span> <span class="n">max_iter</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">return_drop</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exclude</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">intercept</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">p_value_enter</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span> <span class="n">p_remove</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span> <span class="n">p_enter</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span> <span class="n">target_rm</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;逐步回归特征筛选方法</span>
+
+<span class="sd">        :param target: 数据集中标签名称，默认 target</span>
+<span class="sd">        :param estimator: 预估器，默认 ols，可选 &quot;ols&quot;, &quot;lr&quot;, &quot;lasso&quot;, &quot;ridge&quot;，通常默认即可</span>
+<span class="sd">        :param direction: 逐步回归方向，默认both，可选 &quot;forward&quot;, &quot;backward&quot;, &quot;both&quot;，通常默认即可</span>
+<span class="sd">        :param criterion: 评价指标，默认 aic，可选 &quot;aic&quot;, &quot;bic&quot;, &quot;ks&quot;, &quot;auc&quot;，通常默认即可</span>
+<span class="sd">        :param max_iter: 最大迭代次数，sklearn中使用的参数，默认为 None</span>
+<span class="sd">        :param return_drop: 是否返回特征剔除信息，默认 True</span>
+<span class="sd">        :param exclude: 强制保留的某些特征</span>
+<span class="sd">        :param intercept: 是否包含截距，默认为 True</span>
+<span class="sd">        :param p_value_enter: 特征进入的 p 值，用于前向筛选时决定特征是否进入模型</span>
+<span class="sd">        :param p_remove: 特征剔除的 p 值，用于后向剔除时决定特征是否要剔除</span>
+<span class="sd">        :param p_enter: 特征 p 值，用于判断双向逐步回归是否剔除或者准入特征</span>
+<span class="sd">        :param target_rm: 是否剔除数据集中的标签，默认为 False，即剔除数据集中的标签</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">target</span> <span class="o">=</span> <span class="n">target</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">intercept</span> <span class="o">=</span> <span class="n">intercept</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">p_value_enter</span> <span class="o">=</span> <span class="n">p_value_enter</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">p_remove</span> <span class="o">=</span> <span class="n">p_remove</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">p_enter</span> <span class="o">=</span> <span class="n">p_enter</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">estimator</span> <span class="o">=</span> <span class="n">estimator</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">direction</span> <span class="o">=</span> <span class="n">direction</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">criterion</span> <span class="o">=</span> <span class="n">criterion</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_iter</span> <span class="o">=</span> <span class="n">max_iter</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">return_drop</span> <span class="o">=</span> <span class="n">return_drop</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">target_rm</span> <span class="o">=</span> <span class="n">target_rm</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">exclude</span> <span class="o">=</span> <span class="n">exclude</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">select_columns</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dropped</span> <span class="o">=</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="StepwiseSelection.fit"><a class="viewcode-back" href="../../scorecardpipeline.html#scorecardpipeline.StepwiseSelection.fit">[文档]</a>    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;训练逐步回归特征筛选方法</span>
+
+<span class="sd">        :param x: 数据集，需要包含目标变量</span>
+
+<span class="sd">        :return: 训练后的 StepwiseSelection</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">selected</span> <span class="o">=</span> <span class="n">toad</span><span class="o">.</span><span class="n">selection</span><span class="o">.</span><span class="n">stepwise</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="p">,</span> <span class="n">estimator</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">estimator</span><span class="p">,</span> <span class="n">direction</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">direction</span><span class="p">,</span> <span class="n">criterion</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">criterion</span><span class="p">,</span> <span class="n">exclude</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">exclude</span><span class="p">,</span> <span class="n">intercept</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">intercept</span><span class="p">,</span> <span class="n">p_value_enter</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">p_value_enter</span><span class="p">,</span>
+                                           <span class="n">p_remove</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">p_remove</span><span class="p">,</span> <span class="n">p_enter</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">p_enter</span><span class="p">,</span> <span class="n">return_drop</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">return_drop</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">return_drop</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dropped</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">([(</span><span class="n">col</span><span class="p">,</span> <span class="s2">&quot;stepwise&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">selected</span><span class="p">[</span><span class="mi">1</span><span class="p">]],</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;variable&quot;</span><span class="p">,</span> <span class="s2">&quot;rm_reason&quot;</span><span class="p">])</span>
+            <span class="n">selected</span> <span class="o">=</span> <span class="n">selected</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">select_columns</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">selected</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">target_rm</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">select_columns</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">select_columns</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+<div class="viewcode-block" id="StepwiseSelection.transform"><a class="viewcode-back" href="../../scorecardpipeline.html#scorecardpipeline.StepwiseSelection.transform">[文档]</a>    <span class="k">def</span> <span class="nf">transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;逐步回归特征筛选转换器</span>
+
+<span class="sd">        :param x: 需要进行特征筛选的数据集</span>
+
+<span class="sd">        :return: pd.DataFrame，特征筛选后的数据集</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">x</span><span class="p">[[</span><span class="n">col</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">select_columns</span> <span class="k">if</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">x</span><span class="o">.</span><span class="n">columns</span><span class="p">]]</span></div></div>
+
+
+<div class="viewcode-block" id="FeatureImportanceSelector"><a class="viewcode-back" href="../../scorecardpipeline.html#scorecardpipeline.FeatureImportanceSelector">[文档]</a><span class="k">class</span> <span class="nc">FeatureImportanceSelector</span><span class="p">(</span><span class="n">BaseEstimator</span><span class="p">,</span> <span class="n">TransformerMixin</span><span class="p">):</span>
+
+<div class="viewcode-block" id="FeatureImportanceSelector.__init__"><a class="viewcode-back" href="../../scorecardpipeline.html#scorecardpipeline.FeatureImportanceSelector.__init__">[文档]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">top_k</span><span class="o">=</span><span class="mi">126</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="s2">&quot;target&quot;</span><span class="p">,</span> <span class="n">selector</span><span class="o">=</span><span class="s2">&quot;catboost&quot;</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">max_iv</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;基于特征重要性的特征筛选方法</span>
+
+<span class="sd">        :param top_k: 依据特征重要性进行排序，筛选最重要的 top_k 个特征</span>
+<span class="sd">        :param target: 数据集中标签名称，默认 target</span>
+<span class="sd">        :param selector: 特征选择器，目前只支持 catboost ，可以支持数据集中包含字符串的数据</span>
+<span class="sd">        :param params: selector 的参数，不传使用默认参数</span>
+<span class="sd">        :param max_iv: 是否需要删除 IV 过高的特征，建议设置为 1.0</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">target</span> <span class="o">=</span> <span class="n">target</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">top_k</span> <span class="o">=</span> <span class="n">top_k</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_iv</span> <span class="o">=</span> <span class="n">max_iv</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">selector</span> <span class="o">=</span> <span class="n">selector</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">params</span> <span class="o">=</span> <span class="n">params</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">feature_names_</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">high_iv_feature_names_</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">low_importance_feature_names_</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">select_columns</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dropped</span> <span class="o">=</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="FeatureImportanceSelector.fit"><a class="viewcode-back" href="../../scorecardpipeline.html#scorecardpipeline.FeatureImportanceSelector.fit">[文档]</a>    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;特征重要性筛选器训练</span>
+
+<span class="sd">        :param x: 数据集，需要包含目标变量</span>
+
+<span class="sd">        :return: 训练后的 FeatureImportanceSelector</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_iv</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">high_iv_feature_names_</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">toad</span><span class="o">.</span><span class="n">quality</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="p">,</span> <span class="n">cpu_cores</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">iv_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;iv &gt; </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">max_iv</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="p">[[</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">x</span><span class="o">.</span><span class="n">columns</span> <span class="k">if</span> <span class="n">c</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">high_iv_feature_names_</span><span class="p">]]</span>
+
+        <span class="n">X</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="p">)</span>
+        <span class="n">Y</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">feature_names_</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+        <span class="n">cat_features_index</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">feature_names_</span><span class="p">))</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">feature_names_</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">X</span><span class="o">.</span><span class="n">select_dtypes</span><span class="p">(</span><span class="s2">&quot;number&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">columns</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">selector</span> <span class="o">==</span> <span class="s2">&quot;catboost&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">catboost_selector</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="n">Y</span><span class="p">,</span> <span class="n">cat_features</span><span class="o">=</span><span class="n">cat_features_index</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">pass</span>
+
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+<div class="viewcode-block" id="FeatureImportanceSelector.transform"><a class="viewcode-back" href="../../scorecardpipeline.html#scorecardpipeline.FeatureImportanceSelector.transform">[文档]</a>    <span class="k">def</span> <span class="nf">transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;特征重要性筛选器转换方法</span>
+
+<span class="sd">        :param x: 需要进行特征筛选的数据集</span>
+
+<span class="sd">        :return: pd.DataFrame，特征筛选后的数据集</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">x</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">select_columns</span> <span class="o">+</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="p">]]</span></div>
+
+<div class="viewcode-block" id="FeatureImportanceSelector.catboost_selector"><a class="viewcode-back" href="../../scorecardpipeline.html#scorecardpipeline.FeatureImportanceSelector.catboost_selector">[文档]</a>    <span class="k">def</span> <span class="nf">catboost_selector</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">cat_features</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;基于 `CatBoost` 的特征重要性筛选器</span>
+
+<span class="sd">        :param x: 需要进行特征重要性筛选的数据集，不包含目标变量</span>
+<span class="sd">        :param y: 数据集中对应的目标变量值</span>
+<span class="sd">        :param cat_features: 类别型特征的索引</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">from</span> <span class="nn">catboost</span> <span class="kn">import</span> <span class="n">Pool</span><span class="p">,</span> <span class="n">cv</span><span class="p">,</span> <span class="n">metrics</span><span class="p">,</span> <span class="n">CatBoostClassifier</span>
+
+        <span class="n">cat_data</span> <span class="o">=</span> <span class="n">Pool</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="n">y</span><span class="p">,</span> <span class="n">cat_features</span><span class="o">=</span><span class="n">cat_features</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">params</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">params</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;iterations&quot;</span><span class="p">:</span> <span class="mi">256</span><span class="p">,</span>
+                <span class="s2">&quot;objective&quot;</span><span class="p">:</span> <span class="s2">&quot;CrossEntropy&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;eval_metric&quot;</span><span class="p">:</span> <span class="s2">&quot;AUC&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;learning_rate&quot;</span><span class="p">:</span> <span class="mf">1e-2</span><span class="p">,</span>
+                <span class="s2">&quot;colsample_bylevel&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span>
+                <span class="s2">&quot;depth&quot;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
+                <span class="s2">&quot;boosting_type&quot;</span><span class="p">:</span> <span class="s2">&quot;Ordered&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;bootstrap_type&quot;</span><span class="p">:</span> <span class="s2">&quot;Bernoulli&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;subsample&quot;</span><span class="p">:</span> <span class="mf">0.8</span><span class="p">,</span>
+                <span class="s2">&quot;random_seed&quot;</span><span class="p">:</span> <span class="mi">1024</span><span class="p">,</span>
+                <span class="s2">&quot;early_stopping_rounds&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+                <span class="s2">&quot;verbose&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="p">}</span>
+
+        <span class="n">cat_model</span> <span class="o">=</span> <span class="n">CatBoostClassifier</span><span class="p">(</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">params</span><span class="p">)</span>
+        <span class="n">cat_model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">cat_data</span><span class="p">,</span> <span class="n">eval_set</span><span class="o">=</span><span class="p">[</span><span class="n">cat_data</span><span class="p">])</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">select_columns</span> <span class="o">=</span> <span class="p">[</span><span class="n">name</span> <span class="k">for</span> <span class="n">score</span><span class="p">,</span> <span class="n">name</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">cat_model</span><span class="o">.</span><span class="n">feature_importances_</span><span class="p">,</span> <span class="n">cat_model</span><span class="o">.</span><span class="n">feature_names_</span><span class="p">),</span> <span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)][:</span><span class="bp">self</span><span class="o">.</span><span class="n">top_k</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">low_importance_feature_names_</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">x</span><span class="o">.</span><span class="n">columns</span> <span class="k">if</span> <span class="n">c</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">select_columns</span><span class="p">]</span></div></div>
+
+
+<div class="viewcode-block" id="Combiner"><a class="viewcode-back" href="../../scorecardpipeline.html#scorecardpipeline.Combiner">[文档]</a><span class="k">class</span> <span class="nc">Combiner</span><span class="p">(</span><span class="n">TransformerMixin</span><span class="p">,</span> <span class="n">BaseEstimator</span><span class="p">):</span>
+
+<div class="viewcode-block" id="Combiner.__init__"><a class="viewcode-back" href="../../scorecardpipeline.html#scorecardpipeline.Combiner.__init__">[文档]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="s2">&quot;target&quot;</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;chi&#39;</span><span class="p">,</span> <span class="n">empty_separate</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">min_n_bins</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">max_n_bins</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">max_n_prebins</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">min_prebin_size</span><span class="o">=</span><span class="mf">0.02</span><span class="p">,</span> <span class="n">min_bin_size</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span> <span class="n">max_bin_size</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">gamma</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span> <span class="n">monotonic_trend</span><span class="o">=</span><span class="s2">&quot;auto_asc_desc&quot;</span><span class="p">,</span> <span class="n">adj_rules</span><span class="o">=</span><span class="p">{},</span> <span class="n">n_jobs</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;特征分箱封装方法</span>
+
+<span class="sd">        :param target: 数据集中标签名称，默认 target</span>
+<span class="sd">        :param method: 特征分箱方法，可选 &quot;chi&quot;, &quot;dt&quot;, &quot;quantile&quot;, &quot;step&quot;, &quot;kmeans&quot;, &quot;cart&quot;, &quot;mdlp&quot;, &quot;uniform&quot;, 参考 toad.Combiner: https://github.com/amphibian-dev/toad/blob/master/toad/transform.py#L178-L355 &amp; optbinning.OptimalBinning: https://gnpalencia.org/optbinning/</span>
+<span class="sd">        :param empty_separate: 是否空值单独一箱, 默认 False，推荐设置为 True</span>
+<span class="sd">        :param min_n_bins: 最小分箱数，默认 2，即最小拆分2箱</span>
+<span class="sd">        :param max_n_bins: 最大分箱数，默认 None，即不限制拆分箱数，推荐设置 3 ～ 5，不宜过多，偶尔使用 optbinning 时不起效</span>
+<span class="sd">        :param max_n_prebins: 使用 optbinning 时预分箱数量</span>
+<span class="sd">        :param min_prebin_size: 使用 optbinning 时预分箱叶子结点（或者每箱）样本占比，默认 2%</span>
+<span class="sd">        :param min_bin_size: 使用 optbinning 正式分箱叶子结点（或者每箱）最小样本占比，默认 5%</span>
+<span class="sd">        :param max_bin_size: 使用 optbinning 正式分箱叶子结点（或者每箱）最大样本占比，默认 None</span>
+<span class="sd">        :param gamma: 使用 optbinning 分箱时限制过拟合的正则化参数，值越大惩罚越多，默认 0.01</span>
+<span class="sd">        :param monotonic_trend: 使用 optbinning 正式分箱时的坏率策略，默认 auto，可选 &quot;auto&quot;, &quot;auto_heuristic&quot;, &quot;auto_asc_desc&quot;, &quot;ascending&quot;, &quot;descending&quot;, &quot;convex&quot;, &quot;concave&quot;, &quot;peak&quot;, &quot;valley&quot;, &quot;peak_heuristic&quot;, &quot;valley_heuristic&quot;</span>
+<span class="sd">        :param adj_rules: 自定义分箱规则，toad.Combiner 能够接收的形式</span>
+<span class="sd">        :param n_jobs: 使用多进程加速的worker数量，默认单进程</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">combiner</span> <span class="o">=</span> <span class="n">toad</span><span class="o">.</span><span class="n">transform</span><span class="o">.</span><span class="n">Combiner</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">method</span> <span class="o">=</span> <span class="n">method</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">empty_separate</span> <span class="o">=</span> <span class="n">empty_separate</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">target</span> <span class="o">=</span> <span class="n">target</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_n_bins</span> <span class="o">=</span> <span class="n">max_n_bins</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">min_n_bins</span> <span class="o">=</span> <span class="n">min_n_bins</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">min_bin_size</span> <span class="o">=</span> <span class="n">min_bin_size</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_bin_size</span> <span class="o">=</span> <span class="n">max_bin_size</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_n_prebins</span> <span class="o">=</span> <span class="n">max_n_prebins</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">min_prebin_size</span> <span class="o">=</span> <span class="n">min_prebin_size</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gamma</span> <span class="o">=</span> <span class="n">gamma</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">monotonic_trend</span> <span class="o">=</span> <span class="n">monotonic_trend</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">adj_rules</span> <span class="o">=</span> <span class="n">adj_rules</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_jobs</span> <span class="o">=</span> <span class="n">n_jobs</span></div>
+
+<div class="viewcode-block" id="Combiner.update"><a class="viewcode-back" href="../../scorecardpipeline.html#scorecardpipeline.Combiner.update">[文档]</a>    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rules</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;更新 Combiner 中特征的分箱规则</span>
+
+<span class="sd">        :param rules: dict，需要更新规则，格式如下：{特征名称: 分箱规则}</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">combiner</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">rules</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Combiner.optbinning_bins"><a class="viewcode-back" href="../../scorecardpipeline.html#scorecardpipeline.Combiner.optbinning_bins">[文档]</a>    <span class="k">def</span> <span class="nf">optbinning_bins</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">feature</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="s2">&quot;target&quot;</span><span class="p">,</span> <span class="n">min_n_bins</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">max_n_bins</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">max_n_prebins</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">min_prebin_size</span><span class="o">=</span><span class="mf">0.02</span><span class="p">,</span> <span class="n">min_bin_size</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span> <span class="n">max_bin_size</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">gamma</span><span class="o">=</span><span class="mf">0.01</span><span class="p">,</span> <span class="n">monotonic_trend</span><span class="o">=</span><span class="s2">&quot;auto_asc_desc&quot;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;基于 optbinning.OptimalBinning 的特征分箱方法，使用 optbinning.OptimalBinning 分箱失败时，使用 toad.transform.Combiner 的卡方分箱处理</span>
+
+<span class="sd">        :param feature: 需要进行分箱的特征名称</span>
+<span class="sd">        :param data: 训练数据集</span>
+<span class="sd">        :param target: 数据集中标签名称，默认 target</span>
+<span class="sd">        :param min_n_bins: 最小分箱数，默认 2，即最小拆分2箱</span>
+<span class="sd">        :param max_n_bins: 最大分箱数，默认 None，即不限制拆分箱数，推荐设置 3 ～ 5，不宜过多，偶尔不起效</span>
+<span class="sd">        :param max_n_prebins: 使用 optbinning 时预分箱数量</span>
+<span class="sd">        :param min_prebin_size: 使用 optbinning 时预分箱叶子结点（或者每箱）样本占比，默认 2%</span>
+<span class="sd">        :param min_bin_size: 使用 optbinning 正式分箱叶子结点（或者每箱）最小样本占比，默认 5%</span>
+<span class="sd">        :param max_bin_size: 使用 optbinning 正式分箱叶子结点（或者每箱）最大样本占比，默认 None</span>
+<span class="sd">        :param gamma: 使用 optbinning 分箱时限制过拟合的正则化参数，值越大惩罚越多，默认 0.01</span>
+<span class="sd">        :param monotonic_trend: 使用 optbinning 正式分箱时的坏率策略，默认 auto，可选 &quot;auto&quot;, &quot;auto_heuristic&quot;, &quot;auto_asc_desc&quot;, &quot;ascending&quot;, &quot;descending&quot;, &quot;convex&quot;, &quot;concave&quot;, &quot;peak&quot;, &quot;valley&quot;, &quot;peak_heuristic&quot;, &quot;valley_heuristic&quot;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">data</span><span class="p">[</span><span class="n">feature</span><span class="p">]</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span><span class="o">.</span><span class="n">nunique</span><span class="p">()</span> <span class="o">&lt;=</span> <span class="n">min_n_bins</span><span class="p">:</span>
+            <span class="n">splits</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="n">feature</span><span class="p">]</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span><span class="o">.</span><span class="n">unique</span><span class="p">():</span>
+                <span class="n">splits</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">feature</span><span class="p">]</span><span class="o">.</span><span class="n">dtypes</span><span class="p">)</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;object&quot;</span><span class="p">,</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span> <span class="s2">&quot;category&quot;</span><span class="p">]:</span>
+                <span class="n">rule</span> <span class="o">=</span> <span class="p">{</span><span class="n">feature</span><span class="p">:</span> <span class="p">[[</span><span class="n">s</span><span class="p">]</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">splits</span><span class="p">]}</span>
+                <span class="n">rule</span><span class="p">[</span><span class="n">feature</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">([[</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">]])</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">rule</span> <span class="o">=</span> <span class="p">{</span><span class="n">feature</span><span class="p">:</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">splits</span><span class="p">)</span> <span class="o">+</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">]}</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">y</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">target</span><span class="p">]</span>
+                <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">feature</span><span class="p">]</span><span class="o">.</span><span class="n">dtypes</span><span class="p">)</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;object&quot;</span><span class="p">,</span> <span class="s2">&quot;string&quot;</span><span class="p">,</span> <span class="s2">&quot;category&quot;</span><span class="p">]:</span>
+                    <span class="n">dtype</span> <span class="o">=</span> <span class="s2">&quot;categorical&quot;</span>
+                    <span class="n">x</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">feature</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;category&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">values</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">dtype</span> <span class="o">=</span> <span class="s2">&quot;numerical&quot;</span>
+                    <span class="n">x</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="n">feature</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+
+                <span class="n">_combiner</span> <span class="o">=</span> <span class="n">OptimalBinning</span><span class="p">(</span><span class="n">feature</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">,</span> <span class="n">min_n_bins</span><span class="o">=</span><span class="n">min_n_bins</span><span class="p">,</span> <span class="n">max_n_bins</span><span class="o">=</span><span class="n">max_n_bins</span><span class="p">,</span> <span class="n">max_n_prebins</span><span class="o">=</span><span class="n">max_n_prebins</span><span class="p">,</span> <span class="n">min_prebin_size</span><span class="o">=</span><span class="n">min_prebin_size</span><span class="p">,</span> <span class="n">min_bin_size</span><span class="o">=</span><span class="n">min_bin_size</span><span class="p">,</span> <span class="n">max_bin_size</span><span class="o">=</span><span class="n">max_bin_size</span><span class="p">,</span> <span class="n">monotonic_trend</span><span class="o">=</span><span class="n">monotonic_trend</span><span class="p">,</span> <span class="n">gamma</span><span class="o">=</span><span class="n">gamma</span><span class="p">)</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">_combiner</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="s2">&quot;OPTIMAL&quot;</span><span class="p">:</span>
+                    <span class="n">rule</span> <span class="o">=</span> <span class="p">{</span><span class="n">feature</span><span class="p">:</span> <span class="p">[</span><span class="n">s</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="k">else</span> <span class="n">s</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">_combiner</span><span class="o">.</span><span class="n">splits</span><span class="p">]</span> <span class="o">+</span> <span class="p">[[</span><span class="kc">None</span><span class="p">]</span> <span class="k">if</span> <span class="n">dtype</span> <span class="o">==</span> <span class="s2">&quot;categorical&quot;</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">]}</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;optimalBinning error&quot;</span><span class="p">)</span>
+
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="n">_combiner</span> <span class="o">=</span> <span class="n">toad</span><span class="o">.</span><span class="n">transform</span><span class="o">.</span><span class="n">Combiner</span><span class="p">()</span>
+                <span class="n">_combiner</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">data</span><span class="p">[[</span><span class="n">feature</span><span class="p">,</span> <span class="n">target</span><span class="p">]]</span><span class="o">.</span><span class="n">dropna</span><span class="p">(),</span> <span class="n">target</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;chi&quot;</span><span class="p">,</span> <span class="n">min_samples</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">min_bin_size</span><span class="p">,</span> <span class="n">n_bins</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">max_n_bins</span><span class="p">,</span> <span class="n">empty_separate</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+                <span class="n">rule</span> <span class="o">=</span> <span class="p">{</span><span class="n">feature</span><span class="p">:</span> <span class="p">[</span><span class="n">s</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="k">else</span> <span class="n">s</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">_combiner</span><span class="o">.</span><span class="n">export</span><span class="p">()[</span><span class="n">feature</span><span class="p">]]</span> <span class="o">+</span> <span class="p">[[</span><span class="kc">None</span><span class="p">]</span> <span class="k">if</span> <span class="n">dtype</span> <span class="o">==</span> <span class="s2">&quot;categorical&quot;</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">]}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">combiner</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">rule</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Combiner.fit"><a class="viewcode-back" href="../../scorecardpipeline.html#scorecardpipeline.Combiner.fit">[文档]</a>    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;特征分箱训练</span>
+
+<span class="sd">        :param x: 需要分箱的数据集，需要包含目标变量</span>
+
+<span class="sd">        :return: Combiner，训练完成的分箱器</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        
+        <span class="c1"># 处理数据集中分类变量包含 np.nan，toad 分箱后被转为 &#39;nan&#39; 字符串的问题</span>
+        <span class="n">cat_cols</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="p">)</span><span class="o">.</span><span class="n">select_dtypes</span><span class="p">(</span><span class="n">exclude</span><span class="o">=</span><span class="s2">&quot;number&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+        <span class="n">x</span><span class="p">[</span><span class="n">cat_cols</span><span class="p">]</span> <span class="o">=</span> <span class="n">x</span><span class="p">[</span><span class="n">cat_cols</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">method</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;cart&quot;</span><span class="p">,</span> <span class="s2">&quot;mdlp&quot;</span><span class="p">,</span> <span class="s2">&quot;uniform&quot;</span><span class="p">]:</span>
+            <span class="n">feature_optbinning_bins</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">optbinning_bins</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">x</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="p">,</span> <span class="n">min_n_bins</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">min_n_bins</span><span class="p">,</span> <span class="n">max_n_bins</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">max_n_bins</span><span class="p">,</span> <span class="n">max_n_prebins</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">max_n_prebins</span><span class="p">,</span> <span class="n">min_prebin_size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">min_prebin_size</span><span class="p">,</span> <span class="n">min_bin_size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">min_bin_size</span><span class="p">,</span> <span class="n">max_bin_size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">max_bin_size</span><span class="p">,</span> <span class="n">gamma</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">gamma</span><span class="p">,</span> <span class="n">monotonic_trend</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">monotonic_trend</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_jobs</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">with</span> <span class="n">ProcessPoolExecutor</span><span class="p">(</span><span class="n">max_workers</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n_jobs</span><span class="p">)</span> <span class="k">as</span> <span class="n">executor</span><span class="p">:</span>
+                    <span class="p">[</span><span class="n">executor</span><span class="o">.</span><span class="n">submit</span><span class="p">(</span><span class="n">feature_optbinning_bins</span><span class="p">(</span><span class="n">feature</span><span class="p">))</span> <span class="k">for</span> <span class="n">feature</span> <span class="ow">in</span> <span class="n">x</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="p">)]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">feature</span> <span class="ow">in</span> <span class="n">x</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="p">]):</span>
+                    <span class="n">feature_optbinning_bins</span><span class="p">(</span><span class="n">feature</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">method</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;step&quot;</span><span class="p">,</span> <span class="s2">&quot;quantile&quot;</span><span class="p">]:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">combiner</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">method</span><span class="p">,</span> <span class="n">n_bins</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">max_n_bins</span><span class="p">,</span> <span class="n">empty_separate</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">empty_separate</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">combiner</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">method</span><span class="p">,</span> <span class="n">min_samples</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">min_bin_size</span><span class="p">,</span> <span class="n">n_bins</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">max_n_bins</span><span class="p">,</span> <span class="n">empty_separate</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">empty_separate</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">adj_rules</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+<div class="viewcode-block" id="Combiner.transform"><a class="viewcode-back" href="../../scorecardpipeline.html#scorecardpipeline.Combiner.transform">[文档]</a>    <span class="k">def</span> <span class="nf">transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">labels</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;特征分箱转换方法</span>
+
+<span class="sd">        :param x: 需要进行分箱转换的数据集</span>
+<span class="sd">        :param labels: 进行分箱转换时是否转换为分箱信息，默认 False，即转换为分箱索引</span>
+
+<span class="sd">        :return: pd.DataFrame，分箱转换后的数据集</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">combiner</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">labels</span><span class="o">=</span><span class="n">labels</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Combiner.export"><a class="viewcode-back" href="../../scorecardpipeline.html#scorecardpipeline.Combiner.export">[文档]</a>    <span class="k">def</span> <span class="nf">export</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">to_json</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;特征分箱器导出 json 保存</span>
+
+<span class="sd">        :param to_json: json 文件的路径</span>
+
+<span class="sd">        :return: dict，特征分箱信息</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">combiner</span><span class="o">.</span><span class="n">export</span><span class="p">(</span><span class="n">to_json</span><span class="o">=</span><span class="n">to_json</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Combiner.load"><a class="viewcode-back" href="../../scorecardpipeline.html#scorecardpipeline.Combiner.load">[文档]</a>    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">from_json</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;特征分箱器加载离线保存的 json 文件</span>
+
+<span class="sd">        :param from_json: json 文件的路径</span>
+
+<span class="sd">        :return: Combiner，特征分箱器</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">combiner</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">from_json</span><span class="o">=</span><span class="n">from_json</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+<div class="viewcode-block" id="Combiner.feature_bin_stats"><a class="viewcode-back" href="../../scorecardpipeline.html#scorecardpipeline.Combiner.feature_bin_stats">[文档]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">feature_bin_stats</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">feature</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="s2">&quot;target&quot;</span><span class="p">,</span> <span class="n">rules</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;step&#39;</span><span class="p">,</span> <span class="n">desc</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">combiner</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ks</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">max_n_bins</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">min_bin_size</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">max_bin_size</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">empty_separate</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">return_cols</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">return_rules</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;特征分箱统计表，汇总统计特征每个分箱的各项指标信息</span>
+
+<span class="sd">        :param data: 需要查看分箱统计表的数据集</span>
+<span class="sd">        :param feature: 需要查看的分箱统计表的特征名称</span>
+<span class="sd">        :param target: 数据集中标签名称，默认 target</span>
+<span class="sd">        :param rules: 根据自定义的规则查看特征分箱统计表，支持 list（单个特征分箱规则） 或 dict（多个特征分箱规则） 格式传入</span>
+<span class="sd">        :param combiner: 提前训练好的特征分箱器，优先级小于 rules</span>
+<span class="sd">        :param method: 特征分箱方法，当传入 rules 或 combiner 时失效，可选 &quot;chi&quot;, &quot;dt&quot;, &quot;quantile&quot;, &quot;step&quot;, &quot;kmeans&quot;, &quot;cart&quot;, &quot;mdlp&quot;, &quot;uniform&quot;, 参考 toad.Combiner: https://github.com/amphibian-dev/toad/blob/master/toad/transform.py#L178-L355 &amp; optbinning.OptimalBinning: https://gnpalencia.org/optbinning/</span>
+<span class="sd">        :param desc: 特征描述信息，大部分时候用于传入特征对应的中文名称或者释义</span>
+<span class="sd">        :param ks: 是否统计 KS 信息</span>
+<span class="sd">        :param max_n_bins: 最大分箱数，默认 None，即不限制拆分箱数，推荐设置 3 ～ 5，不宜过多，偶尔使用 optbinning 时不起效</span>
+<span class="sd">        :param min_bin_size: 使用 optbinning 正式分箱叶子结点（或者每箱）最小样本占比，默认 5%</span>
+<span class="sd">        :param max_bin_size: 使用 optbinning 正式分箱叶子结点（或者每箱）最大样本占比，默认 None</span>
+<span class="sd">        :param empty_separate: 是否空值单独一箱, 默认 False，推荐设置为 True</span>
+<span class="sd">        :param return_cols: list，指定返回部分特征分箱统计表的列，默认 None</span>
+<span class="sd">        :param return_rules: 是否返回特征分箱信息，默认 False</span>
+<span class="sd">        :param kwargs: scorecardpipeline.processing.Combiner 的其他参数</span>
+
+<span class="sd">        :return:</span>
+<span class="sd">            + 特征分箱统计表: pd.DataFrame</span>
+<span class="sd">            + 特征分箱信息: list，当参数 return_rules 为 True 时返回</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">combiner</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">method</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;chi&quot;</span><span class="p">,</span> <span class="s2">&quot;dt&quot;</span><span class="p">,</span> <span class="s2">&quot;quantile&quot;</span><span class="p">,</span> <span class="s2">&quot;step&quot;</span><span class="p">,</span> <span class="s2">&quot;kmeans&quot;</span><span class="p">,</span> <span class="s2">&quot;cart&quot;</span><span class="p">,</span> <span class="s2">&quot;mdlp&quot;</span><span class="p">,</span> <span class="s2">&quot;uniform&quot;</span><span class="p">]:</span>
+                <span class="k">raise</span> <span class="s1">&#39;method is the one of [&quot;chi&quot;, &quot;dt&quot;, &quot;quantile&quot;, &quot;step&quot;, &quot;kmeans&quot;, &quot;cart&quot;, &quot;mdlp&quot;, &quot;uniform&quot;]&#39;</span>
+
+            <span class="n">_combiner</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span>
+                <span class="n">target</span><span class="o">=</span><span class="n">target</span>
+                <span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="n">method</span>
+                <span class="p">,</span> <span class="n">empty_separate</span><span class="o">=</span><span class="n">empty_separate</span>
+                <span class="p">,</span> <span class="n">min_n_bins</span><span class="o">=</span><span class="mi">2</span>
+                <span class="p">,</span> <span class="n">max_n_bins</span><span class="o">=</span><span class="n">max_n_bins</span>
+                <span class="p">,</span> <span class="n">max_n_prebins</span><span class="o">=</span><span class="mi">20</span>
+                <span class="p">,</span> <span class="n">min_bin_size</span><span class="o">=</span><span class="n">min_bin_size</span>
+                <span class="p">,</span> <span class="n">max_bin_size</span><span class="o">=</span><span class="n">max_bin_size</span>
+                <span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+            <span class="p">)</span>
+            <span class="n">_combiner</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">data</span><span class="p">[[</span><span class="n">feature</span><span class="p">,</span> <span class="n">target</span><span class="p">]])</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">_combiner</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">combiner</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">rules</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">rules</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">rules</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)):</span>
+                <span class="n">_combiner</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">feature</span><span class="p">:</span> <span class="n">rules</span><span class="p">})</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">_combiner</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">rules</span><span class="p">)</span>
+
+        <span class="n">feature_bin_dict</span> <span class="o">=</span> <span class="n">feature_bins</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">_combiner</span><span class="p">[</span><span class="n">feature</span><span class="p">]))</span>
+
+        <span class="n">df_bin</span> <span class="o">=</span> <span class="n">_combiner</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">data</span><span class="p">[[</span><span class="n">feature</span><span class="p">,</span> <span class="n">target</span><span class="p">]],</span> <span class="n">labels</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+        <span class="n">table</span> <span class="o">=</span> <span class="n">df_bin</span><span class="p">[[</span><span class="n">feature</span><span class="p">,</span> <span class="n">target</span><span class="p">]]</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="n">feature</span><span class="p">,</span> <span class="n">target</span><span class="p">])</span><span class="o">.</span><span class="n">agg</span><span class="p">(</span><span class="nb">len</span><span class="p">)</span><span class="o">.</span><span class="n">unstack</span><span class="p">()</span>
+        <span class="n">table</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">table</span> <span class="o">=</span> <span class="n">table</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="mi">0</span><span class="p">:</span> <span class="s1">&#39;好样本数&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span> <span class="s1">&#39;坏样本数&#39;</span><span class="p">})</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">if</span> <span class="s2">&quot;好样本数&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">table</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+            <span class="n">table</span><span class="p">[</span><span class="s2">&quot;好样本数&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">if</span> <span class="s2">&quot;坏样本数&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">table</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+            <span class="n">table</span><span class="p">[</span><span class="s2">&quot;坏样本数&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="n">table</span><span class="p">[</span><span class="s2">&quot;指标名称&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">feature</span>
+        <span class="n">table</span><span class="p">[</span><span class="s2">&quot;指标含义&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">desc</span>
+        <span class="n">table</span> <span class="o">=</span> <span class="n">table</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="n">feature</span><span class="p">:</span> <span class="s2">&quot;分箱&quot;</span><span class="p">})</span>
+
+        <span class="n">table</span><span class="p">[</span><span class="s1">&#39;样本总数&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">table</span><span class="p">[</span><span class="s1">&#39;好样本数&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="n">table</span><span class="p">[</span><span class="s1">&#39;坏样本数&#39;</span><span class="p">]</span>
+        <span class="n">table</span><span class="p">[</span><span class="s1">&#39;样本占比&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">table</span><span class="p">[</span><span class="s1">&#39;样本总数&#39;</span><span class="p">]</span> <span class="o">/</span> <span class="n">table</span><span class="p">[</span><span class="s1">&#39;样本总数&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+        <span class="n">table</span><span class="p">[</span><span class="s1">&#39;好样本占比&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">table</span><span class="p">[</span><span class="s1">&#39;好样本数&#39;</span><span class="p">]</span> <span class="o">/</span> <span class="n">table</span><span class="p">[</span><span class="s1">&#39;好样本数&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+        <span class="n">table</span><span class="p">[</span><span class="s1">&#39;坏样本占比&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">table</span><span class="p">[</span><span class="s1">&#39;坏样本数&#39;</span><span class="p">]</span> <span class="o">/</span> <span class="n">table</span><span class="p">[</span><span class="s1">&#39;坏样本数&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+        <span class="n">table</span><span class="p">[</span><span class="s1">&#39;坏样本率&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">table</span><span class="p">[</span><span class="s1">&#39;坏样本数&#39;</span><span class="p">]</span> <span class="o">/</span> <span class="n">table</span><span class="p">[</span><span class="s1">&#39;样本总数&#39;</span><span class="p">]</span>
+
+        <span class="n">table</span> <span class="o">=</span> <span class="n">table</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mf">0.</span><span class="p">)</span>
+
+        <span class="n">table</span><span class="p">[</span><span class="s1">&#39;分档WOE值&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">table</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="s1">&#39;好样本占比&#39;</span><span class="p">]</span> <span class="o">/</span> <span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="s1">&#39;坏样本占比&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="mf">1e-6</span><span class="p">)),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">table</span><span class="p">[</span><span class="s1">&#39;分档IV值&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">table</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="s1">&#39;好样本占比&#39;</span><span class="p">]</span> <span class="o">-</span> <span class="n">x</span><span class="p">[</span><span class="s1">&#39;坏样本占比&#39;</span><span class="p">])</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="s1">&#39;好样本占比&#39;</span><span class="p">]</span> <span class="o">/</span> <span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="s1">&#39;坏样本占比&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="mf">1e-6</span><span class="p">)),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="n">table</span> <span class="o">=</span> <span class="n">table</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+
+        <span class="n">table</span><span class="p">[</span><span class="s1">&#39;指标IV值&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">table</span><span class="p">[</span><span class="s1">&#39;分档IV值&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+
+        <span class="n">table</span><span class="p">[</span><span class="s2">&quot;LIFT值&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">table</span><span class="p">[</span><span class="s1">&#39;坏样本率&#39;</span><span class="p">]</span> <span class="o">/</span> <span class="p">(</span><span class="n">table</span><span class="p">[</span><span class="s2">&quot;坏样本数&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">/</span> <span class="n">table</span><span class="p">[</span><span class="s2">&quot;样本总数&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span>
+        <span class="n">table</span><span class="p">[</span><span class="s2">&quot;累积LIFT值&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">table</span><span class="p">[</span><span class="s1">&#39;坏样本数&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">cumsum</span><span class="p">()</span> <span class="o">/</span> <span class="n">table</span><span class="p">[</span><span class="s1">&#39;样本总数&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">cumsum</span><span class="p">())</span> <span class="o">/</span> <span class="p">(</span><span class="n">table</span><span class="p">[</span><span class="s2">&quot;坏样本数&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">/</span> <span class="n">table</span><span class="p">[</span><span class="s2">&quot;样本总数&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">())</span>
+
+        <span class="k">if</span> <span class="n">ks</span><span class="p">:</span>
+            <span class="n">table</span> <span class="o">=</span> <span class="n">table</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="s2">&quot;分箱&quot;</span><span class="p">)</span>
+            <span class="n">table</span><span class="p">[</span><span class="s2">&quot;累积好样本数&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">table</span><span class="p">[</span><span class="s2">&quot;好样本数&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">cumsum</span><span class="p">()</span>
+            <span class="n">table</span><span class="p">[</span><span class="s2">&quot;累积坏样本数&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">table</span><span class="p">[</span><span class="s2">&quot;坏样本数&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">cumsum</span><span class="p">()</span>
+            <span class="n">table</span><span class="p">[</span><span class="s2">&quot;分档KS值&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">table</span><span class="p">[</span><span class="s2">&quot;累积坏样本数&quot;</span><span class="p">]</span> <span class="o">/</span> <span class="n">table</span><span class="p">[</span><span class="s1">&#39;坏样本数&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">-</span> <span class="n">table</span><span class="p">[</span><span class="s2">&quot;累积好样本数&quot;</span><span class="p">]</span> <span class="o">/</span> <span class="n">table</span><span class="p">[</span><span class="s1">&#39;好样本数&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+
+        <span class="n">table</span><span class="p">[</span><span class="s2">&quot;分箱&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">table</span><span class="p">[</span><span class="s2">&quot;分箱&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">feature_bin_dict</span><span class="p">)</span>
+        <span class="n">table</span> <span class="o">=</span> <span class="n">table</span><span class="o">.</span><span class="n">set_index</span><span class="p">([</span><span class="s1">&#39;指标名称&#39;</span><span class="p">,</span> <span class="s1">&#39;指标含义&#39;</span><span class="p">,</span> <span class="s1">&#39;分箱&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">reindex</span><span class="p">([(</span><span class="n">feature</span><span class="p">,</span> <span class="n">desc</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">feature_bin_dict</span><span class="o">.</span><span class="n">values</span><span class="p">()])</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">return_cols</span><span class="p">:</span>
+            <span class="n">table</span> <span class="o">=</span> <span class="n">table</span><span class="p">[[</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">return_cols</span> <span class="k">if</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">table</span><span class="o">.</span><span class="n">columns</span><span class="p">]]</span>
+        <span class="k">elif</span> <span class="n">ks</span><span class="p">:</span>
+            <span class="n">table</span> <span class="o">=</span> <span class="n">table</span><span class="p">[[</span><span class="s1">&#39;指标名称&#39;</span><span class="p">,</span> <span class="s2">&quot;指标含义&quot;</span><span class="p">,</span> <span class="s1">&#39;分箱&#39;</span><span class="p">,</span> <span class="s1">&#39;样本总数&#39;</span><span class="p">,</span> <span class="s1">&#39;样本占比&#39;</span><span class="p">,</span> <span class="s1">&#39;好样本数&#39;</span><span class="p">,</span> <span class="s1">&#39;好样本占比&#39;</span><span class="p">,</span> <span class="s1">&#39;坏样本数&#39;</span><span class="p">,</span> <span class="s1">&#39;坏样本占比&#39;</span><span class="p">,</span> <span class="s1">&#39;坏样本率&#39;</span><span class="p">,</span> <span class="s1">&#39;分档WOE值&#39;</span><span class="p">,</span> <span class="s1">&#39;分档IV值&#39;</span><span class="p">,</span> <span class="s1">&#39;指标IV值&#39;</span><span class="p">,</span> <span class="s1">&#39;LIFT值&#39;</span><span class="p">,</span> <span class="s1">&#39;累积LIFT值&#39;</span><span class="p">,</span> <span class="s1">&#39;累积好样本数&#39;</span><span class="p">,</span> <span class="s1">&#39;累积坏样本数&#39;</span><span class="p">,</span> <span class="s1">&#39;分档KS值&#39;</span><span class="p">]]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">table</span> <span class="o">=</span> <span class="n">table</span><span class="p">[[</span><span class="s1">&#39;指标名称&#39;</span><span class="p">,</span> <span class="s2">&quot;指标含义&quot;</span><span class="p">,</span> <span class="s1">&#39;分箱&#39;</span><span class="p">,</span> <span class="s1">&#39;样本总数&#39;</span><span class="p">,</span> <span class="s1">&#39;样本占比&#39;</span><span class="p">,</span> <span class="s1">&#39;好样本数&#39;</span><span class="p">,</span> <span class="s1">&#39;好样本占比&#39;</span><span class="p">,</span> <span class="s1">&#39;坏样本数&#39;</span><span class="p">,</span> <span class="s1">&#39;坏样本占比&#39;</span><span class="p">,</span> <span class="s1">&#39;坏样本率&#39;</span><span class="p">,</span> <span class="s1">&#39;分档WOE值&#39;</span><span class="p">,</span> <span class="s1">&#39;分档IV值&#39;</span><span class="p">,</span> <span class="s1">&#39;指标IV值&#39;</span><span class="p">,</span> <span class="s1">&#39;LIFT值&#39;</span><span class="p">,</span> <span class="s1">&#39;累积LIFT值&#39;</span><span class="p">]]</span>
+
+        <span class="k">if</span> <span class="n">return_rules</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">table</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">_combiner</span><span class="p">[</span><span class="n">feature</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">table</span></div>
+
+<div class="viewcode-block" id="Combiner.bin_plot"><a class="viewcode-back" href="../../scorecardpipeline.html#scorecardpipeline.Combiner.bin_plot">[文档]</a>    <span class="k">def</span> <span class="nf">bin_plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">rule</span><span class="o">=</span><span class="p">{},</span> <span class="n">desc</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">result</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">save</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;特征分箱图</span>
+
+<span class="sd">        :param data: 需要查看分箱图的数据集</span>
+<span class="sd">        :param x: 需要查看的分箱图的特征名称</span>
+<span class="sd">        :param rule: 自定义的特征分箱规则，不会修改已训练好的特征分箱信息</span>
+<span class="sd">        :param desc: 特征描述信息，大部分时候用于传入特征对应的中文名称或者释义</span>
+<span class="sd">        :param result: 是否返回特征分箱统计表，默认 False</span>
+<span class="sd">        :param save: 图片保存的地址，如果传入路径中有文件夹不存在，会新建相关文件夹，默认 None</span>
+<span class="sd">        :param kwargs: scorecardpipeline.utils.bin_plot 方法其他的参数，参考：http://localhost:63342/scorecardpipeline/docs/build/html/scorecardpipeline.html#scorecardpipeline.utils.bin_plot</span>
+<span class="sd">        :return: pd.DataFrame，特征分箱统计表，当 result 参数为 True 时返回</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">feature_table</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">feature_bin_stats</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="p">,</span> <span class="n">rules</span><span class="o">=</span><span class="n">rule</span><span class="p">,</span> <span class="n">desc</span><span class="o">=</span><span class="n">desc</span><span class="p">,</span> <span class="n">combiner</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">combiner</span><span class="p">,</span> <span class="n">ks</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">bin_plot</span><span class="p">(</span><span class="n">feature_table</span><span class="p">,</span> <span class="n">desc</span><span class="o">=</span><span class="n">desc</span><span class="p">,</span> <span class="n">save</span><span class="o">=</span><span class="n">save</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">result</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">feature_table</span></div>
+
+<div class="viewcode-block" id="Combiner.proportion_plot"><a class="viewcode-back" href="../../scorecardpipeline.html#scorecardpipeline.Combiner.proportion_plot">[文档]</a>    <span class="k">def</span> <span class="nf">proportion_plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">transform</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">labels</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">keys</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;数据集中特征的分布情况</span>
+
+<span class="sd">        :param data: 需要查看样本分布的数据集</span>
+<span class="sd">        :param x: 需要查看样本分布的特征名称</span>
+<span class="sd">        :param transform: 是否进行分箱转换，默认 False，当特征为数值型变量时推荐转换分箱后在查看数据分布</span>
+<span class="sd">        :param labels: 进行分箱转换时是否转换为分箱信息，默认 False，即转换为分箱索引</span>
+<span class="sd">        :param keys: 根据某个 key 划分数据集查看数据分布情况，默认 None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">transform</span><span class="p">:</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">combiner</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">labels</span><span class="o">=</span><span class="n">labels</span><span class="p">)</span>
+
+        <span class="n">proportion_plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">keys</span><span class="o">=</span><span class="n">keys</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Combiner.corr_plot"><a class="viewcode-back" href="../../scorecardpipeline.html#scorecardpipeline.Combiner.corr_plot">[文档]</a>    <span class="k">def</span> <span class="nf">corr_plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">transform</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">figure_size</span><span class="o">=</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mi">15</span><span class="p">),</span> <span class="n">save</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;特征相关图</span>
+
+<span class="sd">        :param data: 需要查看特征相关性的数据集</span>
+<span class="sd">        :param transform: 是否进行分箱转换，默认 False</span>
+<span class="sd">        :param figure_size: 图像大小，默认 (20, 15)</span>
+<span class="sd">        :param save: 图片保存的地址，如果传入路径中有文件夹不存在，会新建相关文件夹，默认 None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">transform</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">combiner</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">labels</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+        <span class="n">corr_plot</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">figure_size</span><span class="o">=</span><span class="n">figure_size</span><span class="p">,</span> <span class="n">save</span><span class="o">=</span><span class="n">save</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Combiner.badrate_plot"><a class="viewcode-back" href="../../scorecardpipeline.html#scorecardpipeline.Combiner.badrate_plot">[文档]</a>    <span class="k">def</span> <span class="nf">badrate_plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">date_column</span><span class="p">,</span> <span class="n">feature</span><span class="p">,</span> <span class="n">labels</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;查看不同时间段的分箱是否平稳，线敞口随时间变化而增大为优，代表了特征在更新的时间区分度更强。线之前没有交叉为优，代表分箱稳定</span>
+
+<span class="sd">        :param data: 需要查看分箱平稳情况的数据集，需包含时间列</span>
+<span class="sd">        :param feature: 需要查看分箱平稳性的特征名称</span>
+<span class="sd">        :param date_column: 数据集中的日期列名称</span>
+<span class="sd">        :param labels: 进行分箱转换时是否转换为分箱信息，默认 True，即转换为分箱</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">badrate_plot</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">combiner</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">data</span><span class="p">[[</span><span class="n">date_column</span><span class="p">,</span> <span class="n">feature</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="p">]],</span> <span class="n">labels</span><span class="o">=</span><span class="n">labels</span><span class="p">),</span> <span class="n">target</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="n">date_column</span><span class="p">,</span> <span class="n">by</span><span class="o">=</span><span class="n">feature</span><span class="p">)</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">rules</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;dict，特征分箱明细信息&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">combiner</span><span class="o">.</span><span class="n">_rules</span>
+
+    <span class="nd">@rules</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">rules</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;设置分箱信息</span>
+
+<span class="sd">        :param value: 特征分箱</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">combiner</span><span class="o">.</span><span class="n">_rules</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;返回特征分箱器特征的个数</span>
+
+<span class="sd">        :return: int，分箱器中特征的个数</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">combiner</span><span class="o">.</span><span class="n">_rules</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+
+    <span class="k">def</span> <span class="fm">__contains__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;查看某个特征是否在分箱器中</span>
+
+<span class="sd">        :param key: 特征名称</span>
+<span class="sd">        :return: bool，是否在分箱器中</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">combiner</span><span class="o">.</span><span class="n">_rules</span>
+
+    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;获取某个特征的分箱信息</span>
+
+<span class="sd">        :param key: 特征名称</span>
+<span class="sd">        :return: list，特征分箱信息</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">combiner</span><span class="o">.</span><span class="n">_rules</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="fm">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;设置某个特征的分箱信息</span>
+
+<span class="sd">        :param key: 特征名称</span>
+<span class="sd">        :param value: 分箱规则</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">combiner</span><span class="o">.</span><span class="n">_rules</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="k">def</span> <span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;分箱规则的迭代器</span>
+
+<span class="sd">        :return: iter，迭代器</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">iter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">combiner</span><span class="o">.</span><span class="n">_rules</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="WOETransformer"><a class="viewcode-back" href="../../scorecardpipeline.html#scorecardpipeline.WOETransformer">[文档]</a><span class="k">class</span> <span class="nc">WOETransformer</span><span class="p">(</span><span class="n">TransformerMixin</span><span class="p">,</span> <span class="n">BaseEstimator</span><span class="p">):</span>
+
+<div class="viewcode-block" id="WOETransformer.__init__"><a class="viewcode-back" href="../../scorecardpipeline.html#scorecardpipeline.WOETransformer.__init__">[文档]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="o">=</span><span class="s2">&quot;target&quot;</span><span class="p">,</span> <span class="n">exclude</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;WOE转换器</span>
+
+<span class="sd">        :param target: 数据集中标签名称，默认 target</span>
+<span class="sd">        :param exclude: 不需要转换 woe 的列</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">target</span> <span class="o">=</span> <span class="n">target</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">exclude</span> <span class="o">=</span> <span class="n">exclude</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">exclude</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="k">else</span> <span class="p">[</span><span class="n">exclude</span><span class="p">]</span> <span class="k">if</span> <span class="n">exclude</span> <span class="k">else</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">transformer</span> <span class="o">=</span> <span class="n">toad</span><span class="o">.</span><span class="n">transform</span><span class="o">.</span><span class="n">WOETransformer</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="WOETransformer.fit"><a class="viewcode-back" href="../../scorecardpipeline.html#scorecardpipeline.WOETransformer.fit">[文档]</a>    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;WOE转换器训练</span>
+
+<span class="sd">        :param x: Combiner 转换后的数据（label 为 False），需要包含目标变量</span>
+<span class="sd">        :return: WOETransformer，训练完成的WOE转换器</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">transformer</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">x</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">exclude</span> <span class="o">+</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="p">]),</span> <span class="n">x</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">target</span><span class="p">])</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+<div class="viewcode-block" id="WOETransformer.transform"><a class="viewcode-back" href="../../scorecardpipeline.html#scorecardpipeline.WOETransformer.transform">[文档]</a>    <span class="k">def</span> <span class="nf">transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;特征WOE转换方法</span>
+
+<span class="sd">        :param x: 需要进行WOE转换的数据集</span>
+
+<span class="sd">        :return: pd.DataFrame，WOE转换后的数据集</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">transformer</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">x</span><span class="p">)</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">rules</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;dict，特征 WOE 明细信息&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">transformer</span><span class="o">.</span><span class="n">_rules</span>
+
+    <span class="nd">@rules</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">rules</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">transformer</span><span class="o">.</span><span class="n">_rules</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">transformer</span><span class="o">.</span><span class="n">_rules</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+
+    <span class="k">def</span> <span class="fm">__contains__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">key</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">transformer</span><span class="o">.</span><span class="n">_rules</span>
+
+    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">transformer</span><span class="o">.</span><span class="n">_rules</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="fm">__setitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">transformer</span><span class="o">.</span><span class="n">_rules</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="k">def</span> <span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">iter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">transformer</span><span class="o">.</span><span class="n">_rules</span><span class="p">)</span></div>
+</pre></div>
+</article>
+        
+      </main>
+    </div>
+
+    <footer class="nftt-footer">
+      
+<nav id="paginator"></nav>
+
+      <div class="py-5 px-4 px-md-3">
+  <div class="container">
+    
+    <div class="row">
+      <ul class="list-unstyled list-separator col-lg-12 pb-2 text-center">
+        
+          
+          
+          <li class="d-inline">
+            <a href="https://itlubber.art" class="list-item">itlubber</a>
+          </li>
+        
+          
+          
+          <li class="d-inline">
+            <a href="https://github.com/itlubber/scorecardpipeline" class="list-item">github</a>
+          </li>
+        
+          
+          
+          <li class="d-inline">
+            <a href="https://github.com/itlubber/scorecardpipeline/blob/main/examples/scorecard_samples.ipynb" class="list-item">examples</a>
+          </li>
+        
+      </ul>
+    </div>
+    
+
+    <div class="row">
+      <div class="col-lg-12 text-center">
+        <a class="brand-text d-inline-flex align-items-center mb-2 text-decoration-none" href="/" aria-label="Nefertiti-for-Sphinx">
+          <span class="fs-6 fw-bold">scorecardpipeline</span>
+        </a>
+        
+          <ul class="list-unstyled small text-muted">
+            <li>2023, itlubber</li>
+          </ul>
+        
+        
+      </div>
+    </div>
+  </div>
+</div>
+    </footer>
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js?v=38ec1191"></script>
+    <script src="../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../_static/sphinx_highlight.js?v=4825356b"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../_static/translations.js?v=beaddf03"></script>
+    <script src="../../_static/design-tabs.js?v=36754332"></script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"
+const thebe_selector = ".thebe,.cell"
+const thebe_selector_input = "pre"
+const thebe_selector_output = ".output, .cell_output"
+</script>
+    <script async="async" src="../../_static/sphinx-thebe.js?v=afe5de03"></script>
+    <script src="https://unpkg.com/mermaid@10.2.0/dist/mermaid.min.js"></script>
+    <script>mermaid.initialize({startOnLoad:true});</script>
+
+    <script type="text/javascript" src="../../_static/bootstrap.bundle.min.js"></script>
+    <script type="text/javascript" src="../../_static/sphinx-nefertiti.min.js"></script>
+    
+  </body>
+</html>

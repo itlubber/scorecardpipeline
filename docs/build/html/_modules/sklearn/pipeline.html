@@ -1,0 +1,1600 @@
+
+
+<!DOCTYPE html>
+<html class="no-js" lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="docsearch:name" content="scorecardpipeline" />
+    <meta name="docsearch:package_type" content="" />
+    <meta name="docsearch:release" content="0.1.25" />
+    <meta name="docsearch:version" content="" />
+    
+      <title>sklearn.pipeline &mdash; scorecardpipeline 0.1.25 文档</title>
+    
+    <link rel="stylesheet" href="../../_static/bootstrap-icons.css" type="text/css" />
+          <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=e7352e39" />
+          <link rel="stylesheet" type="text/css" href="../../_static/sphinx-thebe.css?v=4fa983c6" />
+          <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+          <link id="pygments_dark_css" media="(prefers-color-scheme: dark)" rel="stylesheet" type="text/css" href="../../_static/pygments_dark.css?v=e15ddae3" />
+          <link rel="stylesheet" type="text/css" href="../../_static/design-style.1e8bd061cd6da7fc9cf755528e8ffc24.min.css?v=0a3b3ea7" />
+          <link rel="stylesheet" type="text/css" href="../../_static/colorsets/sphinx-nefertiti-indigo.min.css" />
+          <link rel="stylesheet" type="text/css" href="../../_static/fonts/nunito/stylesheet.css" />
+          <link rel="stylesheet" type="text/css" href="../../_static/fonts/red-hat-mono/stylesheet.css" />
+          <link rel="stylesheet" type="text/css" href="../../_static/fonts/nunito/stylesheet.css" />
+          <link rel="stylesheet" type="text/css" href="../../_static/fonts/nunito/stylesheet.css" />
+          <link rel="stylesheet" type="text/css" href="../../_static/fonts/nunito/stylesheet.css" />
+          <link rel="stylesheet" type="text/css" href="../../_static/pygments_dark.css?v=e15ddae3" />
+        <link rel="index" title="索引" href="../../genindex.html" />
+        <link rel="search" title="搜索" href="../../search.html" />
+        <link rel="top" title="scorecardpipeline 0.1.25 文档" href="#" />
+        <link rel="up" title="模块代码" href="../index.html" />
+    <style>
+      :root {
+        --nftt-body-font-family: "Nunito", var(--nftt-font-sans-serif) !important;
+        --nftt-font-monospace: "Red Hat Mono", var(--nftt-font-family-monospace) !important;
+        --nftt-project-name-font: "Nunito", var(--nftt-body-font-family);
+        --nftt-documentation-font: "Nunito", var(--nftt-body-font-family);
+        --nftt-doc-headers-font: "Nunito", var(--nftt-documentation-font);}
+      h1 *, h2 *, h3 *, h4 *, h5 *, h6 * { font-size: inherit; }
+    </style>
+  </head>
+  <body>
+    <header class="navbar navbar-expand-lg navbar-dark nftt-navbar flex-column fixed-top">
+      <div class="skip-links container-xxl visually-hidden-focusable overflow-hidden justify-content-start">
+        <div class="border-bottom mb-2 pb-2 w-100">
+          <a class="d-none d-md-inline-flex p-2 m-1" href="#sidebar-filter">Skip to docs navigation</a>
+          <a class="d-inline-flex p-2 m-1" href="#content">Skip to main content</a>
+        </div>
+      </div>
+      <nav class="container-xxl nftt-gutter flex-wrap flex-lg-nowrap" aria-label="Main navigation">
+        <div class="nftt-navbar-toggler">
+          <button class="navbar-toggler p-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebar" aria-controls="sidebar" aria-label="Toggle documentation navigation">
+            <i class="bi bi-list"></i>
+          </button>
+        </div>
+          <a href="../../index.html"
+              
+              class="navbar-brand p-0 me-0 md-lg-2"
+          ><span class="brand-text">scorecardpipeline</span></a>
+        
+        <div class="d-flex d-lg-none">
+          <button class="navbar-toggler p-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#nfttSearch" aria-controls="nfttSearch" aria-label="Search">
+            <i class="bi bi-search"></i>
+          </button>
+          <button class="navbar-toggler p-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#nfttNavbar" aria-controls="nfttNavbar" aria-label="Toggle navigation">
+            <i class="bi bi-three-dots"></i>
+          </button>
+        </div>
+        
+<div class="offcanvas-lg offcanvas-end flex-grow-1" tabindex="-1" id="nfttSearch" aria-labelledby="nfttSearchOffcanvasLabel" data-bs-scroll="true">
+  <div class="offcanvas-header px-4 pb-0">
+    <h5 class="offcanvas-title fw-bold" id="nfttSearchOffcanvasLabel">Search the documentation</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close" data-bs-target="#nfttSearch"></button>
+  </div>
+  <div class="offcanvas-body p-4 pt-0 p-lg-0 px-lg-3">
+    <hr class="d-lg-none text-white-50">
+    <ul class="navbar-nav flex-row align-items-center flex-wrap ms-md-auto">
+      <li class="nav-item col-12 col-lg-auto">
+        <form id="nftt-search-form" action="../../search.html" method="get">
+          <div class="input-group">
+            <input type="text" name="q" class="form-control" placeholder="Search docs" aria-label="Search" aria-describedby="button-search">
+            <input type="hidden" name="check_keywords" value="yes" />
+            <input type="hidden" name="area" value="default" />
+            <button class="btn btn-primary" type="submit" id="button-search" aria-label="Search"><i class="bi bi-search"></i></button>
+          </div>
+        </form>
+      </li>
+    </ul>
+  </div>
+</div>
+
+        <div class="offcanvas-lg offcanvas-end" tabindex="-1" id="nfttNavbar" aria-labelledby="nfttNavbarOffcanvasLabel" data-bs-scroll="true">
+          <div class="offcanvas-header px-4 pb-0">
+            <div class="offcanvas-title text-white fw-bold" id="nfttNavbarOffcanvasLabel"><span class="brand-text">Nefertiti for Sphinx</span></div>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close" data-bs-target="#nfttNavbar"></button>
+          </div>
+          <div class="offcanvas-body p-4 pt-0 p-lg-0">
+            <hr class="d-lg-none text-white-50">
+            <ul class="navbar-nav flex-row align-items-center flex-wrap ms-md-auto">
+              
+              <!-- version_dropdown.html -->
+
+              
+              <!-- colorscheme_dropdown.html -->
+<li class="nav-item dropdown">
+  <a class="nav-link d-flex py-2 px-0 px-lg-2 dropdown-toggle align-items-center" id="snftt-luz" href="#" data-bs-toggle="dropdown" data-bs-display="static" aria-expanded="false" aria-label="Toggle light/dark">
+    <i class="bi bi-circle-half" data-snftt-luz-icon-active></i>
+    <span id="snftt-luz-text" class="d-lg-none small ms-2">Toggle light/dark</span>
+  </a>
+  <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="snftt-luz-text">
+    <li>
+      <h6 class="dropdown-header">Light/dark</h6>
+    </li>
+    <li>
+      <a class="dropdown-item d-flex align-items-center" data-snftt-luz="light" href="#" aria-pressed="false">
+        <span class="small">
+          <i class="bi bi-sun" data-snftt-luz-icon="light"></i>
+        </span>
+        <span class="small ms-3">Light</span>
+        <i class="bi bi-check ms-auto"></i>
+      </a>
+    </li>
+    <li>
+      <a class="dropdown-item d-flex align-items-center" data-snftt-luz="dark" href="#" aria-pressed="false">
+        <span class="small">
+          <i class="bi bi-moon-stars" data-snftt-luz-icon="dark"></i>
+        </span>
+        <span class="small ms-3">Dark</span>
+        <i class="bi bi-check ms-auto"></i>
+      </a>
+    </li>
+    <li>
+      <a class="dropdown-item current d-flex align-items-center" data-snftt-luz="default" href="#" aria-pressed="false">
+        <span class="small">
+          <i class="bi bi-circle-half" data-snftt-luz-icon="default"></i>
+        </span>
+        <span class="small ms-3">Default</span>
+        <i class="bi bi-check ms-auto"></i>
+      </a>
+    </li>
+  </ul>
+</li>
+            </ul>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <div class="container-xxl nftt-gutter nftt-layout">
+      <aside class="nftt-sidebar">
+        <div class="title d-none d-md-block">
+          <i class="bi bi-book"></i>&nbsp;&nbsp;<span>Table of contents</span>
+        </div>
+        <div id="sidebar" tabindex="-1" class="offcanvas-lg offcanvas-start" aria-labelledby="nfttSidebarOffcanvasLabel">
+            <!-- danirus sidebartemplate: "globaltoc.html" --><div class="offcanvas-header border-bottom">
+  <h5 class="offcanvas-title" id="nfttSidebarOffcanvasLabel">
+    Table of contents
+  </h5>
+  <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close" data-bs-target="#sidebar"></button>
+</div>
+
+<div class="offcanvas-body">
+  <nav class="toc" aria-label="Main menu">
+    <div class="mb-3 p-1 pt-3 pb-4 border-bottom">
+      <input id="sidebar-filter" type="text" name="filter" class="form-control form-control-sm" placeholder="filter" aria-label="filter">
+    </div>
+    <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../modules.html">scorecardpipeline</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../scorecardpipeline.html">scorecardpipeline</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../scorecardpipeline.html#module-scorecardpipeline.processing">scorecardpipeline.processing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../scorecardpipeline.html#module-scorecardpipeline.model">scorecardpipeline.model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../scorecardpipeline.html#module-scorecardpipeline.utils">scorecardpipeline.utils</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../scorecardpipeline.html#module-scorecardpipeline.excel_writer">scorecardpipeline.excel_writer</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../scorecardpipeline.html#module-scorecardpipeline.logger">scorecardpipeline.logger</a></li>
+</ul>
+</li>
+</ul>
+
+  </nav>
+  <template data-toggle-item-template>
+    <button class="btn btn-sm btn-link toctree-expand" type="button">
+      <i class="bi bi-caret-right"></i>
+      <span class="visually-hidden">Toggle menu contents</span>
+    </button>
+  </template>
+</div>
+        </div>
+      </aside>
+      <main class="nftt-main">
+        <article id="content" class="nftt-content" role="main">
+    <h1>sklearn.pipeline 源代码</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">The :mod:`sklearn.pipeline` module implements utilities to build a composite</span>
+<span class="sd">estimator, as a chain of transforms and estimators.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="c1"># Author: Edouard Duchesnay</span>
+<span class="c1">#         Gael Varoquaux</span>
+<span class="c1">#         Virgile Fritsch</span>
+<span class="c1">#         Alexandre Gramfort</span>
+<span class="c1">#         Lars Buitinck</span>
+<span class="c1"># License: BSD</span>
+
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">defaultdict</span>
+<span class="kn">from</span> <span class="nn">itertools</span> <span class="kn">import</span> <span class="n">islice</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">scipy</span> <span class="kn">import</span> <span class="n">sparse</span>
+
+<span class="kn">from</span> <span class="nn">.base</span> <span class="kn">import</span> <span class="n">clone</span><span class="p">,</span> <span class="n">TransformerMixin</span>
+<span class="kn">from</span> <span class="nn">.preprocessing</span> <span class="kn">import</span> <span class="n">FunctionTransformer</span>
+<span class="kn">from</span> <span class="nn">.utils._estimator_html_repr</span> <span class="kn">import</span> <span class="n">_VisualBlock</span>
+<span class="kn">from</span> <span class="nn">.utils.metaestimators</span> <span class="kn">import</span> <span class="n">available_if</span>
+<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="p">(</span>
+    <span class="n">Bunch</span><span class="p">,</span>
+    <span class="n">_print_elapsed_time</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">.utils._tags</span> <span class="kn">import</span> <span class="n">_safe_tags</span>
+<span class="kn">from</span> <span class="nn">.utils.validation</span> <span class="kn">import</span> <span class="n">check_memory</span>
+<span class="kn">from</span> <span class="nn">.utils.validation</span> <span class="kn">import</span> <span class="n">check_is_fitted</span>
+<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">check_pandas_support</span>
+<span class="kn">from</span> <span class="nn">.utils._set_output</span> <span class="kn">import</span> <span class="n">_safe_set_output</span><span class="p">,</span> <span class="n">_get_output_config</span>
+<span class="kn">from</span> <span class="nn">.utils.parallel</span> <span class="kn">import</span> <span class="n">delayed</span><span class="p">,</span> <span class="n">Parallel</span>
+<span class="kn">from</span> <span class="nn">.exceptions</span> <span class="kn">import</span> <span class="n">NotFittedError</span>
+
+<span class="kn">from</span> <span class="nn">.utils.metaestimators</span> <span class="kn">import</span> <span class="n">_BaseComposition</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Pipeline&quot;</span><span class="p">,</span> <span class="s2">&quot;FeatureUnion&quot;</span><span class="p">,</span> <span class="s2">&quot;make_pipeline&quot;</span><span class="p">,</span> <span class="s2">&quot;make_union&quot;</span><span class="p">]</span>
+
+
+<span class="k">def</span> <span class="nf">_final_estimator_has</span><span class="p">(</span><span class="n">attr</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Check that final_estimator has `attr`.</span>
+
+<span class="sd">    Used together with `avaliable_if` in `Pipeline`.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">check</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># raise original `AttributeError` if `attr` does not exist</span>
+        <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_final_estimator</span><span class="p">,</span> <span class="n">attr</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">True</span>
+
+    <span class="k">return</span> <span class="n">check</span>
+
+
+<div class="viewcode-block" id="Pipeline"><a class="viewcode-back" href="../../scorecardpipeline.html#scorecardpipeline.Pipeline">[文档]</a><span class="k">class</span> <span class="nc">Pipeline</span><span class="p">(</span><span class="n">_BaseComposition</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Pipeline of transforms with a final estimator.</span>
+
+<span class="sd">    Sequentially apply a list of transforms and a final estimator.</span>
+<span class="sd">    Intermediate steps of the pipeline must be &#39;transforms&#39;, that is, they</span>
+<span class="sd">    must implement `fit` and `transform` methods.</span>
+<span class="sd">    The final estimator only needs to implement `fit`.</span>
+<span class="sd">    The transformers in the pipeline can be cached using ``memory`` argument.</span>
+
+<span class="sd">    The purpose of the pipeline is to assemble several steps that can be</span>
+<span class="sd">    cross-validated together while setting different parameters. For this, it</span>
+<span class="sd">    enables setting parameters of the various steps using their names and the</span>
+<span class="sd">    parameter name separated by a `&#39;__&#39;`, as in the example below. A step&#39;s</span>
+<span class="sd">    estimator may be replaced entirely by setting the parameter with its name</span>
+<span class="sd">    to another estimator, or a transformer removed by setting it to</span>
+<span class="sd">    `&#39;passthrough&#39;` or `None`.</span>
+
+<span class="sd">    Read more in the :ref:`User Guide &lt;pipeline&gt;`.</span>
+
+<span class="sd">    .. versionadded:: 0.5</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    steps : list of tuple</span>
+<span class="sd">        List of (name, transform) tuples (implementing `fit`/`transform`) that</span>
+<span class="sd">        are chained in sequential order. The last transform must be an</span>
+<span class="sd">        estimator.</span>
+
+<span class="sd">    memory : str or object with the joblib.Memory interface, default=None</span>
+<span class="sd">        Used to cache the fitted transformers of the pipeline. By default,</span>
+<span class="sd">        no caching is performed. If a string is given, it is the path to</span>
+<span class="sd">        the caching directory. Enabling caching triggers a clone of</span>
+<span class="sd">        the transformers before fitting. Therefore, the transformer</span>
+<span class="sd">        instance given to the pipeline cannot be inspected</span>
+<span class="sd">        directly. Use the attribute ``named_steps`` or ``steps`` to</span>
+<span class="sd">        inspect estimators within the pipeline. Caching the</span>
+<span class="sd">        transformers is advantageous when fitting is time consuming.</span>
+
+<span class="sd">    verbose : bool, default=False</span>
+<span class="sd">        If True, the time elapsed while fitting each step will be printed as it</span>
+<span class="sd">        is completed.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    named_steps : :class:`~sklearn.utils.Bunch`</span>
+<span class="sd">        Dictionary-like object, with the following attributes.</span>
+<span class="sd">        Read-only attribute to access any step parameter by user given name.</span>
+<span class="sd">        Keys are step names and values are steps parameters.</span>
+
+<span class="sd">    classes_ : ndarray of shape (n_classes,)</span>
+<span class="sd">        The classes labels. Only exist if the last step of the pipeline is a</span>
+<span class="sd">        classifier.</span>
+
+<span class="sd">    n_features_in_ : int</span>
+<span class="sd">        Number of features seen during :term:`fit`. Only defined if the</span>
+<span class="sd">        underlying first estimator in `steps` exposes such an attribute</span>
+<span class="sd">        when fit.</span>
+
+<span class="sd">        .. versionadded:: 0.24</span>
+
+<span class="sd">    feature_names_in_ : ndarray of shape (`n_features_in_`,)</span>
+<span class="sd">        Names of features seen during :term:`fit`. Only defined if the</span>
+<span class="sd">        underlying estimator exposes such an attribute when fit.</span>
+
+<span class="sd">        .. versionadded:: 1.0</span>
+
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    make_pipeline : Convenience function for simplified pipeline construction.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; from sklearn.svm import SVC</span>
+<span class="sd">    &gt;&gt;&gt; from sklearn.preprocessing import StandardScaler</span>
+<span class="sd">    &gt;&gt;&gt; from sklearn.datasets import make_classification</span>
+<span class="sd">    &gt;&gt;&gt; from sklearn.model_selection import train_test_split</span>
+<span class="sd">    &gt;&gt;&gt; from sklearn.pipeline import Pipeline</span>
+<span class="sd">    &gt;&gt;&gt; X, y = make_classification(random_state=0)</span>
+<span class="sd">    &gt;&gt;&gt; X_train, X_test, y_train, y_test = train_test_split(X, y,</span>
+<span class="sd">    ...                                                     random_state=0)</span>
+<span class="sd">    &gt;&gt;&gt; pipe = Pipeline([(&#39;scaler&#39;, StandardScaler()), (&#39;svc&#39;, SVC())])</span>
+<span class="sd">    &gt;&gt;&gt; # The pipeline can be used as any other estimator</span>
+<span class="sd">    &gt;&gt;&gt; # and avoids leaking the test set into the train set</span>
+<span class="sd">    &gt;&gt;&gt; pipe.fit(X_train, y_train)</span>
+<span class="sd">    Pipeline(steps=[(&#39;scaler&#39;, StandardScaler()), (&#39;svc&#39;, SVC())])</span>
+<span class="sd">    &gt;&gt;&gt; pipe.score(X_test, y_test)</span>
+<span class="sd">    0.88</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># BaseEstimator interface</span>
+    <span class="n">_required_parameters</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;steps&quot;</span><span class="p">]</span>
+
+<div class="viewcode-block" id="Pipeline.__init__"><a class="viewcode-back" href="../../scorecardpipeline.html#scorecardpipeline.Pipeline.__init__">[文档]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">steps</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">memory</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">steps</span> <span class="o">=</span> <span class="n">steps</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">memory</span> <span class="o">=</span> <span class="n">memory</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="o">=</span> <span class="n">verbose</span></div>
+
+<div class="viewcode-block" id="Pipeline.set_output"><a class="viewcode-back" href="../../scorecardpipeline.html#scorecardpipeline.Pipeline.set_output">[文档]</a>    <span class="k">def</span> <span class="nf">set_output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">transform</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set the output container when `&quot;transform&quot;` and `&quot;fit_transform&quot;` are called.</span>
+
+<span class="sd">        Calling `set_output` will set the output of all estimators in `steps`.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        transform : {&quot;default&quot;, &quot;pandas&quot;}, default=None</span>
+<span class="sd">            Configure output of `transform` and `fit_transform`.</span>
+
+<span class="sd">            - `&quot;default&quot;`: Default output format of a transformer</span>
+<span class="sd">            - `&quot;pandas&quot;`: DataFrame output</span>
+<span class="sd">            - `None`: Transform configuration is unchanged</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        self : estimator instance</span>
+<span class="sd">            Estimator instance.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">step</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_iter</span><span class="p">():</span>
+            <span class="n">_safe_set_output</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">transform</span><span class="o">=</span><span class="n">transform</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+<div class="viewcode-block" id="Pipeline.get_params"><a class="viewcode-back" href="../../scorecardpipeline.html#scorecardpipeline.Pipeline.get_params">[文档]</a>    <span class="k">def</span> <span class="nf">get_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">deep</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get parameters for this estimator.</span>
+
+<span class="sd">        Returns the parameters given in the constructor as well as the</span>
+<span class="sd">        estimators contained within the `steps` of the `Pipeline`.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        deep : bool, default=True</span>
+<span class="sd">            If True, will return the parameters for this estimator and</span>
+<span class="sd">            contained subobjects that are estimators.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        params : mapping of string to any</span>
+<span class="sd">            Parameter names mapped to their values.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_params</span><span class="p">(</span><span class="s2">&quot;steps&quot;</span><span class="p">,</span> <span class="n">deep</span><span class="o">=</span><span class="n">deep</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Pipeline.set_params"><a class="viewcode-back" href="../../scorecardpipeline.html#scorecardpipeline.Pipeline.set_params">[文档]</a>    <span class="k">def</span> <span class="nf">set_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set the parameters of this estimator.</span>
+
+<span class="sd">        Valid parameter keys can be listed with ``get_params()``. Note that</span>
+<span class="sd">        you can directly set the parameters of the estimators contained in</span>
+<span class="sd">        `steps`.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        **kwargs : dict</span>
+<span class="sd">            Parameters of this estimator or parameters of estimators contained</span>
+<span class="sd">            in `steps`. Parameters of the steps may be set using its name and</span>
+<span class="sd">            the parameter name separated by a &#39;__&#39;.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        self : object</span>
+<span class="sd">            Pipeline class instance.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_params</span><span class="p">(</span><span class="s2">&quot;steps&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+    <span class="k">def</span> <span class="nf">_validate_steps</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">names</span><span class="p">,</span> <span class="n">estimators</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">steps</span><span class="p">)</span>
+
+        <span class="c1"># validate names</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_validate_names</span><span class="p">(</span><span class="n">names</span><span class="p">)</span>
+
+        <span class="c1"># validate estimators</span>
+        <span class="n">transformers</span> <span class="o">=</span> <span class="n">estimators</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">estimator</span> <span class="o">=</span> <span class="n">estimators</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">transformers</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">t</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">t</span> <span class="o">==</span> <span class="s2">&quot;passthrough&quot;</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="nb">hasattr</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="s2">&quot;fit&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="s2">&quot;fit_transform&quot;</span><span class="p">))</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span>
+                <span class="n">t</span><span class="p">,</span> <span class="s2">&quot;transform&quot;</span>
+            <span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+                    <span class="s2">&quot;All intermediate steps should be &quot;</span>
+                    <span class="s2">&quot;transformers and implement fit and transform &quot;</span>
+                    <span class="s2">&quot;or be the string &#39;passthrough&#39; &quot;</span>
+                    <span class="s2">&quot;&#39;</span><span class="si">%s</span><span class="s2">&#39; (type </span><span class="si">%s</span><span class="s2">) doesn&#39;t&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">t</span><span class="p">))</span>
+                <span class="p">)</span>
+
+        <span class="c1"># We allow last estimator to be None as an identity transformation</span>
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="n">estimator</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="ow">and</span> <span class="n">estimator</span> <span class="o">!=</span> <span class="s2">&quot;passthrough&quot;</span>
+            <span class="ow">and</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">estimator</span><span class="p">,</span> <span class="s2">&quot;fit&quot;</span><span class="p">)</span>
+        <span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+                <span class="s2">&quot;Last step of Pipeline should implement fit &quot;</span>
+                <span class="s2">&quot;or be the string &#39;passthrough&#39;. &quot;</span>
+                <span class="s2">&quot;&#39;</span><span class="si">%s</span><span class="s2">&#39; (type </span><span class="si">%s</span><span class="s2">) doesn&#39;t&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">estimator</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">estimator</span><span class="p">))</span>
+            <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_iter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">with_final</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">filter_passthrough</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generate (idx, (name, trans)) tuples from self.steps</span>
+
+<span class="sd">        When filter_passthrough is True, &#39;passthrough&#39; and None transformers</span>
+<span class="sd">        are filtered out.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">stop</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">steps</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">with_final</span><span class="p">:</span>
+            <span class="n">stop</span> <span class="o">-=</span> <span class="mi">1</span>
+
+        <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">trans</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">islice</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">steps</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">stop</span><span class="p">)):</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">filter_passthrough</span><span class="p">:</span>
+                <span class="k">yield</span> <span class="n">idx</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">trans</span>
+            <span class="k">elif</span> <span class="n">trans</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">trans</span> <span class="o">!=</span> <span class="s2">&quot;passthrough&quot;</span><span class="p">:</span>
+                <span class="k">yield</span> <span class="n">idx</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">trans</span>
+
+    <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns the length of the Pipeline</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">steps</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ind</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns a sub-pipeline or a single estimator in the pipeline</span>
+
+<span class="sd">        Indexing with an integer will return an estimator; using a slice</span>
+<span class="sd">        returns another Pipeline instance which copies a slice of this</span>
+<span class="sd">        Pipeline. This copy is shallow: modifying (or fitting) estimators in</span>
+<span class="sd">        the sub-pipeline will affect the larger pipeline and vice-versa.</span>
+<span class="sd">        However, replacing a value in `step` will not affect a copy.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ind</span><span class="p">,</span> <span class="nb">slice</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">ind</span><span class="o">.</span><span class="n">step</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="kc">None</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Pipeline slicing only supports a step of 1&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">steps</span><span class="p">[</span><span class="n">ind</span><span class="p">],</span> <span class="n">memory</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">memory</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">verbose</span>
+            <span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">name</span><span class="p">,</span> <span class="n">est</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">steps</span><span class="p">[</span><span class="n">ind</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+            <span class="c1"># Not an int, try get step by name</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">named_steps</span><span class="p">[</span><span class="n">ind</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">est</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">_estimator_type</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">steps</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">_estimator_type</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">named_steps</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Access the steps by name.</span>
+
+<span class="sd">        Read-only attribute to access any step by given name.</span>
+<span class="sd">        Keys are steps names and values are the steps objects.&quot;&quot;&quot;</span>
+        <span class="c1"># Use Bunch object to improve autocomplete</span>
+        <span class="k">return</span> <span class="n">Bunch</span><span class="p">(</span><span class="o">**</span><span class="nb">dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">steps</span><span class="p">))</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">_final_estimator</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">estimator</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">steps</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">return</span> <span class="s2">&quot;passthrough&quot;</span> <span class="k">if</span> <span class="n">estimator</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">estimator</span>
+
+    <span class="k">def</span> <span class="nf">_log_message</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">step_idx</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="n">name</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">steps</span><span class="p">[</span><span class="n">step_idx</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="s2">&quot;(step </span><span class="si">%d</span><span class="s2"> of </span><span class="si">%d</span><span class="s2">) Processing </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">step_idx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">steps</span><span class="p">),</span> <span class="n">name</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_check_fit_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">fit_params</span><span class="p">):</span>
+        <span class="n">fit_params_steps</span> <span class="o">=</span> <span class="p">{</span><span class="n">name</span><span class="p">:</span> <span class="p">{}</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">step</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">steps</span> <span class="k">if</span> <span class="n">step</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">}</span>
+        <span class="k">for</span> <span class="n">pname</span><span class="p">,</span> <span class="n">pval</span> <span class="ow">in</span> <span class="n">fit_params</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="s2">&quot;__&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">pname</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;Pipeline.fit does not accept the </span><span class="si">{}</span><span class="s2"> parameter. &quot;</span>
+                    <span class="s2">&quot;You can pass parameters to specific steps of your &quot;</span>
+                    <span class="s2">&quot;pipeline using the stepname__parameter format, e.g. &quot;</span>
+                    <span class="s2">&quot;`Pipeline.fit(X, y, logisticregression__sample_weight&quot;</span>
+                    <span class="s2">&quot;=sample_weight)`.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">pname</span><span class="p">)</span>
+                <span class="p">)</span>
+            <span class="n">step</span><span class="p">,</span> <span class="n">param</span> <span class="o">=</span> <span class="n">pname</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;__&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">fit_params_steps</span><span class="p">[</span><span class="n">step</span><span class="p">][</span><span class="n">param</span><span class="p">]</span> <span class="o">=</span> <span class="n">pval</span>
+        <span class="k">return</span> <span class="n">fit_params_steps</span>
+
+    <span class="c1"># Estimator interface</span>
+
+    <span class="k">def</span> <span class="nf">_fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">fit_params_steps</span><span class="p">):</span>
+        <span class="c1"># shallow copy of steps - this should really be steps_</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">steps</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">steps</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_validate_steps</span><span class="p">()</span>
+        <span class="c1"># Setup the memory</span>
+        <span class="n">memory</span> <span class="o">=</span> <span class="n">check_memory</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">memory</span><span class="p">)</span>
+
+        <span class="n">fit_transform_one_cached</span> <span class="o">=</span> <span class="n">memory</span><span class="o">.</span><span class="n">cache</span><span class="p">(</span><span class="n">_fit_transform_one</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">step_idx</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">transformer</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_iter</span><span class="p">(</span>
+            <span class="n">with_final</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">filter_passthrough</span><span class="o">=</span><span class="kc">False</span>
+        <span class="p">):</span>
+            <span class="k">if</span> <span class="n">transformer</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">transformer</span> <span class="o">==</span> <span class="s2">&quot;passthrough&quot;</span><span class="p">:</span>
+                <span class="k">with</span> <span class="n">_print_elapsed_time</span><span class="p">(</span><span class="s2">&quot;Pipeline&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_log_message</span><span class="p">(</span><span class="n">step_idx</span><span class="p">)):</span>
+                    <span class="k">continue</span>
+
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">memory</span><span class="p">,</span> <span class="s2">&quot;location&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">memory</span><span class="o">.</span><span class="n">location</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="c1"># we do not clone when caching is disabled to</span>
+                <span class="c1"># preserve backward compatibility</span>
+                <span class="n">cloned_transformer</span> <span class="o">=</span> <span class="n">transformer</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">cloned_transformer</span> <span class="o">=</span> <span class="n">clone</span><span class="p">(</span><span class="n">transformer</span><span class="p">)</span>
+            <span class="c1"># Fit or load from cache the current transformer</span>
+            <span class="n">X</span><span class="p">,</span> <span class="n">fitted_transformer</span> <span class="o">=</span> <span class="n">fit_transform_one_cached</span><span class="p">(</span>
+                <span class="n">cloned_transformer</span><span class="p">,</span>
+                <span class="n">X</span><span class="p">,</span>
+                <span class="n">y</span><span class="p">,</span>
+                <span class="kc">None</span><span class="p">,</span>
+                <span class="n">message_clsname</span><span class="o">=</span><span class="s2">&quot;Pipeline&quot;</span><span class="p">,</span>
+                <span class="n">message</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_log_message</span><span class="p">(</span><span class="n">step_idx</span><span class="p">),</span>
+                <span class="o">**</span><span class="n">fit_params_steps</span><span class="p">[</span><span class="n">name</span><span class="p">],</span>
+            <span class="p">)</span>
+            <span class="c1"># Replace the transformer of the step with the fitted</span>
+            <span class="c1"># transformer. This is necessary when loading the transformer</span>
+            <span class="c1"># from the cache.</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">steps</span><span class="p">[</span><span class="n">step_idx</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">fitted_transformer</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">X</span>
+
+<div class="viewcode-block" id="Pipeline.fit"><a class="viewcode-back" href="../../scorecardpipeline.html#scorecardpipeline.Pipeline.fit">[文档]</a>    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">fit_params</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Fit the model.</span>
+
+<span class="sd">        Fit all the transformers one after the other and transform the</span>
+<span class="sd">        data. Finally, fit the transformed data using the final estimator.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        X : iterable</span>
+<span class="sd">            Training data. Must fulfill input requirements of first step of the</span>
+<span class="sd">            pipeline.</span>
+
+<span class="sd">        y : iterable, default=None</span>
+<span class="sd">            Training targets. Must fulfill label requirements for all steps of</span>
+<span class="sd">            the pipeline.</span>
+
+<span class="sd">        **fit_params : dict of string -&gt; object</span>
+<span class="sd">            Parameters passed to the ``fit`` method of each step, where</span>
+<span class="sd">            each parameter name is prefixed such that parameter ``p`` for step</span>
+<span class="sd">            ``s`` has key ``s__p``.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        self : object</span>
+<span class="sd">            Pipeline with fitted steps.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">fit_params_steps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_fit_params</span><span class="p">(</span><span class="o">**</span><span class="n">fit_params</span><span class="p">)</span>
+        <span class="n">Xt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="o">**</span><span class="n">fit_params_steps</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">_print_elapsed_time</span><span class="p">(</span><span class="s2">&quot;Pipeline&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_log_message</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">steps</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)):</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_final_estimator</span> <span class="o">!=</span> <span class="s2">&quot;passthrough&quot;</span><span class="p">:</span>
+                <span class="n">fit_params_last_step</span> <span class="o">=</span> <span class="n">fit_params_steps</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">steps</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_final_estimator</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">Xt</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="o">**</span><span class="n">fit_params_last_step</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+<div class="viewcode-block" id="Pipeline.fit_transform"><a class="viewcode-back" href="../../scorecardpipeline.html#scorecardpipeline.Pipeline.fit_transform">[文档]</a>    <span class="k">def</span> <span class="nf">fit_transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">fit_params</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Fit the model and transform with the final estimator.</span>
+
+<span class="sd">        Fits all the transformers one after the other and transform the</span>
+<span class="sd">        data. Then uses `fit_transform` on transformed data with the final</span>
+<span class="sd">        estimator.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        X : iterable</span>
+<span class="sd">            Training data. Must fulfill input requirements of first step of the</span>
+<span class="sd">            pipeline.</span>
+
+<span class="sd">        y : iterable, default=None</span>
+<span class="sd">            Training targets. Must fulfill label requirements for all steps of</span>
+<span class="sd">            the pipeline.</span>
+
+<span class="sd">        **fit_params : dict of string -&gt; object</span>
+<span class="sd">            Parameters passed to the ``fit`` method of each step, where</span>
+<span class="sd">            each parameter name is prefixed such that parameter ``p`` for step</span>
+<span class="sd">            ``s`` has key ``s__p``.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Xt : ndarray of shape (n_samples, n_transformed_features)</span>
+<span class="sd">            Transformed samples.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">fit_params_steps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_fit_params</span><span class="p">(</span><span class="o">**</span><span class="n">fit_params</span><span class="p">)</span>
+        <span class="n">Xt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="o">**</span><span class="n">fit_params_steps</span><span class="p">)</span>
+
+        <span class="n">last_step</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_final_estimator</span>
+        <span class="k">with</span> <span class="n">_print_elapsed_time</span><span class="p">(</span><span class="s2">&quot;Pipeline&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_log_message</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">steps</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)):</span>
+            <span class="k">if</span> <span class="n">last_step</span> <span class="o">==</span> <span class="s2">&quot;passthrough&quot;</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">Xt</span>
+            <span class="n">fit_params_last_step</span> <span class="o">=</span> <span class="n">fit_params_steps</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">steps</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]]</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">last_step</span><span class="p">,</span> <span class="s2">&quot;fit_transform&quot;</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">last_step</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">Xt</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="o">**</span><span class="n">fit_params_last_step</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">last_step</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">Xt</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="o">**</span><span class="n">fit_params_last_step</span><span class="p">)</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">Xt</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Pipeline.predict"><a class="viewcode-back" href="../../scorecardpipeline.html#scorecardpipeline.Pipeline.predict">[文档]</a>    <span class="nd">@available_if</span><span class="p">(</span><span class="n">_final_estimator_has</span><span class="p">(</span><span class="s2">&quot;predict&quot;</span><span class="p">))</span>
+    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="o">**</span><span class="n">predict_params</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Transform the data, and apply `predict` with the final estimator.</span>
+
+<span class="sd">        Call `transform` of each transformer in the pipeline. The transformed</span>
+<span class="sd">        data are finally passed to the final estimator that calls `predict`</span>
+<span class="sd">        method. Only valid if the final estimator implements `predict`.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        X : iterable</span>
+<span class="sd">            Data to predict on. Must fulfill input requirements of first step</span>
+<span class="sd">            of the pipeline.</span>
+
+<span class="sd">        **predict_params : dict of string -&gt; object</span>
+<span class="sd">            Parameters to the ``predict`` called at the end of all</span>
+<span class="sd">            transformations in the pipeline. Note that while this may be</span>
+<span class="sd">            used to return uncertainties from some models with return_std</span>
+<span class="sd">            or return_cov, uncertainties that are generated by the</span>
+<span class="sd">            transformations in the pipeline are not propagated to the</span>
+<span class="sd">            final estimator.</span>
+
+<span class="sd">            .. versionadded:: 0.20</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        y_pred : ndarray</span>
+<span class="sd">            Result of calling `predict` on the final estimator.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">Xt</span> <span class="o">=</span> <span class="n">X</span>
+        <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">transform</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_iter</span><span class="p">(</span><span class="n">with_final</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+            <span class="n">Xt</span> <span class="o">=</span> <span class="n">transform</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">Xt</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">steps</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">Xt</span><span class="p">,</span> <span class="o">**</span><span class="n">predict_params</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Pipeline.fit_predict"><a class="viewcode-back" href="../../scorecardpipeline.html#scorecardpipeline.Pipeline.fit_predict">[文档]</a>    <span class="nd">@available_if</span><span class="p">(</span><span class="n">_final_estimator_has</span><span class="p">(</span><span class="s2">&quot;fit_predict&quot;</span><span class="p">))</span>
+    <span class="k">def</span> <span class="nf">fit_predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">fit_params</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Transform the data, and apply `fit_predict` with the final estimator.</span>
+
+<span class="sd">        Call `fit_transform` of each transformer in the pipeline. The</span>
+<span class="sd">        transformed data are finally passed to the final estimator that calls</span>
+<span class="sd">        `fit_predict` method. Only valid if the final estimator implements</span>
+<span class="sd">        `fit_predict`.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        X : iterable</span>
+<span class="sd">            Training data. Must fulfill input requirements of first step of</span>
+<span class="sd">            the pipeline.</span>
+
+<span class="sd">        y : iterable, default=None</span>
+<span class="sd">            Training targets. Must fulfill label requirements for all steps</span>
+<span class="sd">            of the pipeline.</span>
+
+<span class="sd">        **fit_params : dict of string -&gt; object</span>
+<span class="sd">            Parameters passed to the ``fit`` method of each step, where</span>
+<span class="sd">            each parameter name is prefixed such that parameter ``p`` for step</span>
+<span class="sd">            ``s`` has key ``s__p``.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        y_pred : ndarray</span>
+<span class="sd">            Result of calling `fit_predict` on the final estimator.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">fit_params_steps</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_fit_params</span><span class="p">(</span><span class="o">**</span><span class="n">fit_params</span><span class="p">)</span>
+        <span class="n">Xt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="o">**</span><span class="n">fit_params_steps</span><span class="p">)</span>
+
+        <span class="n">fit_params_last_step</span> <span class="o">=</span> <span class="n">fit_params_steps</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">steps</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]]</span>
+        <span class="k">with</span> <span class="n">_print_elapsed_time</span><span class="p">(</span><span class="s2">&quot;Pipeline&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_log_message</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">steps</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)):</span>
+            <span class="n">y_pred</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">steps</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">fit_predict</span><span class="p">(</span><span class="n">Xt</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="o">**</span><span class="n">fit_params_last_step</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">y_pred</span></div>
+
+<div class="viewcode-block" id="Pipeline.predict_proba"><a class="viewcode-back" href="../../scorecardpipeline.html#scorecardpipeline.Pipeline.predict_proba">[文档]</a>    <span class="nd">@available_if</span><span class="p">(</span><span class="n">_final_estimator_has</span><span class="p">(</span><span class="s2">&quot;predict_proba&quot;</span><span class="p">))</span>
+    <span class="k">def</span> <span class="nf">predict_proba</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="o">**</span><span class="n">predict_proba_params</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Transform the data, and apply `predict_proba` with the final estimator.</span>
+
+<span class="sd">        Call `transform` of each transformer in the pipeline. The transformed</span>
+<span class="sd">        data are finally passed to the final estimator that calls</span>
+<span class="sd">        `predict_proba` method. Only valid if the final estimator implements</span>
+<span class="sd">        `predict_proba`.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        X : iterable</span>
+<span class="sd">            Data to predict on. Must fulfill input requirements of first step</span>
+<span class="sd">            of the pipeline.</span>
+
+<span class="sd">        **predict_proba_params : dict of string -&gt; object</span>
+<span class="sd">            Parameters to the `predict_proba` called at the end of all</span>
+<span class="sd">            transformations in the pipeline.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        y_proba : ndarray of shape (n_samples, n_classes)</span>
+<span class="sd">            Result of calling `predict_proba` on the final estimator.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">Xt</span> <span class="o">=</span> <span class="n">X</span>
+        <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">transform</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_iter</span><span class="p">(</span><span class="n">with_final</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+            <span class="n">Xt</span> <span class="o">=</span> <span class="n">transform</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">Xt</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">steps</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">Xt</span><span class="p">,</span> <span class="o">**</span><span class="n">predict_proba_params</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Pipeline.decision_function"><a class="viewcode-back" href="../../scorecardpipeline.html#scorecardpipeline.Pipeline.decision_function">[文档]</a>    <span class="nd">@available_if</span><span class="p">(</span><span class="n">_final_estimator_has</span><span class="p">(</span><span class="s2">&quot;decision_function&quot;</span><span class="p">))</span>
+    <span class="k">def</span> <span class="nf">decision_function</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Transform the data, and apply `decision_function` with the final estimator.</span>
+
+<span class="sd">        Call `transform` of each transformer in the pipeline. The transformed</span>
+<span class="sd">        data are finally passed to the final estimator that calls</span>
+<span class="sd">        `decision_function` method. Only valid if the final estimator</span>
+<span class="sd">        implements `decision_function`.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        X : iterable</span>
+<span class="sd">            Data to predict on. Must fulfill input requirements of first step</span>
+<span class="sd">            of the pipeline.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        y_score : ndarray of shape (n_samples, n_classes)</span>
+<span class="sd">            Result of calling `decision_function` on the final estimator.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">Xt</span> <span class="o">=</span> <span class="n">X</span>
+        <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">transform</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_iter</span><span class="p">(</span><span class="n">with_final</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+            <span class="n">Xt</span> <span class="o">=</span> <span class="n">transform</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">Xt</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">steps</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">decision_function</span><span class="p">(</span><span class="n">Xt</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Pipeline.score_samples"><a class="viewcode-back" href="../../scorecardpipeline.html#scorecardpipeline.Pipeline.score_samples">[文档]</a>    <span class="nd">@available_if</span><span class="p">(</span><span class="n">_final_estimator_has</span><span class="p">(</span><span class="s2">&quot;score_samples&quot;</span><span class="p">))</span>
+    <span class="k">def</span> <span class="nf">score_samples</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Transform the data, and apply `score_samples` with the final estimator.</span>
+
+<span class="sd">        Call `transform` of each transformer in the pipeline. The transformed</span>
+<span class="sd">        data are finally passed to the final estimator that calls</span>
+<span class="sd">        `score_samples` method. Only valid if the final estimator implements</span>
+<span class="sd">        `score_samples`.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        X : iterable</span>
+<span class="sd">            Data to predict on. Must fulfill input requirements of first step</span>
+<span class="sd">            of the pipeline.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        y_score : ndarray of shape (n_samples,)</span>
+<span class="sd">            Result of calling `score_samples` on the final estimator.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">Xt</span> <span class="o">=</span> <span class="n">X</span>
+        <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">transformer</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_iter</span><span class="p">(</span><span class="n">with_final</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+            <span class="n">Xt</span> <span class="o">=</span> <span class="n">transformer</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">Xt</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">steps</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">score_samples</span><span class="p">(</span><span class="n">Xt</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Pipeline.predict_log_proba"><a class="viewcode-back" href="../../scorecardpipeline.html#scorecardpipeline.Pipeline.predict_log_proba">[文档]</a>    <span class="nd">@available_if</span><span class="p">(</span><span class="n">_final_estimator_has</span><span class="p">(</span><span class="s2">&quot;predict_log_proba&quot;</span><span class="p">))</span>
+    <span class="k">def</span> <span class="nf">predict_log_proba</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="o">**</span><span class="n">predict_log_proba_params</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Transform the data, and apply `predict_log_proba` with the final estimator.</span>
+
+<span class="sd">        Call `transform` of each transformer in the pipeline. The transformed</span>
+<span class="sd">        data are finally passed to the final estimator that calls</span>
+<span class="sd">        `predict_log_proba` method. Only valid if the final estimator</span>
+<span class="sd">        implements `predict_log_proba`.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        X : iterable</span>
+<span class="sd">            Data to predict on. Must fulfill input requirements of first step</span>
+<span class="sd">            of the pipeline.</span>
+
+<span class="sd">        **predict_log_proba_params : dict of string -&gt; object</span>
+<span class="sd">            Parameters to the ``predict_log_proba`` called at the end of all</span>
+<span class="sd">            transformations in the pipeline.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        y_log_proba : ndarray of shape (n_samples, n_classes)</span>
+<span class="sd">            Result of calling `predict_log_proba` on the final estimator.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">Xt</span> <span class="o">=</span> <span class="n">X</span>
+        <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">transform</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_iter</span><span class="p">(</span><span class="n">with_final</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+            <span class="n">Xt</span> <span class="o">=</span> <span class="n">transform</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">Xt</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">steps</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">predict_log_proba</span><span class="p">(</span><span class="n">Xt</span><span class="p">,</span> <span class="o">**</span><span class="n">predict_log_proba_params</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">_can_transform</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_final_estimator</span> <span class="o">==</span> <span class="s2">&quot;passthrough&quot;</span> <span class="ow">or</span> <span class="nb">hasattr</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_final_estimator</span><span class="p">,</span> <span class="s2">&quot;transform&quot;</span>
+        <span class="p">)</span>
+
+<div class="viewcode-block" id="Pipeline.transform"><a class="viewcode-back" href="../../scorecardpipeline.html#scorecardpipeline.Pipeline.transform">[文档]</a>    <span class="nd">@available_if</span><span class="p">(</span><span class="n">_can_transform</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Transform the data, and apply `transform` with the final estimator.</span>
+
+<span class="sd">        Call `transform` of each transformer in the pipeline. The transformed</span>
+<span class="sd">        data are finally passed to the final estimator that calls</span>
+<span class="sd">        `transform` method. Only valid if the final estimator</span>
+<span class="sd">        implements `transform`.</span>
+
+<span class="sd">        This also works where final estimator is `None` in which case all prior</span>
+<span class="sd">        transformations are applied.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        X : iterable</span>
+<span class="sd">            Data to transform. Must fulfill input requirements of first step</span>
+<span class="sd">            of the pipeline.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Xt : ndarray of shape (n_samples, n_transformed_features)</span>
+<span class="sd">            Transformed data.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">Xt</span> <span class="o">=</span> <span class="n">X</span>
+        <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">transform</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_iter</span><span class="p">():</span>
+            <span class="n">Xt</span> <span class="o">=</span> <span class="n">transform</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">Xt</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">Xt</span></div>
+
+    <span class="k">def</span> <span class="nf">_can_inverse_transform</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">all</span><span class="p">(</span><span class="nb">hasattr</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="s2">&quot;inverse_transform&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">t</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_iter</span><span class="p">())</span>
+
+<div class="viewcode-block" id="Pipeline.inverse_transform"><a class="viewcode-back" href="../../scorecardpipeline.html#scorecardpipeline.Pipeline.inverse_transform">[文档]</a>    <span class="nd">@available_if</span><span class="p">(</span><span class="n">_can_inverse_transform</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">inverse_transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Xt</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Apply `inverse_transform` for each step in a reverse order.</span>
+
+<span class="sd">        All estimators in the pipeline must support `inverse_transform`.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        Xt : array-like of shape (n_samples, n_transformed_features)</span>
+<span class="sd">            Data samples, where ``n_samples`` is the number of samples and</span>
+<span class="sd">            ``n_features`` is the number of features. Must fulfill</span>
+<span class="sd">            input requirements of last step of pipeline&#39;s</span>
+<span class="sd">            ``inverse_transform`` method.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Xt : ndarray of shape (n_samples, n_features)</span>
+<span class="sd">            Inverse transformed data, that is, data in the original feature</span>
+<span class="sd">            space.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">reverse_iter</span> <span class="o">=</span> <span class="nb">reversed</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_iter</span><span class="p">()))</span>
+        <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">transform</span> <span class="ow">in</span> <span class="n">reverse_iter</span><span class="p">:</span>
+            <span class="n">Xt</span> <span class="o">=</span> <span class="n">transform</span><span class="o">.</span><span class="n">inverse_transform</span><span class="p">(</span><span class="n">Xt</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">Xt</span></div>
+
+<div class="viewcode-block" id="Pipeline.score"><a class="viewcode-back" href="../../scorecardpipeline.html#scorecardpipeline.Pipeline.score">[文档]</a>    <span class="nd">@available_if</span><span class="p">(</span><span class="n">_final_estimator_has</span><span class="p">(</span><span class="s2">&quot;score&quot;</span><span class="p">))</span>
+    <span class="k">def</span> <span class="nf">score</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Transform the data, and apply `score` with the final estimator.</span>
+
+<span class="sd">        Call `transform` of each transformer in the pipeline. The transformed</span>
+<span class="sd">        data are finally passed to the final estimator that calls</span>
+<span class="sd">        `score` method. Only valid if the final estimator implements `score`.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        X : iterable</span>
+<span class="sd">            Data to predict on. Must fulfill input requirements of first step</span>
+<span class="sd">            of the pipeline.</span>
+
+<span class="sd">        y : iterable, default=None</span>
+<span class="sd">            Targets used for scoring. Must fulfill label requirements for all</span>
+<span class="sd">            steps of the pipeline.</span>
+
+<span class="sd">        sample_weight : array-like, default=None</span>
+<span class="sd">            If not None, this argument is passed as ``sample_weight`` keyword</span>
+<span class="sd">            argument to the ``score`` method of the final estimator.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        score : float</span>
+<span class="sd">            Result of calling `score` on the final estimator.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">Xt</span> <span class="o">=</span> <span class="n">X</span>
+        <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">transform</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_iter</span><span class="p">(</span><span class="n">with_final</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+            <span class="n">Xt</span> <span class="o">=</span> <span class="n">transform</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">Xt</span><span class="p">)</span>
+        <span class="n">score_params</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="n">sample_weight</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">score_params</span><span class="p">[</span><span class="s2">&quot;sample_weight&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">sample_weight</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">steps</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">Xt</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="o">**</span><span class="n">score_params</span><span class="p">)</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">classes_</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;The classes labels. Only exist if the last step is a classifier.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">steps</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">classes_</span>
+
+    <span class="k">def</span> <span class="nf">_more_tags</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># check if first estimator expects pairwise input</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;pairwise&quot;</span><span class="p">:</span> <span class="n">_safe_tags</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">steps</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span> <span class="s2">&quot;pairwise&quot;</span><span class="p">)}</span>
+
+<div class="viewcode-block" id="Pipeline.get_feature_names_out"><a class="viewcode-back" href="../../scorecardpipeline.html#scorecardpipeline.Pipeline.get_feature_names_out">[文档]</a>    <span class="k">def</span> <span class="nf">get_feature_names_out</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_features</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get output feature names for transformation.</span>
+
+<span class="sd">        Transform input features using the pipeline.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        input_features : array-like of str or None, default=None</span>
+<span class="sd">            Input features.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        feature_names_out : ndarray of str objects</span>
+<span class="sd">            Transformed feature names.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">feature_names_out</span> <span class="o">=</span> <span class="n">input_features</span>
+        <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">transform</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_iter</span><span class="p">():</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">transform</span><span class="p">,</span> <span class="s2">&quot;get_feature_names_out&quot;</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span>
+                    <span class="s2">&quot;Estimator </span><span class="si">{}</span><span class="s2"> does not provide get_feature_names_out. &quot;</span>
+                    <span class="s2">&quot;Did you mean to call pipeline[:-1].get_feature_names_out&quot;</span>
+                    <span class="s2">&quot;()?&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+                <span class="p">)</span>
+            <span class="n">feature_names_out</span> <span class="o">=</span> <span class="n">transform</span><span class="o">.</span><span class="n">get_feature_names_out</span><span class="p">(</span><span class="n">feature_names_out</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">feature_names_out</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">n_features_in_</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Number of features seen during first step `fit` method.&quot;&quot;&quot;</span>
+        <span class="c1"># delegate to first step (which will call _check_is_fitted)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">steps</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">n_features_in_</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">feature_names_in_</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Names of features seen during first step `fit` method.&quot;&quot;&quot;</span>
+        <span class="c1"># delegate to first step (which will call _check_is_fitted)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">steps</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">feature_names_in_</span>
+
+    <span class="k">def</span> <span class="nf">__sklearn_is_fitted__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Indicate whether pipeline has been fit.&quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># check if the last step of the pipeline is fitted</span>
+            <span class="c1"># we only check the last step since if the last step is fit, it</span>
+            <span class="c1"># means the previous steps should also be fit. This is faster than</span>
+            <span class="c1"># checking if every step of the pipeline is fit.</span>
+            <span class="n">check_is_fitted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">steps</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">])</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">except</span> <span class="n">NotFittedError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="k">def</span> <span class="nf">_sk_visual_block_</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">_</span><span class="p">,</span> <span class="n">estimators</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">steps</span><span class="p">)</span>
+
+        <span class="k">def</span> <span class="nf">_get_name</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">est</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">est</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">est</span> <span class="o">==</span> <span class="s2">&quot;passthrough&quot;</span><span class="p">:</span>
+                <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">: passthrough&quot;</span>
+            <span class="c1"># Is an estimator</span>
+            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">est</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">&quot;</span>
+
+        <span class="n">names</span> <span class="o">=</span> <span class="p">[</span><span class="n">_get_name</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">est</span><span class="p">)</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">est</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">steps</span><span class="p">]</span>
+        <span class="n">name_details</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">est</span><span class="p">)</span> <span class="k">for</span> <span class="n">est</span> <span class="ow">in</span> <span class="n">estimators</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">_VisualBlock</span><span class="p">(</span>
+            <span class="s2">&quot;serial&quot;</span><span class="p">,</span>
+            <span class="n">estimators</span><span class="p">,</span>
+            <span class="n">names</span><span class="o">=</span><span class="n">names</span><span class="p">,</span>
+            <span class="n">name_details</span><span class="o">=</span><span class="n">name_details</span><span class="p">,</span>
+            <span class="n">dash_wrapped</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+<span class="k">def</span> <span class="nf">_name_estimators</span><span class="p">(</span><span class="n">estimators</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Generate names for estimators.&quot;&quot;&quot;</span>
+
+    <span class="n">names</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">estimator</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">estimator</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="nb">type</span><span class="p">(</span><span class="n">estimator</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">estimator</span> <span class="ow">in</span> <span class="n">estimators</span>
+    <span class="p">]</span>
+    <span class="n">namecount</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">est</span><span class="p">,</span> <span class="n">name</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">estimators</span><span class="p">,</span> <span class="n">names</span><span class="p">):</span>
+        <span class="n">namecount</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+
+    <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">namecount</span><span class="o">.</span><span class="n">items</span><span class="p">()):</span>
+        <span class="k">if</span> <span class="n">v</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">del</span> <span class="n">namecount</span><span class="p">[</span><span class="n">k</span><span class="p">]</span>
+
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">reversed</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">estimators</span><span class="p">))):</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">names</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">namecount</span><span class="p">:</span>
+            <span class="n">names</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+=</span> <span class="s2">&quot;-</span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">namecount</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+            <span class="n">namecount</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">-=</span> <span class="mi">1</span>
+
+    <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">names</span><span class="p">,</span> <span class="n">estimators</span><span class="p">))</span>
+
+
+<div class="viewcode-block" id="make_pipeline"><a class="viewcode-back" href="../../scorecardpipeline.html#scorecardpipeline.make_pipeline">[文档]</a><span class="k">def</span> <span class="nf">make_pipeline</span><span class="p">(</span><span class="o">*</span><span class="n">steps</span><span class="p">,</span> <span class="n">memory</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Construct a :class:`Pipeline` from the given estimators.</span>
+
+<span class="sd">    This is a shorthand for the :class:`Pipeline` constructor; it does not</span>
+<span class="sd">    require, and does not permit, naming the estimators. Instead, their names</span>
+<span class="sd">    will be set to the lowercase of their types automatically.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    *steps : list of Estimator objects</span>
+<span class="sd">        List of the scikit-learn estimators that are chained together.</span>
+
+<span class="sd">    memory : str or object with the joblib.Memory interface, default=None</span>
+<span class="sd">        Used to cache the fitted transformers of the pipeline. By default,</span>
+<span class="sd">        no caching is performed. If a string is given, it is the path to</span>
+<span class="sd">        the caching directory. Enabling caching triggers a clone of</span>
+<span class="sd">        the transformers before fitting. Therefore, the transformer</span>
+<span class="sd">        instance given to the pipeline cannot be inspected</span>
+<span class="sd">        directly. Use the attribute ``named_steps`` or ``steps`` to</span>
+<span class="sd">        inspect estimators within the pipeline. Caching the</span>
+<span class="sd">        transformers is advantageous when fitting is time consuming.</span>
+
+<span class="sd">    verbose : bool, default=False</span>
+<span class="sd">        If True, the time elapsed while fitting each step will be printed as it</span>
+<span class="sd">        is completed.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    p : Pipeline</span>
+<span class="sd">        Returns a scikit-learn :class:`Pipeline` object.</span>
+
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    Pipeline : Class for creating a pipeline of transforms with a final</span>
+<span class="sd">        estimator.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; from sklearn.naive_bayes import GaussianNB</span>
+<span class="sd">    &gt;&gt;&gt; from sklearn.preprocessing import StandardScaler</span>
+<span class="sd">    &gt;&gt;&gt; from sklearn.pipeline import make_pipeline</span>
+<span class="sd">    &gt;&gt;&gt; make_pipeline(StandardScaler(), GaussianNB(priors=None))</span>
+<span class="sd">    Pipeline(steps=[(&#39;standardscaler&#39;, StandardScaler()),</span>
+<span class="sd">                    (&#39;gaussiannb&#39;, GaussianNB())])</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">Pipeline</span><span class="p">(</span><span class="n">_name_estimators</span><span class="p">(</span><span class="n">steps</span><span class="p">),</span> <span class="n">memory</span><span class="o">=</span><span class="n">memory</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span></div>
+
+
+<span class="k">def</span> <span class="nf">_transform_one</span><span class="p">(</span><span class="n">transformer</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">weight</span><span class="p">,</span> <span class="o">**</span><span class="n">fit_params</span><span class="p">):</span>
+    <span class="n">res</span> <span class="o">=</span> <span class="n">transformer</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+    <span class="c1"># if we have a weight for this transformer, multiply output</span>
+    <span class="k">if</span> <span class="n">weight</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">res</span>
+    <span class="k">return</span> <span class="n">res</span> <span class="o">*</span> <span class="n">weight</span>
+
+
+<span class="k">def</span> <span class="nf">_fit_transform_one</span><span class="p">(</span>
+    <span class="n">transformer</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">weight</span><span class="p">,</span> <span class="n">message_clsname</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">fit_params</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Fits ``transformer`` to ``X`` and ``y``. The transformed result is returned</span>
+<span class="sd">    with the fitted transformer. If ``weight`` is not ``None``, the result will</span>
+<span class="sd">    be multiplied by ``weight``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">with</span> <span class="n">_print_elapsed_time</span><span class="p">(</span><span class="n">message_clsname</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">transformer</span><span class="p">,</span> <span class="s2">&quot;fit_transform&quot;</span><span class="p">):</span>
+            <span class="n">res</span> <span class="o">=</span> <span class="n">transformer</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="o">**</span><span class="n">fit_params</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">res</span> <span class="o">=</span> <span class="n">transformer</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="o">**</span><span class="n">fit_params</span><span class="p">)</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">weight</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">res</span><span class="p">,</span> <span class="n">transformer</span>
+    <span class="k">return</span> <span class="n">res</span> <span class="o">*</span> <span class="n">weight</span><span class="p">,</span> <span class="n">transformer</span>
+
+
+<span class="k">def</span> <span class="nf">_fit_one</span><span class="p">(</span><span class="n">transformer</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">weight</span><span class="p">,</span> <span class="n">message_clsname</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">fit_params</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Fits ``transformer`` to ``X`` and ``y``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">with</span> <span class="n">_print_elapsed_time</span><span class="p">(</span><span class="n">message_clsname</span><span class="p">,</span> <span class="n">message</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">transformer</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="o">**</span><span class="n">fit_params</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="FeatureUnion"><a class="viewcode-back" href="../../scorecardpipeline.html#scorecardpipeline.FeatureUnion">[文档]</a><span class="k">class</span> <span class="nc">FeatureUnion</span><span class="p">(</span><span class="n">TransformerMixin</span><span class="p">,</span> <span class="n">_BaseComposition</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Concatenates results of multiple transformer objects.</span>
+
+<span class="sd">    This estimator applies a list of transformer objects in parallel to the</span>
+<span class="sd">    input data, then concatenates the results. This is useful to combine</span>
+<span class="sd">    several feature extraction mechanisms into a single transformer.</span>
+
+<span class="sd">    Parameters of the transformers may be set using its name and the parameter</span>
+<span class="sd">    name separated by a &#39;__&#39;. A transformer may be replaced entirely by</span>
+<span class="sd">    setting the parameter with its name to another transformer, removed by</span>
+<span class="sd">    setting to &#39;drop&#39; or disabled by setting to &#39;passthrough&#39; (features are</span>
+<span class="sd">    passed without transformation).</span>
+
+<span class="sd">    Read more in the :ref:`User Guide &lt;feature_union&gt;`.</span>
+
+<span class="sd">    .. versionadded:: 0.13</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    transformer_list : list of (str, transformer) tuples</span>
+<span class="sd">        List of transformer objects to be applied to the data. The first</span>
+<span class="sd">        half of each tuple is the name of the transformer. The transformer can</span>
+<span class="sd">        be &#39;drop&#39; for it to be ignored or can be &#39;passthrough&#39; for features to</span>
+<span class="sd">        be passed unchanged.</span>
+
+<span class="sd">        .. versionadded:: 1.1</span>
+<span class="sd">           Added the option `&quot;passthrough&quot;`.</span>
+
+<span class="sd">        .. versionchanged:: 0.22</span>
+<span class="sd">           Deprecated `None` as a transformer in favor of &#39;drop&#39;.</span>
+
+<span class="sd">    n_jobs : int, default=None</span>
+<span class="sd">        Number of jobs to run in parallel.</span>
+<span class="sd">        ``None`` means 1 unless in a :obj:`joblib.parallel_backend` context.</span>
+<span class="sd">        ``-1`` means using all processors. See :term:`Glossary &lt;n_jobs&gt;`</span>
+<span class="sd">        for more details.</span>
+
+<span class="sd">        .. versionchanged:: v0.20</span>
+<span class="sd">           `n_jobs` default changed from 1 to None</span>
+
+<span class="sd">    transformer_weights : dict, default=None</span>
+<span class="sd">        Multiplicative weights for features per transformer.</span>
+<span class="sd">        Keys are transformer names, values the weights.</span>
+<span class="sd">        Raises ValueError if key not present in ``transformer_list``.</span>
+
+<span class="sd">    verbose : bool, default=False</span>
+<span class="sd">        If True, the time elapsed while fitting each transformer will be</span>
+<span class="sd">        printed as it is completed.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    named_transformers : :class:`~sklearn.utils.Bunch`</span>
+<span class="sd">        Dictionary-like object, with the following attributes.</span>
+<span class="sd">        Read-only attribute to access any transformer parameter by user</span>
+<span class="sd">        given name. Keys are transformer names and values are</span>
+<span class="sd">        transformer parameters.</span>
+
+<span class="sd">        .. versionadded:: 1.2</span>
+
+<span class="sd">    n_features_in_ : int</span>
+<span class="sd">        Number of features seen during :term:`fit`. Only defined if the</span>
+<span class="sd">        underlying first transformer in `transformer_list` exposes such an</span>
+<span class="sd">        attribute when fit.</span>
+
+<span class="sd">        .. versionadded:: 0.24</span>
+
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    make_union : Convenience function for simplified feature union</span>
+<span class="sd">        construction.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; from sklearn.pipeline import FeatureUnion</span>
+<span class="sd">    &gt;&gt;&gt; from sklearn.decomposition import PCA, TruncatedSVD</span>
+<span class="sd">    &gt;&gt;&gt; union = FeatureUnion([(&quot;pca&quot;, PCA(n_components=1)),</span>
+<span class="sd">    ...                       (&quot;svd&quot;, TruncatedSVD(n_components=2))])</span>
+<span class="sd">    &gt;&gt;&gt; X = [[0., 1., 3], [2., 2., 5]]</span>
+<span class="sd">    &gt;&gt;&gt; union.fit_transform(X)</span>
+<span class="sd">    array([[ 1.5       ,  3.0...,  0.8...],</span>
+<span class="sd">           [-1.5       ,  5.7..., -0.4...]])</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">_required_parameters</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;transformer_list&quot;</span><span class="p">]</span>
+
+<div class="viewcode-block" id="FeatureUnion.__init__"><a class="viewcode-back" href="../../scorecardpipeline.html#scorecardpipeline.FeatureUnion.__init__">[文档]</a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">transformer_list</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">transformer_weights</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span>
+    <span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">transformer_list</span> <span class="o">=</span> <span class="n">transformer_list</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_jobs</span> <span class="o">=</span> <span class="n">n_jobs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">transformer_weights</span> <span class="o">=</span> <span class="n">transformer_weights</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="o">=</span> <span class="n">verbose</span></div>
+
+<div class="viewcode-block" id="FeatureUnion.set_output"><a class="viewcode-back" href="../../scorecardpipeline.html#scorecardpipeline.FeatureUnion.set_output">[文档]</a>    <span class="k">def</span> <span class="nf">set_output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">transform</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set the output container when `&quot;transform&quot;` and `&quot;fit_transform&quot;` are called.</span>
+
+<span class="sd">        `set_output` will set the output of all estimators in `transformer_list`.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        transform : {&quot;default&quot;, &quot;pandas&quot;}, default=None</span>
+<span class="sd">            Configure output of `transform` and `fit_transform`.</span>
+
+<span class="sd">            - `&quot;default&quot;`: Default output format of a transformer</span>
+<span class="sd">            - `&quot;pandas&quot;`: DataFrame output</span>
+<span class="sd">            - `None`: Transform configuration is unchanged</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        self : estimator instance</span>
+<span class="sd">            Estimator instance.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">set_output</span><span class="p">(</span><span class="n">transform</span><span class="o">=</span><span class="n">transform</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_iter</span><span class="p">():</span>
+            <span class="n">_safe_set_output</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">transform</span><span class="o">=</span><span class="n">transform</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">named_transformers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># Use Bunch object to improve autocomplete</span>
+        <span class="k">return</span> <span class="n">Bunch</span><span class="p">(</span><span class="o">**</span><span class="nb">dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">transformer_list</span><span class="p">))</span>
+
+<div class="viewcode-block" id="FeatureUnion.get_params"><a class="viewcode-back" href="../../scorecardpipeline.html#scorecardpipeline.FeatureUnion.get_params">[文档]</a>    <span class="k">def</span> <span class="nf">get_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">deep</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get parameters for this estimator.</span>
+
+<span class="sd">        Returns the parameters given in the constructor as well as the</span>
+<span class="sd">        estimators contained within the `transformer_list` of the</span>
+<span class="sd">        `FeatureUnion`.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        deep : bool, default=True</span>
+<span class="sd">            If True, will return the parameters for this estimator and</span>
+<span class="sd">            contained subobjects that are estimators.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        params : mapping of string to any</span>
+<span class="sd">            Parameter names mapped to their values.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_params</span><span class="p">(</span><span class="s2">&quot;transformer_list&quot;</span><span class="p">,</span> <span class="n">deep</span><span class="o">=</span><span class="n">deep</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="FeatureUnion.set_params"><a class="viewcode-back" href="../../scorecardpipeline.html#scorecardpipeline.FeatureUnion.set_params">[文档]</a>    <span class="k">def</span> <span class="nf">set_params</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set the parameters of this estimator.</span>
+
+<span class="sd">        Valid parameter keys can be listed with ``get_params()``. Note that</span>
+<span class="sd">        you can directly set the parameters of the estimators contained in</span>
+<span class="sd">        `transformer_list`.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        **kwargs : dict</span>
+<span class="sd">            Parameters of this estimator or parameters of estimators contained</span>
+<span class="sd">            in `transform_list`. Parameters of the transformers may be set</span>
+<span class="sd">            using its name and the parameter name separated by a &#39;__&#39;.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        self : object</span>
+<span class="sd">            FeatureUnion class instance.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_set_params</span><span class="p">(</span><span class="s2">&quot;transformer_list&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+    <span class="k">def</span> <span class="nf">_validate_transformers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">names</span><span class="p">,</span> <span class="n">transformers</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">transformer_list</span><span class="p">)</span>
+
+        <span class="c1"># validate names</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_validate_names</span><span class="p">(</span><span class="n">names</span><span class="p">)</span>
+
+        <span class="c1"># validate estimators</span>
+        <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">transformers</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">t</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;drop&quot;</span><span class="p">,</span> <span class="s2">&quot;passthrough&quot;</span><span class="p">):</span>
+                <span class="k">continue</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="nb">hasattr</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="s2">&quot;fit&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="s2">&quot;fit_transform&quot;</span><span class="p">))</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span>
+                <span class="n">t</span><span class="p">,</span> <span class="s2">&quot;transform&quot;</span>
+            <span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+                    <span class="s2">&quot;All estimators should implement fit and &quot;</span>
+                    <span class="s2">&quot;transform. &#39;</span><span class="si">%s</span><span class="s2">&#39; (type </span><span class="si">%s</span><span class="s2">) doesn&#39;t&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">t</span><span class="p">))</span>
+                <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_validate_transformer_weights</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">transformer_weights</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="n">transformer_names</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">name</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">transformer_list</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">transformer_weights</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">transformer_names</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s1">&#39;Attempting to weight transformer &quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">&quot;, &#39;</span>
+                    <span class="s2">&quot;but it is not present in transformer_list.&quot;</span>
+                <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_iter</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generate (name, trans, weight) tuples excluding None and</span>
+<span class="sd">        &#39;drop&#39; transformers.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">get_weight</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">transformer_weights</span> <span class="ow">or</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span>
+
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">trans</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">transformer_list</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">trans</span> <span class="o">==</span> <span class="s2">&quot;drop&quot;</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="k">if</span> <span class="n">trans</span> <span class="o">==</span> <span class="s2">&quot;passthrough&quot;</span><span class="p">:</span>
+                <span class="n">trans</span> <span class="o">=</span> <span class="n">FunctionTransformer</span><span class="p">(</span><span class="n">feature_names_out</span><span class="o">=</span><span class="s2">&quot;one-to-one&quot;</span><span class="p">)</span>
+            <span class="k">yield</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">trans</span><span class="p">,</span> <span class="n">get_weight</span><span class="p">(</span><span class="n">name</span><span class="p">))</span>
+
+<div class="viewcode-block" id="FeatureUnion.get_feature_names_out"><a class="viewcode-back" href="../../scorecardpipeline.html#scorecardpipeline.FeatureUnion.get_feature_names_out">[文档]</a>    <span class="k">def</span> <span class="nf">get_feature_names_out</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_features</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get output feature names for transformation.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        input_features : array-like of str or None, default=None</span>
+<span class="sd">            Input features.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        feature_names_out : ndarray of str objects</span>
+<span class="sd">            Transformed feature names.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">feature_names</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">trans</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_iter</span><span class="p">():</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">trans</span><span class="p">,</span> <span class="s2">&quot;get_feature_names_out&quot;</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span>
+                    <span class="s2">&quot;Transformer </span><span class="si">%s</span><span class="s2"> (type </span><span class="si">%s</span><span class="s2">) does not provide get_feature_names_out.&quot;</span>
+                    <span class="o">%</span> <span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">name</span><span class="p">),</span> <span class="nb">type</span><span class="p">(</span><span class="n">trans</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
+                <span class="p">)</span>
+            <span class="n">feature_names</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
+                <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">__</span><span class="si">{</span><span class="n">f</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">trans</span><span class="o">.</span><span class="n">get_feature_names_out</span><span class="p">(</span><span class="n">input_features</span><span class="p">)]</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">feature_names</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">object</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="FeatureUnion.fit"><a class="viewcode-back" href="../../scorecardpipeline.html#scorecardpipeline.FeatureUnion.fit">[文档]</a>    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">fit_params</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Fit all transformers using X.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        X : iterable or array-like, depending on transformers</span>
+<span class="sd">            Input data, used to fit transformers.</span>
+
+<span class="sd">        y : array-like of shape (n_samples, n_outputs), default=None</span>
+<span class="sd">            Targets for supervised learning.</span>
+
+<span class="sd">        **fit_params : dict, default=None</span>
+<span class="sd">            Parameters to pass to the fit method of the estimator.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        self : object</span>
+<span class="sd">            FeatureUnion class instance.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">transformers</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parallel_func</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">fit_params</span><span class="p">,</span> <span class="n">_fit_one</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">transformers</span><span class="p">:</span>
+            <span class="c1"># All transformers are None</span>
+            <span class="k">return</span> <span class="bp">self</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_update_transformer_list</span><span class="p">(</span><span class="n">transformers</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+<div class="viewcode-block" id="FeatureUnion.fit_transform"><a class="viewcode-back" href="../../scorecardpipeline.html#scorecardpipeline.FeatureUnion.fit_transform">[文档]</a>    <span class="k">def</span> <span class="nf">fit_transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">fit_params</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Fit all transformers, transform the data and concatenate results.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        X : iterable or array-like, depending on transformers</span>
+<span class="sd">            Input data to be transformed.</span>
+
+<span class="sd">        y : array-like of shape (n_samples, n_outputs), default=None</span>
+<span class="sd">            Targets for supervised learning.</span>
+
+<span class="sd">        **fit_params : dict, default=None</span>
+<span class="sd">            Parameters to pass to the fit method of the estimator.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        X_t : array-like or sparse matrix of \</span>
+<span class="sd">                shape (n_samples, sum_n_components)</span>
+<span class="sd">            The `hstack` of results of transformers. `sum_n_components` is the</span>
+<span class="sd">            sum of `n_components` (output dimension) over transformers.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parallel_func</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">fit_params</span><span class="p">,</span> <span class="n">_fit_transform_one</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">results</span><span class="p">:</span>
+            <span class="c1"># All transformers are None</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">0</span><span class="p">))</span>
+
+        <span class="n">Xs</span><span class="p">,</span> <span class="n">transformers</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">results</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_update_transformer_list</span><span class="p">(</span><span class="n">transformers</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hstack</span><span class="p">(</span><span class="n">Xs</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">_log_message</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">idx</span><span class="p">,</span> <span class="n">total</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="s2">&quot;(step </span><span class="si">%d</span><span class="s2"> of </span><span class="si">%d</span><span class="s2">) Processing </span><span class="si">%s</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">idx</span><span class="p">,</span> <span class="n">total</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_parallel_func</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">fit_params</span><span class="p">,</span> <span class="n">func</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Runs func in parallel on X and y&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">transformer_list</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">transformer_list</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_validate_transformers</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_validate_transformer_weights</span><span class="p">()</span>
+        <span class="n">transformers</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_iter</span><span class="p">())</span>
+
+        <span class="k">return</span> <span class="n">Parallel</span><span class="p">(</span><span class="n">n_jobs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n_jobs</span><span class="p">)(</span>
+            <span class="n">delayed</span><span class="p">(</span><span class="n">func</span><span class="p">)(</span>
+                <span class="n">transformer</span><span class="p">,</span>
+                <span class="n">X</span><span class="p">,</span>
+                <span class="n">y</span><span class="p">,</span>
+                <span class="n">weight</span><span class="p">,</span>
+                <span class="n">message_clsname</span><span class="o">=</span><span class="s2">&quot;FeatureUnion&quot;</span><span class="p">,</span>
+                <span class="n">message</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_log_message</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">idx</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">transformers</span><span class="p">)),</span>
+                <span class="o">**</span><span class="n">fit_params</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">transformer</span><span class="p">,</span> <span class="n">weight</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">transformers</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="p">)</span>
+
+<div class="viewcode-block" id="FeatureUnion.transform"><a class="viewcode-back" href="../../scorecardpipeline.html#scorecardpipeline.FeatureUnion.transform">[文档]</a>    <span class="k">def</span> <span class="nf">transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Transform X separately by each transformer, concatenate results.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        X : iterable or array-like, depending on transformers</span>
+<span class="sd">            Input data to be transformed.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        X_t : array-like or sparse matrix of \</span>
+<span class="sd">                shape (n_samples, sum_n_components)</span>
+<span class="sd">            The `hstack` of results of transformers. `sum_n_components` is the</span>
+<span class="sd">            sum of `n_components` (output dimension) over transformers.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">Xs</span> <span class="o">=</span> <span class="n">Parallel</span><span class="p">(</span><span class="n">n_jobs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n_jobs</span><span class="p">)(</span>
+            <span class="n">delayed</span><span class="p">(</span><span class="n">_transform_one</span><span class="p">)(</span><span class="n">trans</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">weight</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">trans</span><span class="p">,</span> <span class="n">weight</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_iter</span><span class="p">()</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">Xs</span><span class="p">:</span>
+            <span class="c1"># All transformers are None</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">0</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_hstack</span><span class="p">(</span><span class="n">Xs</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">_hstack</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Xs</span><span class="p">):</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="n">_get_output_config</span><span class="p">(</span><span class="s2">&quot;transform&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;dense&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;pandas&quot;</span> <span class="ow">and</span> <span class="nb">all</span><span class="p">(</span><span class="nb">hasattr</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="s2">&quot;iloc&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">X</span> <span class="ow">in</span> <span class="n">Xs</span><span class="p">):</span>
+            <span class="n">pd</span> <span class="o">=</span> <span class="n">check_pandas_support</span><span class="p">(</span><span class="s2">&quot;transform&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">Xs</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">sparse</span><span class="o">.</span><span class="n">issparse</span><span class="p">(</span><span class="n">f</span><span class="p">)</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">Xs</span><span class="p">):</span>
+            <span class="n">Xs</span> <span class="o">=</span> <span class="n">sparse</span><span class="o">.</span><span class="n">hstack</span><span class="p">(</span><span class="n">Xs</span><span class="p">)</span><span class="o">.</span><span class="n">tocsr</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">Xs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hstack</span><span class="p">(</span><span class="n">Xs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">Xs</span>
+
+    <span class="k">def</span> <span class="nf">_update_transformer_list</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">transformers</span><span class="p">):</span>
+        <span class="n">transformers</span> <span class="o">=</span> <span class="nb">iter</span><span class="p">(</span><span class="n">transformers</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">transformer_list</span><span class="p">[:]</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">old</span> <span class="k">if</span> <span class="n">old</span> <span class="o">==</span> <span class="s2">&quot;drop&quot;</span> <span class="k">else</span> <span class="nb">next</span><span class="p">(</span><span class="n">transformers</span><span class="p">))</span>
+            <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">old</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">transformer_list</span>
+        <span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">n_features_in_</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Number of features seen during :term:`fit`.&quot;&quot;&quot;</span>
+
+        <span class="c1"># X is passed to all transformers so we just delegate to the first one</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">transformer_list</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">n_features_in_</span>
+
+    <span class="k">def</span> <span class="nf">__sklearn_is_fitted__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># Delegate whether feature union was fitted</span>
+        <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">transformer</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_iter</span><span class="p">():</span>
+            <span class="n">check_is_fitted</span><span class="p">(</span><span class="n">transformer</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">True</span>
+
+    <span class="k">def</span> <span class="nf">_sk_visual_block_</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">names</span><span class="p">,</span> <span class="n">transformers</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">transformer_list</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">_VisualBlock</span><span class="p">(</span><span class="s2">&quot;parallel&quot;</span><span class="p">,</span> <span class="n">transformers</span><span class="p">,</span> <span class="n">names</span><span class="o">=</span><span class="n">names</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="make_union"><a class="viewcode-back" href="../../scorecardpipeline.html#scorecardpipeline.make_union">[文档]</a><span class="k">def</span> <span class="nf">make_union</span><span class="p">(</span><span class="o">*</span><span class="n">transformers</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Construct a FeatureUnion from the given transformers.</span>
+
+<span class="sd">    This is a shorthand for the FeatureUnion constructor; it does not require,</span>
+<span class="sd">    and does not permit, naming the transformers. Instead, they will be given</span>
+<span class="sd">    names automatically based on their types. It also does not allow weighting.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    *transformers : list of estimators</span>
+<span class="sd">        One or more estimators.</span>
+
+<span class="sd">    n_jobs : int, default=None</span>
+<span class="sd">        Number of jobs to run in parallel.</span>
+<span class="sd">        ``None`` means 1 unless in a :obj:`joblib.parallel_backend` context.</span>
+<span class="sd">        ``-1`` means using all processors. See :term:`Glossary &lt;n_jobs&gt;`</span>
+<span class="sd">        for more details.</span>
+
+<span class="sd">        .. versionchanged:: v0.20</span>
+<span class="sd">           `n_jobs` default changed from 1 to None.</span>
+
+<span class="sd">    verbose : bool, default=False</span>
+<span class="sd">        If True, the time elapsed while fitting each transformer will be</span>
+<span class="sd">        printed as it is completed.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    f : FeatureUnion</span>
+<span class="sd">        A :class:`FeatureUnion` object for concatenating the results of multiple</span>
+<span class="sd">        transformer objects.</span>
+
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+<span class="sd">    FeatureUnion : Class for concatenating the results of multiple transformer</span>
+<span class="sd">        objects.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; from sklearn.decomposition import PCA, TruncatedSVD</span>
+<span class="sd">    &gt;&gt;&gt; from sklearn.pipeline import make_union</span>
+<span class="sd">    &gt;&gt;&gt; make_union(PCA(), TruncatedSVD())</span>
+<span class="sd">     FeatureUnion(transformer_list=[(&#39;pca&#39;, PCA()),</span>
+<span class="sd">                                   (&#39;truncatedsvd&#39;, TruncatedSVD())])</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">FeatureUnion</span><span class="p">(</span><span class="n">_name_estimators</span><span class="p">(</span><span class="n">transformers</span><span class="p">),</span> <span class="n">n_jobs</span><span class="o">=</span><span class="n">n_jobs</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span></div>
+</pre></div>
+</article>
+        
+      </main>
+    </div>
+
+    <footer class="nftt-footer">
+      
+<nav id="paginator"></nav>
+
+      <div class="py-5 px-4 px-md-3">
+  <div class="container">
+    
+    <div class="row">
+      <ul class="list-unstyled list-separator col-lg-12 pb-2 text-center">
+        
+          
+          
+          <li class="d-inline">
+            <a href="https://itlubber.art" class="list-item">itlubber</a>
+          </li>
+        
+          
+          
+          <li class="d-inline">
+            <a href="https://github.com/itlubber/scorecardpipeline" class="list-item">github</a>
+          </li>
+        
+          
+          
+          <li class="d-inline">
+            <a href="https://github.com/itlubber/scorecardpipeline/blob/main/examples/scorecard_samples.ipynb" class="list-item">examples</a>
+          </li>
+        
+      </ul>
+    </div>
+    
+
+    <div class="row">
+      <div class="col-lg-12 text-center">
+        <a class="brand-text d-inline-flex align-items-center mb-2 text-decoration-none" href="/" aria-label="Nefertiti-for-Sphinx">
+          <span class="fs-6 fw-bold">scorecardpipeline</span>
+        </a>
+        
+          <ul class="list-unstyled small text-muted">
+            <li>2023, itlubber</li>
+          </ul>
+        
+        
+      </div>
+    </div>
+  </div>
+</div>
+    </footer>
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js?v=38ec1191"></script>
+    <script src="../../_static/doctools.js?v=888ff710"></script>
+    <script src="../../_static/sphinx_highlight.js?v=4825356b"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../_static/translations.js?v=beaddf03"></script>
+    <script src="../../_static/design-tabs.js?v=36754332"></script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"
+const thebe_selector = ".thebe,.cell"
+const thebe_selector_input = "pre"
+const thebe_selector_output = ".output, .cell_output"
+</script>
+    <script async="async" src="../../_static/sphinx-thebe.js?v=afe5de03"></script>
+    <script src="https://unpkg.com/mermaid@10.2.0/dist/mermaid.min.js"></script>
+    <script>mermaid.initialize({startOnLoad:true});</script>
+
+    <script type="text/javascript" src="../../_static/bootstrap.bundle.min.js"></script>
+    <script type="text/javascript" src="../../_static/sphinx-nefertiti.min.js"></script>
+    
+  </body>
+</html>
