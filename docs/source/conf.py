@@ -11,8 +11,16 @@
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
 import os
+from pathlib import Path
 import sys
-sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "../../"))
+import sphinx_nefertiti
+
+
+on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
+if on_rtd:
+    html_theme_path = [sphinx_nefertiti.get_html_theme_path()]
+else:
+    sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "../../"))
 
 
 # -- Project information -----------------------------------------------------
@@ -22,8 +30,13 @@ copyright = '2023, itlubber'
 author = 'itlubber'
 
 # The full version, including alpha/beta/rc tags
-import scorecardpipeline
-release = scorecardpipeline.__version__
+release = '0.1.26'
+
+
+import recommonmark
+from recommonmark.transform import AutoStructify
+
+htmlhelp_basename = "scorecardpipeline"
 
 
 # -- General configuration ---------------------------------------------------
@@ -32,19 +45,21 @@ release = scorecardpipeline.__version__
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-    "sphinx_markdown_tables",
-    "sphinxcontrib.mermaid",
-    "sphinx.ext.autodoc",
-    "sphinx.ext.viewcode",
-    "sphinx.ext.doctest",
-    "sphinx.ext.intersphinx",
-    "sphinx.ext.todo",
-    "sphinx.ext.coverage",
-    "sphinx.ext.mathjax",
-    "sphinx_design",
-    "sphinx_thebe",
-    "sphinx_copybutton",
-    "sphinx_nefertiti",
+    'sphinx.ext.autodoc',
+    'sphinx.ext.viewcode',
+    'myst_parser',
+    'sphinx_design',
+    'sphinx_copybutton',
+]
+
+myst_enable_extensions = [
+    'amsmath',
+    'attrs_block',
+    'colon_fence',
+    'deflist',
+    'dollarmath',
+    'fieldlist',
+    'tasklist',
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -71,6 +86,10 @@ exclude_patterns = []
 # html_theme = "sphinx_rtd_theme"
 
 html_theme = 'sphinx_nefertiti'
+html_style = ["custom.css", "nftt-pygments.min.css"]
+pygments_style = "pastie"
+pygments_dark_style = "dracula"
+
 html_theme_options = {
     "style": "indigo",
     "footer_links": ",".join([
@@ -85,7 +104,11 @@ html_theme_options = {
     "versions": [
         ("latest", "https://scorecardpipeline.readthedocs.io/zh/latest/"),
         ("v0.1.26", "https://scorecardpipeline.readthedocs.io/zh/v0.1.26/"),
-    ]
+    ],
+    "repository_url": "https://github.com/itlubber/scorecardpipeline",
+    "repository_name": "itlubber/scorecardpipeline",
+    "current_version": f"v{release}",
+    "show_colorset_choices": True,
 }
 
 
