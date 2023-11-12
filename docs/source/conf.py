@@ -11,7 +11,6 @@
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
 import os
-from pathlib import Path
 import sys
 import sphinx_nefertiti
 
