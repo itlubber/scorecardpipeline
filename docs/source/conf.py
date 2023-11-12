@@ -32,8 +32,6 @@ release = '0.1.25'
 # ones.
 extensions = [
     "sphinx_markdown_tables",
-    "sphinx_wagtail_theme",
-    "sphinx_rtd_theme",
     "sphinxcontrib.mermaid",
     "sphinx.ext.autodoc",
     "sphinx.ext.viewcode",
@@ -68,22 +66,21 @@ exclude_patterns = []
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-# html_theme = "sphinx_rtd_theme"
-# html_theme = 'sphinx_wagtail_theme'
+html_theme = "sphinx_rtd_theme"
 
-html_theme = 'sphinx_nefertiti'
-html_theme_options = {
-    "style": "indigo",
-    "footer_links": ",".join([
-        "itlubber|https://itlubber.art",
-        "github|https://github.com/itlubber/scorecardpipeline",
-        "examples|https://github.com/itlubber/scorecardpipeline/blob/main/examples/scorecard_samples.ipynb",
-    ]),
-    "show_powered_by": False,
-    "project_name_font": "Nunito",
-    "doc_headers_font": "Nunito",
-    "documentation_font": "Nunito",
-}
+# html_theme = 'sphinx_nefertiti'
+# html_theme_options = {
+#     "style": "indigo",
+#     "footer_links": ",".join([
+#         "itlubber|https://itlubber.art",
+#         "github|https://github.com/itlubber/scorecardpipeline",
+#         "examples|https://github.com/itlubber/scorecardpipeline/blob/main/examples/scorecard_samples.ipynb",
+#     ]),
+#     "show_powered_by": False,
+#     "project_name_font": "Nunito",
+#     "doc_headers_font": "Nunito",
+#     "documentation_font": "Nunito",
+# }
 
 
 # Add any paths that contain custom static files (such as style sheets) here,
