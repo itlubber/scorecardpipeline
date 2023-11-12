@@ -81,6 +81,10 @@ html_theme_options = {
     "project_name_font": "Nunito",
     "doc_headers_font": "Nunito",
     "documentation_font": "Nunito",
+    "versions": [
+        ("v0.1.26", "https://scorecardpipeline.readthedocs.io/zh/latest/"),
+        ("v0.1.25", "https://pypi.org/project/scorecardpipeline/#description"),
+    ]
 }
 
 
