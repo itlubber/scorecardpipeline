@@ -258,7 +258,7 @@ def bin_plot(feature_table, desc="", figsize=(10, 6), colors=["#2639E9", "#F76E6
     :param desc: 特征中文含义或者其他相关信息
     :param figsize: 图像尺寸大小，传入一个tuple，默认 （10， 6）
     :param colors: 图片主题颜色，默认即可
-    :param save: 图片保存路径
+    :param save: 图片保存的地址，如果传入路径中有文件夹不存在，会新建相关文件夹，默认 None
     :param anchor: 图例在图中的位置，通常 0.95 左右，根据图片标题与图例之间的空隙自行调整即可
     :param max_len: 分箱显示的最大长度，防止分类变量分箱过多文本过长导致图像显示区域很小，默认最长 35 个字符
     :param hatch: 柱状图是否显示斜杠，默认显示
