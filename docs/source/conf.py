@@ -33,12 +33,6 @@ author = 'itlubber'
 release = '0.1.26'
 
 
-import recommonmark
-from recommonmark.transform import AutoStructify
-
-htmlhelp_basename = "scorecardpipeline"
-
-
 # -- General configuration ---------------------------------------------------
 
 # Add any Sphinx extension module names here, as strings. They can be
@@ -87,6 +81,7 @@ exclude_patterns = []
 
 html_theme = 'sphinx_nefertiti'
 html_style = ["custom.css", "nftt-pygments.min.css"]
+
 pygments_style = "pastie"
 pygments_dark_style = "dracula"
 
@@ -111,6 +106,7 @@ html_theme_options = {
     "show_colorset_choices": True,
 }
 
+htmlhelp_basename = "scorecardpipeline"
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
