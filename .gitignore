@@ -163,4 +163,3 @@ cython_debug/
 *.DS_Store
 *.virtual_documents
 test*
-!docs/*
