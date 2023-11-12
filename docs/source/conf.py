@@ -43,6 +43,7 @@ extensions = [
     "sphinx_design",
     "sphinx_thebe",
     "sphinx_copybutton",
+    "sphinx_nefertiti",
 ]
 
 # Add any paths that contain templates here, relative to this directory.
