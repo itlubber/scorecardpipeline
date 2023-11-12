@@ -5,6 +5,15 @@ from logging import getLogger, StreamHandler, Formatter, DEBUG, INFO, ERROR
 
 
 def init_logger(filename=None, stream=True, fmt="[ %(asctime)s ][ %(levelname)s ][ %(filename)s:%(funcName)s:%(lineno)d ] %(message)s", datefmt=None):
+    """
+    初始化日志
+
+    :param filename: 日志文件存储地址，如果不传不记录日志到文件中，默认为 None
+    :param stream: 是否显示在终端中，默认 True
+    :param fmt: 日志格式，参考：https://docs.python.org/3/library/logging.html#formatter-objects
+    :param datefmt: 日期格式
+    :return: logging.Logger
+    """
     logger = getLogger("scorecardpipeline")
     logger.setLevel(DEBUG)
     formatter = Formatter(fmt, datefmt=datefmt)
@@ -36,4 +45,5 @@ def init_logger(filename=None, stream=True, fmt="[ %(asctime)s ][ %(levelname)s 
 
 if __name__ == '__main__':
     logger = init_logger()
+    logger.info(type(logger))
     logger.info("import scorecardpipeline as sp")

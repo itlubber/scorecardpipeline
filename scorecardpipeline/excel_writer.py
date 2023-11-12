@@ -23,7 +23,7 @@ from openpyxl.styles import NamedStyle, Border, Side, Alignment, PatternFill, Fo
 
 class ExcelWriter:
 
-    def __init__(self, style_excel=os.path.join(os.path.dirname(os.path.abspath(__file__)), 'template.xlsx'), style_sheet_name="初始化", mode="replace", fontsize=10, font='楷体', theme_color='2639E9', opacity=0.85):
+    def __init__(self, style_excel=None, style_sheet_name="初始化", mode="replace", fontsize=10, font='楷体', theme_color='2639E9', opacity=0.85):
         """
         excel 文件内容写入公共方法
 
@@ -34,7 +34,6 @@ class ExcelWriter:
         :param theme_color: 主题色，默认 2639E9，注意不包含 #
         :param opacity: 写入dataframe时使用颜色填充主题色的透明度设置，默认 0.85
         """
-        # english_width，chinese_width
         self.english_width = 0.12
         self.chinese_width = 0.21
         self.mode = mode
@@ -42,7 +41,7 @@ class ExcelWriter:
         self.opacity = opacity
         self.fontsize = fontsize
         self.theme_color = theme_color
-        self.workbook = load_workbook(style_excel)
+        self.workbook = load_workbook(style_excel or os.path.join(os.path.dirname(os.path.abspath(__file__)), 'template.xlsx'))
         self.style_sheet = self.workbook[style_sheet_name]
 
         self.name_styles = []
@@ -115,7 +114,8 @@ class ExcelWriter:
         :param value: 需要插入的内容
         :param style: 渲染的样式，参考 init_style 中初始设置的样式
         :param auto_width: 是否开启自动调整列宽
-        :return 返回插入元素最后一列之后、最后一行之后的位置
+
+        :return: 返回插入元素最后一列之后、最后一行之后的位置
         """
         if isinstance(insert_space, str):
             worksheet[insert_space] = value
@@ -126,7 +126,7 @@ class ExcelWriter:
             cell = worksheet.cell(insert_space[0], insert_space[1], value)
             start_col = get_column_letter(insert_space[1])
             start_row = insert_space[0]
-        cell.style =  style
+        cell.style = style
 
         if auto_width:
             curr_width = worksheet.column_dimensions[start_col].width
@@ -143,7 +143,7 @@ class ExcelWriter:
         :param fig: 需要插入的图片路径
         :param insert_space: 插入图片的起始单元格
         :param figsize: 图片大小设置
-        :return 返回插入元素最后一列之后、最后一行之后的位置
+        :return: 返回插入元素最后一列之后、最后一行之后的位置
         """
         if isinstance(insert_space, str):
             start_row = int(re.findall("\d+", insert_space)[0])
@@ -159,6 +159,18 @@ class ExcelWriter:
         return start_row + int(figsize[1] / 17.5), column_index_from_string(start_col) + 8
 
     def insert_rows(self, worksheet, row, row_index, col_index, merge_rows=None, style="", auto_width=False, style_only=False):
+        """
+        向excel中插入一行数据，insert_df2sheet 依赖本方法
+
+        :param worksheet: 需要插入内容的sheet
+        :param row: 数据内容
+        :param row_index: 插入数据的行索引，用来判断使用哪种边框样式
+        :param col_index: 插入数据的列索引，用来判断使用哪种边框样式
+        :param merge_rows: 需要合并单元的行索引
+        :param style: 插入数据的excel风格
+        :param auto_width: 是否自动调整列宽，自动调整列宽会导致该列样式模版发生变化，非内容列默认填充的白色失效
+        :param style_only: 是否使用填充样式
+        """
         curr_col = column_index_from_string(col_index)
         for j, v in enumerate(row):
             if merge_rows is not None and row_index + 1 not in merge_rows:
@@ -188,11 +200,10 @@ class ExcelWriter:
         :param merge_column: 需要分组显示的列，index或者列名
         :param header: 是否存储dataframe的header，暂不支持多级表头
         :param index: 是否存储dataframe的index
-        :param auto_width: 是否自动调整列宽
+        :param auto_width: 是否自动调整列宽，自动调整列宽会导致该列样式模版发生变化，非内容列默认填充的白色失效
         :param fill: 是否使用颜色填充而非边框
         :param merge: 是否合并单元格，配合 merge_column 一起使用，当前版本仅在 merge_column 只有一列时有效
-        
-        返回插入元素最后一列之后、最后一行之后的位置
+        :return: 返回插入元素最后一列之后、最后一行之后的位置
         """
         df = data.copy()
 
@@ -209,9 +220,9 @@ class ExcelWriter:
 
             if isinstance(merge_column[0], (int, float)):
                 merge_column = [df.columns.tolist()[col] if col not in df.columns else col for col in merge_column]
-                
+
             df = df.sort_values(merge_column).reset_index(drop=True)
-            
+
             merge_cols = [get_column_letter(df.columns.get_loc(col) + column_index_from_string(start_col)) for col in merge_column]
             merge_rows = list(np.cumsum(df.groupby(merge_column)[merge_column].count().values[:, 0]) + start_row + 1)
         else:
@@ -230,7 +241,7 @@ class ExcelWriter:
                         style = "middle_odd_last" if (header and i == len(df)) or (not header and i + 1 == len(df)) else "middle_odd"
                     else:
                         style = "middle_even_last" if (header and i == len(df)) or (not header and i + 1 == len(df)) else "middle_even"
-                    
+
                     self.insert_rows(worksheet, row, start_row + i, start_col, style=style, auto_width=auto_width, style_only=True)
             else:
                 if i == 0:
@@ -249,11 +260,11 @@ class ExcelWriter:
                 merge_rows = [start_row + 2] + merge_rows
             else:
                 merge_rows = [r - 1 for r in [start_row + 2] + merge_rows]
-            
+
             for s, e in zip(merge_rows[:-1], merge_rows[1:]):
                 if e - s > 1:
                     for merge_col in merge_cols:
-                        worksheet.merge_cells(f"{merge_col}{s-1}:{merge_col}{e-1}")
+                        worksheet.merge_cells(f"{merge_col}{s - 1}:{merge_col}{e - 1}")
 
         end_row = start_row + len(data) + 1 if header else start_row + len(data)
 
@@ -261,6 +272,12 @@ class ExcelWriter:
 
     @staticmethod
     def check_contain_chinese(check_str):
+        """
+        检查字符串中是否包含中文
+
+        :param check_str: 需要检查的字符串
+        :return: 返回每个字符是否是中文 list<bool>，英文字符个数，中文字符个数
+        """
         out = []
         for ch in str(check_str).encode('utf-8').decode('utf-8'):
             if u'\u4e00' <= ch <= u'\u9fff':
@@ -271,6 +288,13 @@ class ExcelWriter:
 
     @staticmethod
     def astype_insertvalue(value, decimal_point=4):
+        """
+        格式化需要存储excel的内容，如果是浮点型，按照设置的精度进行保存，如果是类别型或其他特殊类型，转字符串存储，如果非以上两种，直接原始值存储
+
+        :param value: 需要插入 excel 的内容
+        :param decimal_point: 如果是浮点型，需要保留的精度，默认小数点后4位数
+        :return: 格式化后存入excel的内容
+        """
         if re.search('tuple|list|set|numpy.ndarray|Categorical|numpy.dtype|Interval', str(type(value))):
             return str(value)
         elif re.search('float', str(type(value))):
@@ -281,10 +305,15 @@ class ExcelWriter:
     @staticmethod
     def calc_continuous_cnt(list_, index_=0):
         """
-        Clac continuous_cnt
-        
-        Examples
-        ---------------------
+        根据传入的 list ，计算 list 中某个 index 开始，连续出现该元素的个数
+
+        :param list_: 需要检索的 list
+        :param index_: 元素索引
+
+        :return: 元素值，索引值，连续出现的个数
+
+        **参考样例**
+
         >>> list_ = ['A','A','A','A','B','C','C','D','D','D']
         >>> calc_continuous_cnt(list_, 0)
         ('A', 0, 4)
@@ -307,13 +336,35 @@ class ExcelWriter:
 
     @staticmethod
     def itlubber_border(border, color):
+        """
+        itlubber 的边框样式生成器
+
+        :param border: 边框样式，如果输入长度为 3，则生成 [左，右，下]，如果长度为4，则生成 [左，右，下，上]
+        :param color: 边框颜色
+
+        :return: Border
+        """
         if len(border) == 3:
-            return Border(left=Side(border_style=border[0], color=color[0]), right=Side(border_style=border[1], color=color[1]), bottom=Side(border_style=border[2], color=color[2]),)
+            return Border(left=Side(border_style=border[0], color=color[0]), right=Side(border_style=border[1], color=color[1]), bottom=Side(border_style=border[2], color=color[2]), )
         else:
-            return Border(left=Side(border_style=border[0], color=color[0]), right=Side(border_style=border[1], color=color[1]), bottom=Side(border_style=border[2], color=color[2]), top=Side(border_style=border[3], color=color[3]),)
+            return Border(left=Side(border_style=border[0], color=color[0]), right=Side(border_style=border[1], color=color[1]), bottom=Side(border_style=border[2], color=color[2]), top=Side(border_style=border[3], color=color[3]), )
 
     @staticmethod
     def get_cell_space(space):
+        """
+        根据传入的不同格式的位置，转换为另一种形式的excel单元格定位
+
+        :param space: 传入的excel单元格定位，支持两种格式，B1 或 (2, 2)
+
+        :return: 返回单元格定位，tuple / str
+
+        **参考样例**
+
+        >>> get_cell_space("B2")
+        (2, 2)
+        >>> get_cell_space((2, 2))
+        'B2'
+        """
         if isinstance(space, str):
             start_row = int(re.findall("\d+", space)[0])
             start_col = re.findall('\D+', space)[0]
@@ -325,21 +376,36 @@ class ExcelWriter:
             else:
                 start_col = space[1]
             return f"{start_row}{start_col}"
-    
+
     @staticmethod
     def calculate_rgba_color(hex_color, opacity, prefix="#"):
-        rgb_color = tuple(int(hex_color.lstrip('#')[i:i+2], 16) for i in (0, 2, 4))
+        """
+        根据某个颜色计算某个透明度对应的颜色
+
+        :param hex_color: hex格式的颜色值
+        :param opacity: 透明度，[0, 1] 之间的数值
+        :param prefix: 返回颜色的前缀
+        :return: 对应某个透明度的颜色
+        """
+        rgb_color = tuple(int(hex_color.lstrip('#')[i:i + 2], 16) for i in (0, 2, 4))
         rgba_color = tuple(int((1 - opacity) * c + opacity * 255) for c in rgb_color)
-        
+
         return prefix + '{:02X}{:02X}{:02X}'.format(*rgba_color)
 
     def init_style(self, font, fontsize, theme_color):
+        """
+        初始化单元格样式
+
+        :param font: 字体名称
+        :param fontsize: 字体大小
+        :param theme_color: 主题颜色
+        """
         header_style, header_left_style, header_middle_style, header_right_style = NamedStyle(name="header"), NamedStyle(name="header_left"), NamedStyle(name="header_middle"), NamedStyle(name="header_right")
         last_style, last_left_style, last_middle_style, last_right_style = NamedStyle(name="last"), NamedStyle(name="last_left"), NamedStyle(name="last_middle"), NamedStyle(name="last_right")
         content_style, left_style, middle_style, right_style = NamedStyle(name="content"), NamedStyle(name="left"), NamedStyle(name="middle"), NamedStyle(name="right")
-        merge_style, merge_left_style, merge_middle_style, merge_right_style =  NamedStyle(name="merge"), NamedStyle(name="merge_left"), NamedStyle(name="merge_middle"), NamedStyle(name="merge_right")
+        merge_style, merge_left_style, merge_middle_style, merge_right_style = NamedStyle(name="merge"), NamedStyle(name="merge_left"), NamedStyle(name="merge_middle"), NamedStyle(name="merge_right")
         first_style, first_left_style, first_middle_style, first_right_style = NamedStyle(name="first"), NamedStyle(name="first_left"), NamedStyle(name="first_middle"), NamedStyle(name="first_right")
-        
+
         header_font = Font(size=fontsize, name=font, color="FFFFFF", bold=True)
         header_fill = PatternFill(fill_type="solid", start_color=theme_color)
         alignment = Alignment(horizontal='center', vertical='center', wrap_text=False)
@@ -391,14 +457,14 @@ class ExcelWriter:
         first_left_style.border = self.itlubber_border(["medium", "thin", "thin", "medium"], [theme_color, "FFFFFF", theme_color, theme_color])
         first_middle_style.border = self.itlubber_border(["thin", "thin", "thin", "medium"], ["FFFFFF", "FFFFFF", theme_color, theme_color])
         first_right_style.border = self.itlubber_border(["thin", "medium", "thin", "medium"], ["FFFFFF", theme_color, theme_color, theme_color])
-        
+
         middle_odd_style, middle_odd_first_style, middle_odd_last_style = NamedStyle(name="middle_odd"), NamedStyle(name="middle_odd_first"), NamedStyle(name="middle_odd_last")
         middle_even_style, middle_even_first_style, middle_even_last_style = NamedStyle(name="middle_even"), NamedStyle(name="middle_even_first"), NamedStyle(name="middle_even_last")
-        
+
         middle_odd_style.font, middle_odd_first_style.font, middle_odd_last_style.font, middle_even_style.font, middle_even_first_style.font, middle_even_last_style.font = content_font, content_font, content_font, content_font, content_font, content_font
         middle_odd_style.alignment, middle_odd_first_style.alignment, middle_odd_last_style.alignment, middle_even_style.alignment, middle_even_first_style.alignment, middle_even_last_style.alignment = alignment, alignment, alignment, alignment, alignment, alignment
         middle_odd_style.fill, middle_odd_first_style.fill, middle_odd_last_style.fill, middle_even_style.fill, middle_even_first_style.fill, middle_even_last_style.fill = content_fill, content_fill, content_fill, even_fill, even_fill, even_fill
-        
+
         middle_odd_first_style.border = Border(top=Side(border_style="medium", color=self.theme_color))
         middle_odd_last_style.border = Border(bottom=Side(border_style="medium", color=self.theme_color))
         middle_even_first_style.border = Border(top=Side(border_style="medium", color=self.theme_color))
@@ -422,14 +488,14 @@ class ExcelWriter:
         """
         if self.style_sheet.title in self.workbook.sheetnames:
             self.workbook.remove(self.style_sheet)
-        
+
         if os.path.exists(filename) and self.mode == "append":
             _workbook = load_workbook(filename)
-            
+
             for _sheet_name in _workbook.sheetnames:
                 if _sheet_name not in self.workbook.sheetnames:
                     _worksheet = self.get_sheet_by_name(_sheet_name)
-                    
+
                     for i, row in enumerate(_workbook[_sheet_name].iter_rows()):
                         for j, cell in enumerate(row):
                             _worksheet.cell(row=i + 1, column=j + 1).value = cell.value
@@ -439,15 +505,15 @@ class ExcelWriter:
                                 _worksheet.column_dimensions[get_column_letter(j + 1)].width = _workbook[_sheet_name].column_dimensions[get_column_letter(j + 1)].width
 
                 self.workbook.move_sheet(_worksheet, offset=-len(self.workbook.sheetnames) + 1)
-                
+
             _workbook.close()
-            
+
         self.workbook.save(filename)
-        
+
         if close:
             self.workbook.close()
-            
-            
+
+
 def dataframe2excel(data, excel_writer, sheet_name=None, title=None, header=True, theme_color="2639E9", fill=True, percent_cols=None, condition_cols=None, custom_cols=None, custom_format="#,##0", color_cols=None, start_col=2, start_row=2, mode="replace", writer_params={}, **kwargs):
     """
     向excel文件中插入指定样式的dataframe数据
@@ -469,25 +535,26 @@ def dataframe2excel(data, excel_writer, sheet_name=None, title=None, header=True
     :param mode: excel写入的模式，可选 append 和 replace ，默认 replace ，选择 append 时会在已有的excel文件中增加内容，不覆盖原有内容
     :param writer_params: 透传至 ExcelWriter 内的参数
     :param **kwargs: 其他参数，透传至 insert_df2sheet 方法，例如 传入 auto_width=True 会根据内容自动调整列宽
-    :return 返回插入元素最后一列之后、最后一行之后的位置
+
+    :return: 返回插入元素最后一列之后、最后一行之后的位置
     """
     if isinstance(excel_writer, ExcelWriter):
         writer = excel_writer
     else:
         writer = ExcelWriter(theme_color=theme_color, mode=mode, **writer_params)
-    
+
         # if os.path.exists(excel_writer) and mode == "append":
         #     workbook = load_workbook(excel_writer)
-            
+
         #     for _sheet_name in workbook.sheetnames:
         #         _worksheet = writer.get_sheet_by_name(_sheet_name or "Sheet1")
-                
+
         #         for i, row in enumerate(workbook[_sheet_name].iter_rows()):
         #             for j, cell in enumerate(row):
         #                 _worksheet.cell(row=i + 1, column=j + 1, value=cell.value)
-            
+
         #     workbook.close()
-    
+
     if isinstance(sheet_name, Worksheet):
         worksheet = sheet_name
     else:
@@ -498,17 +565,17 @@ def dataframe2excel(data, excel_writer, sheet_name=None, title=None, header=True
         start_row += 1
 
     end_row, end_col = writer.insert_df2sheet(worksheet, data, (start_row, start_col), fill=fill, header=header, **kwargs)
-    
+
     if percent_cols:
         for c in [c for c in percent_cols if c in data.columns]:
             conditional_column = get_column_letter(start_col + data.columns.get_loc(c))
             writer.set_number_format(worksheet, f"{conditional_column}{end_row - len(data)}:{conditional_column}{end_row - 1}", "0.00%")
-    
+
     if custom_cols:
         for c in [c for c in custom_cols if c in data.columns]:
             conditional_column = get_column_letter(start_col + data.columns.get_loc(c))
             writer.set_number_format(worksheet, f"{conditional_column}{end_row - len(data)}:{conditional_column}{end_row - 1}", custom_format)
-    
+
     if condition_cols:
         for c in [c for c in condition_cols if c in data.columns]:
             conditional_column = get_column_letter(start_col + data.columns.get_loc(c))
@@ -523,10 +590,10 @@ def dataframe2excel(data, excel_writer, sheet_name=None, title=None, header=True
             except:
                 import traceback
                 traceback.print_exc()
-    
+
     if not isinstance(excel_writer, ExcelWriter) and not isinstance(sheet_name, Worksheet):
         writer.save(excel_writer)
-    
+
     return end_row, end_col
 
 
