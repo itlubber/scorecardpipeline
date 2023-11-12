@@ -283,11 +283,15 @@ class ExcelWriter:
         """
         Clac continuous_cnt
         
-        Examples:
-            list_ = ['A','A','A','A','B','C','C','D','D','D']
-            (1) calc_continuous_cnt(list_, 0) ===>('A', 0, 4)
-            (2) calc_continuous_cnt(list_, 4) ===>('B', 4, 1)
-            (3) calc_continuous_cnt(list_, 6) ===>('C', 6, 1)
+        Examples
+        ---------------------
+        >>> list_ = ['A','A','A','A','B','C','C','D','D','D']
+        >>> calc_continuous_cnt(list_, 0)
+        ('A', 0, 4)
+        >>> calc_continuous_cnt(list_, 4)
+        ('B', 4, 1)
+        >>> calc_continuous_cnt(list_, 6)
+        ('C', 6, 1)
         """
         if index_ >= len(list_):
             return None, None, None

@@ -1,53 +1,47 @@
-scorecardpipeline package
-=========================
+scorecardpipeline
+======================================
 
-Submodules
-----------
-
-scorecardpipeline.excel\_writer module
---------------------------------------
-
-.. automodule:: scorecardpipeline.excel_writer
+.. automodule:: scorecardpipeline
    :members:
    :undoc-members:
    :show-inheritance:
 
-scorecardpipeline.logger module
--------------------------------
-
-.. automodule:: scorecardpipeline.logger
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-scorecardpipeline.model module
-------------------------------
+scorecardpipeline.model
+======================================
 
 .. automodule:: scorecardpipeline.model
    :members:
    :undoc-members:
    :show-inheritance:
 
-scorecardpipeline.processing module
------------------------------------
+scorecardpipeline.processing
+======================================
 
 .. automodule:: scorecardpipeline.processing
    :members:
    :undoc-members:
    :show-inheritance:
 
-scorecardpipeline.utils module
-------------------------------
+scorecardpipeline.excel\_writer
+======================================
+
+.. automodule:: scorecardpipeline.excel_writer
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+scorecardpipeline.utils
+======================================
 
 .. automodule:: scorecardpipeline.utils
    :members:
    :undoc-members:
    :show-inheritance:
 
-Module contents
----------------
+scorecardpipeline.logger
+======================================
 
-.. automodule:: scorecardpipeline
+.. automodule:: scorecardpipeline.logger
    :members:
    :undoc-members:
    :show-inheritance:

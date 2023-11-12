@@ -12,7 +12,7 @@
 #
 import os
 import sys
-sys.path.insert(0, os.path.abspath('../../'))
+sys.path.insert(0, "../../scorecardpipeline")
 
 
 # -- Project information -----------------------------------------------------
@@ -31,10 +31,10 @@ release = '0.1.25'
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-    "recommonmark",
     "sphinx_markdown_tables",
     "sphinx_wagtail_theme",
     "sphinx_rtd_theme",
+    "sphinxcontrib.mermaid",
     "sphinx.ext.autodoc",
     "sphinx.ext.viewcode",
     "sphinx.ext.doctest",
@@ -42,6 +42,9 @@ extensions = [
     "sphinx.ext.todo",
     "sphinx.ext.coverage",
     "sphinx.ext.mathjax",
+    "sphinx_design",
+    "sphinx_thebe",
+    "sphinx_copybutton",
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -65,8 +68,23 @@ exclude_patterns = []
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = "sphinx_rtd_theme"
-# html_theme = 'sphinx_wagtail_theme'
+# html_theme = "sphinx_rtd_theme"
+html_theme = 'sphinx_wagtail_theme'
+
+# html_theme = 'sphinx_nefertiti'
+# html_theme_options = {
+#     "style": "indigo",
+#     "footer_links": ",".join([
+#         "itlubber|https://itlubber.art",
+#         "github|https://github.com/itlubber/scorecardpipeline",
+#         "examples|https://github.com/itlubber/scorecardpipeline/blob/main/examples/scorecard_samples.ipynb",
+#     ]),
+#     "show_powered_by": False,
+#     "project_name_font": "Nunito",
+#     "doc_headers_font": "Nunito",
+#     "documentation_font": "Nunito",
+# }
+
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,

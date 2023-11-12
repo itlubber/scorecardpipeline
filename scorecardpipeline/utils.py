@@ -87,9 +87,10 @@ def save_pickle(obj, file):
 def germancredit():
     '''
     German Credit Data
-    ------
+    
     Credit data that classifies debtors described by a set of attributes as good or bad credit risks. See source link below for detailed information.
-    [source](https://archive.ics.uci.edu/ml/datasets/Statlog+(German+Credit+Data))
+    
+    [source](https://archive.ics.uci.edu/dataset/144/statlog+german+credit+data)
     '''
     from pandas.api.types import CategoricalDtype
     
