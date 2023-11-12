@@ -66,23 +66,22 @@ exclude_patterns = []
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-# html_theme = "sphinx_rtd_theme"
+html_theme = "sphinx_rtd_theme"
 
 import sphinx_nefertiti
-
-html_theme = 'sphinx_nefertiti'
-html_theme_options = {
-    "style": "indigo",
-    "footer_links": ",".join([
-        "itlubber|https://itlubber.art",
-        "github|https://github.com/itlubber/scorecardpipeline",
-        "examples|https://github.com/itlubber/scorecardpipeline/blob/main/examples/scorecard_samples.ipynb",
-    ]),
-    "show_powered_by": False,
-    "project_name_font": "Nunito",
-    "doc_headers_font": "Nunito",
-    "documentation_font": "Nunito",
-}
+# html_theme = 'sphinx_nefertiti'
+# html_theme_options = {
+#     "style": "indigo",
+#     "footer_links": ",".join([
+#         "itlubber|https://itlubber.art",
+#         "github|https://github.com/itlubber/scorecardpipeline",
+#         "examples|https://github.com/itlubber/scorecardpipeline/blob/main/examples/scorecard_samples.ipynb",
+#     ]),
+#     "show_powered_by": False,
+#     "project_name_font": "Nunito",
+#     "doc_headers_font": "Nunito",
+#     "documentation_font": "Nunito",
+# }
 
 
 # Add any paths that contain custom static files (such as style sheets) here,
@@ -99,15 +98,3 @@ autodoc_default_options = {
     "undoc-members": True,
     "exclude-members": "__weakref__",
 }
-
-# 给每个标题或者描述添加永久链接, 默认为True,最好去除放置出现析构函数无法正常跳转问题
-html_permalinks = True
-
-# 图形、表格、代码块如果有标题，自动添加编号, 默认为False
-numfig = True
-
-# 是否显示版本，对于read the doc来说就是左上角的版本号
-display_version = True
-
-# 是否显示查看源码链接
-html_show_sourcelink = True
