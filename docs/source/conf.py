@@ -40,6 +40,7 @@ release = '0.1.26'
 extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.viewcode',
+    'sphinx.ext.githubpages',
     'myst_parser',
     'sphinx_design',
     'sphinx_copybutton',
