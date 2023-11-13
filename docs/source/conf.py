@@ -82,7 +82,7 @@ exclude_patterns = []
 # html_theme = "sphinx_rtd_theme"
 
 html_theme = 'sphinx_nefertiti'
-pygments_style = "pastie"
+pygments_style = "sas"
 pygments_dark_style = "dracula"
 
 html_theme_options = {
@@ -97,8 +97,7 @@ html_theme_options = {
     "doc_headers_font": "Nunito",
     "documentation_font": "Nunito",
     "versions": [
-        ("latest", "https://scorecardpipeline.readthedocs.io/zh/latest/"),
-        ("v0.1.26", "https://scorecardpipeline.readthedocs.io/zh/v0.1.26/"),
+        (f"v{release}", "https://itlubber.github.io/scorecardpipeline-docs"),
     ],
     "repository_url": "https://github.com/itlubber/scorecardpipeline",
     "repository_name": "itlubber/scorecardpipeline",
