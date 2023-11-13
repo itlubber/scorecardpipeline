@@ -79,8 +79,6 @@ exclude_patterns = []
 # html_theme = "sphinx_rtd_theme"
 
 html_theme = 'sphinx_nefertiti'
-html_style = ["custom.css", "nftt-pygments.min.css"]
-
 pygments_style = "pastie"
 pygments_dark_style = "dracula"
 
@@ -102,7 +100,7 @@ html_theme_options = {
     "repository_url": "https://github.com/itlubber/scorecardpipeline",
     "repository_name": "itlubber/scorecardpipeline",
     "current_version": f"v{release}",
-    "show_colorset_choices": True,
+    "show_colorset_choices": False,
 }
 
 htmlhelp_basename = "scorecardpipeline"
