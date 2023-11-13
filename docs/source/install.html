@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>scorecardpipeline环境安装</title>
+  <script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.7.0.min.js"></script>
+</head>
+<body>
+  <style>
+    .quick-start {
+      display: flex;
+      flex-direction: row;
+      flex-wrap: nowrap;
+      margin-bottom: 20px;
+    }
+  
+    .title-column {
+      flex-grow: 0;
+      margin-right: 10px;
+    }
+  
+    .content-column {
+      flex-grow: 1;
+    }
+  
+    .row {
+      display: flex;
+      flex-direction: row;
+      flex-wrap: nowrap;
+      width: fit-content;
+    }
+  
+    .title-column div, .row div {
+      white-space: nowrap;
+    }
+  
+    .title-column div {
+      padding: 14px 10px 12px 0;
+      font-weight: 700;
+    }
+  
+    .row div {
+      flex-grow: 1;
+      text-align: center;
+      margin: 2px;
+      padding: 12px 0 10px 0;
+      background: #e3e3e3;
+      cursor: pointer;
+    }
+    
+    .row div.selected {
+      background: rgba(102, 54, 234,0.9);
+      color: #ffffff;
+    }
+  
+    #command {
+      margin: 2px;
+      padding: 12px 10px 10px 10px;
+    }
+  
+    #command pre {
+      padding: 0;
+      margin: 0;
+      white-space: pre-wrap;
+    }
+  
+  </style>
+  
+  <div class="quick-start">
+    <div class="title-column">
+        <div>系统环境</div>
+        <div>包管理器</div>
+        <div>网络环境</div>
+        <div>安装命令</div>
+    </div>
+    <div class="content-column">
+      <div class="row" id="os" style="width: 100%;"></div>
+      <div class="row" id="package" style="width: 100%;"></div>
+      <div class="row" id="line" style="width: 100%;"></div>
+      <div class="row" id="command" style="width: 100%;"><pre></pre></div>
+    </div>
+  </div>
+  
+  <script>
+    var osList = [
+      ['linux', 'Linux'],
+      ['mac', 'Mac'],
+      ['windows', 'Windows'],
+    ];
+  
+    var packageList = [
+      ['pip', 'Pip'],
+      ['conda', 'Conda'],
+    ];
+
+    var lineList = [
+      ['online', 'OnLine'],
+      ['offline', 'OffLine'],
+    ];
+  
+    osList.forEach(x => $("#os").append(`<div id="${x[0]}" style="width: 33%;">${x[1]}</div>`));
+    packageList.forEach(x => $("#package").append(`<div id="${x[0]}" style="width: 49.8%;">${x[1]}</div>`));
+    lineList.forEach(x => $("#line").append(`<div id="${x[0]}" style="width: 49.8%;">${x[1]}</div>`));
+  
+    function updateCommand() {
+      var os = $("#command").attr("os");
+      var package = $("#command").attr("package");
+      var line = $("#command").attr("line");
+      
+      if (line == "offline") {
+        $("#command pre").text('pip download -d site-packages/ scorecardpipeline\npip install --no-index --find-links=site-packages scorecardpipeline');
+      }
+      else {
+        if (package == "conda") {
+          $("#command pre").text('conda install scorecardpipeline');
+        }
+        else {
+          $("#command pre").text(`pip install scorecardpipeline`);
+        }
+      }
+    }
+  
+    $(".quick-start .content-column .row div").click(function() {
+      $(this).parent().children().removeClass("selected");
+      $(this).addClass("selected");
+      $("#command").attr($(this).parent().attr("id"), $(this).attr("id"));
+      updateCommand();
+    });
+  
+    $("#linux").click();
+    $("#pip").click();
+  
+  </script>
+</body>
+</html>
