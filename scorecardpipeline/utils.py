@@ -251,7 +251,7 @@ def inverse_feature_bins(feature_table, bin_col="分箱"):
     return inverse_bin_vars
 
 
-def bin_plot(feature_table, desc="", figsize=(10, 6), colors=["#2639E9", "#F76E6C", "#FE7715"], save=None, anchor=0.935, max_len=35, hatch=True, ending="分箱图"):
+def bin_plot(feature_table, desc="", figsize=(10, 6), colors=["#2639E9", "#F76E6C", "#FE7715"], save=None, anchor=0.935, max_len=35, fontdict={"color": "#000000"}, hatch=True, ending="分箱图"):
     """简单策略挖掘：特征分箱图
 
     :param feature_table: 特征分箱的统计信息表，由 feature_bin_stats 运行得到
@@ -261,7 +261,9 @@ def bin_plot(feature_table, desc="", figsize=(10, 6), colors=["#2639E9", "#F76E6
     :param save: 图片保存的地址，如果传入路径中有文件夹不存在，会新建相关文件夹，默认 None
     :param anchor: 图例在图中的位置，通常 0.95 左右，根据图片标题与图例之间的空隙自行调整即可
     :param max_len: 分箱显示的最大长度，防止分类变量分箱过多文本过长导致图像显示区域很小，默认最长 35 个字符
+    :param fontdict: 柱状图上的文字内容格式设置，参考 https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.text.html
     :param hatch: 柱状图是否显示斜杠，默认显示
+    :param ending: 分箱图标题显示的后缀，标题格式为: f'{desc}{ending}'
     
     :return: Figure
     """
@@ -281,8 +283,9 @@ def bin_plot(feature_table, desc="", figsize=(10, 6), colors=["#2639E9", "#F76E6
     for i, rate in enumerate(feature_table['坏样本率']):
         ax2.scatter(rate, i, color=colors[2])
 
-    for i, v in feature_table[['样本总数', '好样本数', '坏样本数', '坏样本率']].iterrows():
-        ax1.text(v['样本总数'] / 2, i + len(feature_table) / 60, f"{int(v['好样本数'])}:{int(v['坏样本数'])}:{v['坏样本率']:.2%}")
+    if fontdict and fontdict.get("color"):
+        for i, v in feature_table[['样本总数', '好样本数', '坏样本数', '坏样本率']].iterrows():
+            ax1.text(v['样本总数'] / 2, i + len(feature_table) / 60, f"{int(v['好样本数'])}:{int(v['坏样本数'])}:{v['坏样本率']:.2%}", fontdict=fontdict)
 
     ax1.invert_yaxis()
     ax2.xaxis.set_major_formatter(PercentFormatter(1, decimals=0, is_latex=True))
