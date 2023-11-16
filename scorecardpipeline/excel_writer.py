@@ -112,8 +112,12 @@ class ExcelWriter:
         :param offset: 需要移动的相对位置，默认 0，在传入 index 时参数不生效
         :param index: 需要移动到的位置索引，超出移动到最后
         """
+        total_sheets = len(self.workbook.sheetnames)
         if index:
-            offset = -len(self.workbook.sheetnames) + 1 + index
+            offset = -(total_sheets - 1) + index
+
+            if offset >= total_sheets:
+                offset = total_sheets - 1
 
         self.workbook.move_sheet(worksheet, offset=offset)
 
