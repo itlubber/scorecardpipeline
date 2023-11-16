@@ -92,8 +92,9 @@ init_setting(seed=10)
 
 [`germancredit`](https://archive.ics.uci.edu/dataset/144/statlog+german+credit+data) 数据集中包含类别型变量、数值型变量、好坏标签，共1000条数据，由于数据集中不包含缺失值，为了模拟实际生产中的真实数据，笔者将在固定随机种子的情况下随机替换数据集中的部分内容为 `np.nan`
 
-<!-- <details>
-  <summary>数据字典</summary> -->
+<details>
+
+  <summary>数据字典</summary>
 
  **序号** | **类型** | **特征名**                                                  | **释义**          
 :------:|:------:|:--------------------------------------------------------:|:---------------:
@@ -119,7 +120,7 @@ init_setting(seed=10)
  19     | 类别型    | telephone                                                | 电话              
  20     | 类别型    | foreign worker                                           | 外籍工人            
 
-<!-- </details> -->
+</details>
 
 <br>
 

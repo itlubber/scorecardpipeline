@@ -573,7 +573,6 @@ class Combiner(TransformerMixin, BaseEstimator):
                 , empty_separate=empty_separate
                 , min_n_bins=2
                 , max_n_bins=max_n_bins
-                , max_n_prebins=20
                 , min_bin_size=min_bin_size
                 , max_bin_size=max_bin_size
                 , **kwargs

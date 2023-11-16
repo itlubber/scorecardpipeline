@@ -24,11 +24,11 @@ from openpyxl.styles import NamedStyle, Border, Side, Alignment, PatternFill, Fo
 class ExcelWriter:
 
     def __init__(self, style_excel=None, style_sheet_name="初始化", mode="replace", fontsize=10, font='楷体', theme_color='2639E9', opacity=0.85):
-        """
-        excel 文件内容写入公共方法
+        """excel 写入方法
 
-        :param style_excel: 样式模版文件，默认当前路径下的 template.xlsx ，如果项目路径调整需要进行相应的调整
+        :param style_excel: 样式模版文件，默认安装包路径下的 template.xlsx ，如果路径调整需要进行相应的调整
         :param style_sheet_name: 模版文件内初始样式sheet名称，默认即可
+        :param mode: 写入模式，默认 replace，可选 replace、append，当选择 append 模式时会将已存在的excel中的内容复制到新的文件中
         :param fontsize: 插入excel文件中内容的字体大小，默认 10
         :param font: 插入excel文件中内容的字体，默认 楷体
         :param theme_color: 主题色，默认 2639E9，注意不包含 #
@@ -104,6 +104,18 @@ class ExcelWriter:
             worksheet = self.workbook[name]
 
         return worksheet
+
+    def move_sheet(self, worksheet, offset: int = 0, index: int = None):
+        """移动 sheet 位置
+
+        :param worksheet: 需要移动的sheet，支持输入字符串和Worksheet
+        :param offset: 需要移动的相对位置，默认 0，在传入 index 时参数不生效
+        :param index: 需要移动到的位置索引，超出移动到最后
+        """
+        if index:
+            offset = -len(self.workbook.sheetnames) + 1 + index
+
+        self.workbook.move_sheet(worksheet, offset=offset)
 
     def insert_value2sheet(self, worksheet, insert_space, value="", style="content", auto_width=False):
         """
@@ -504,7 +516,7 @@ class ExcelWriter:
                             if i == _workbook[_sheet_name].max_row - 1:
                                 _worksheet.column_dimensions[get_column_letter(j + 1)].width = _workbook[_sheet_name].column_dimensions[get_column_letter(j + 1)].width
 
-                self.workbook.move_sheet(_worksheet, offset=-len(self.workbook.sheetnames) + 1)
+                        # self.workbook.move_sheet(_worksheet, offset=-len(self.workbook.sheetnames) + 1)
 
             _workbook.close()
 
