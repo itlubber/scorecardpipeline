@@ -102,9 +102,8 @@
     var pipyList = [
       ['nouse', '纯净'],
       ['office', 'PIPY'],
+      ['github', 'GITHUB'],
       ['aliyun', '阿里云'],
-      ['tsinghua', '清华'],
-      ['douban', '豆瓣'],
     ];
 
     var netList = [
@@ -137,21 +136,24 @@
           $("#command pre").text(`pip install scorecardpipeline -i https://mirrors.aliyun.com/pypi/simple --trusted-host mirrors.aliyun.com`);
         }
       }
-      else if (pipy == "tsinghua") {
-        if (line == "offline") {
-          $("#command pre").text('# 在线环境中运行\npip download -d site-packages/ scorecardpipeline -i https://pypi.tuna.tsinghua.edu.cn/simple --trusted-host pypi.tuna.tsinghua.edu.cn\n# 离线环境运行\npip install --no-index --find-links=site-packages scorecardpipeline');
-        }
-        else {
-          $("#command pre").text(`pip install scorecardpipeline -i https://pypi.tuna.tsinghua.edu.cn/simple --trusted-host pypi.tuna.tsinghua.edu.cn`);
-        }
-      }
-      else if (pipy == "douban") {
-        if (line == "offline") {
-          $("#command pre").text('# 在线环境中运行\npip download -d site-packages/ scorecardpipeline -i https://pypi.doubanio.com/simple --trusted-host pypi.doubanio.com\n# 离线环境运行\npip install --no-index --find-links=site-packages scorecardpipeline');
-        }
-        else {
-          $("#command pre").text(`pip install scorecardpipeline -i https://pypi.doubanio.com/simple --trusted-host pypi.doubanio.com`);
-        }
+      // else if (pipy == "tsinghua") {
+      //   if (line == "offline") {
+      //     $("#command pre").text('# 在线环境中运行\npip download -d site-packages/ scorecardpipeline -i https://pypi.tuna.tsinghua.edu.cn/simple --trusted-host pypi.tuna.tsinghua.edu.cn\n# 离线环境运行\npip install --no-index --find-links=site-packages scorecardpipeline');
+      //   }
+      //   else {
+      //     $("#command pre").text(`pip install scorecardpipeline -i https://pypi.tuna.tsinghua.edu.cn/simple --trusted-host pypi.tuna.tsinghua.edu.cn`);
+      //   }
+      // }
+      // else if (pipy == "douban") {
+      //   if (line == "offline") {
+      //     $("#command pre").text('# 在线环境中运行\npip download -d site-packages/ scorecardpipeline -i https://pypi.doubanio.com/simple --trusted-host pypi.doubanio.com\n# 离线环境运行\npip install --no-index --find-links=site-packages scorecardpipeline');
+      //   }
+      //   else {
+      //     $("#command pre").text(`pip install scorecardpipeline -i https://pypi.doubanio.com/simple --trusted-host pypi.doubanio.com`);
+      //   }
+      // }
+      else if (pipy == "github") {
+        $("#command pre").text(`pip install git+https://github.com/itlubber/scorecardpipeline.git`);
       }
       else {
         if (line == "offline") {

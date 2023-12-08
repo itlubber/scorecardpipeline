@@ -6,7 +6,7 @@ matplotlib
 seaborn>=0.10.0
 scipy>=1.6.0
 statsmodels<0.14,>=0.13.2
-scikit-learn==1.0.2
+scikit-learn
 toad
 scorecardpy
 ortools>=9.5.0,<9.8.0

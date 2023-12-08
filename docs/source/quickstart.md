@@ -16,6 +16,7 @@
 |    01    |   0.1.0    |  2023.05.04  |                                     初始化                                     |
 |    ..    |   ......   |    ......    |                                     ......                                     |
 |    26    |   0.1.26   |  2023.11.13  | 稳定版本，新增方法[`说明文档`](https://itlubber.github.io/scorecardpipeline-docs/) |
+|    27    |   0.1.27   |  2023.12.09  | 修复分类变量空值导致转评分卡异常报错及其他相关问题 |
 
 
 ## 环境安装
@@ -113,7 +114,7 @@ init_setting(seed=10)
 
 ```python
 # 加载数据集
-data = sp.germancredit()
+data = germancredit()
 
 # 设置目标变量名称 & 映射目标变量值域为 {0, 1}
 target = "creditability"
@@ -398,7 +399,7 @@ $weighted\ avg = \frac{metric_1 \times \frac{support_1}{total\ count} + metric_2
 在金融领域，如果直接使用模型预测的概率作为最终的评分，可能会对业务人员造成一定程度上的理解难度，同时，[模型预测的概率其实很难代表客户真实的违约概率](https://scikit-learn.org/stable/modules/calibration.html#calibration)，不同模型预测的概率与真实违约概率之间存在不同程度的偏差。
 
 <div style="display: flex; justify-content: space-around; ">
-    <img width="80%" src="https://itlubber.art/upload/sphx_glr_plot_compare_calibration_001.png" />
+    <img width="100%" src="https://itlubber.art/upload/sphx_glr_plot_compare_calibration_001.png" />
 </div>
 
 <span style="display: flex; justify-content: space-around; font-size: smaller;">不同模型预测概率与真实概率之间的偏差</span>
@@ -525,7 +526,7 @@ ks_plot(train["score"], train[target], figsize=(10, 5), title="Train Dataset", s
 ```
 
 <div style="display: flex; justify-content: space-around; ">
-    <img width="80%" src="https://itlubber.art/upload/sp_train_ksplot.png" />
+    <img width="100%" src="https://itlubber.art/upload/sp_train_ksplot.png" />
 </div>
 
 ```
@@ -534,7 +535,7 @@ hist_plot(train["score"], train[target], figsize=(10, 6), save="model_report/sp_
 ```
 
 <div style="display: flex; justify-content: space-around; ">
-    <img width="80%" src="https://itlubber.art/upload/train_scorehist.png" />
+    <img width="100%" src="https://itlubber.art/upload/train_scorehist.png" />
 </div>
 
 通过 `scorecardpipeline` 提供的一些方法，您可以快速查看评分排序性，并得到相关的统计信息:
@@ -555,7 +556,7 @@ bin_plot(score_table_train, desc="训练集模型评分", figsize=(10, 6), ancho
 | score      | 训练集模型评分 | [80 , 正无穷) |         61 |  0.0871429 |         59 |   0.120408   |          2 |   0.00952381 |  0.0327869 |   2.53699   | 0.281312    |    1.20035 |  0.10929 |      1       |            490 |            210 |  0         |
 
 <div style="display: flex; justify-content: space-around; ">
-    <img width="80%" src="https://itlubber.art/upload/train_score_bins.png" />
+    <img width="100%" src="https://itlubber.art/upload/train_score_bins.png" />
 </div>
 
 除了在单个数据集上查看评分效果，评分卡的稳定性也是一个重要的评估指标，`scorecardpipeline` 内提供了查看两个数据集某个特征的 `PSI` 指标，同时针对评分卡模型，也提供了查看入模特征 `CSI` 的方法:
@@ -575,11 +576,11 @@ for col in card._feature_names:
 ```
 
 <div style="display: flex; justify-content: space-around; ">
-    <img width="80%" src="https://itlubber.art/upload/train_test_psiplot.png" />
+    <img width="100%" src="https://itlubber.art/upload/train_test_psiplot.png" />
 </div>
 
 <div style="display: flex; justify-content: space-around; ">
-    <img width="80%" src="https://itlubber.art/upload/csi_status_of_existing_checking_account.png" />
+    <img width="100%" src="https://itlubber.art/upload/csi_status_of_existing_checking_account.png" />
 </div>
 
 
@@ -695,7 +696,7 @@ card.fit(model_pipeline[:-1].transform(train))
 
 ```python
 # 初始化 Excel 写入器
-writer = sp.ExcelWriter()
+writer = ExcelWriter()
 
 start_row, start_col = 2, 2
 
@@ -704,13 +705,13 @@ worksheet = writer.get_sheet_by_name("汇总信息")
 
 # 样本总体分布情况
 end_row, end_col = writer.insert_value2sheet(worksheet, (start_row, start_col), value="样本总体分布情况", style="header")
-end_row, end_col = sp.dataframe2excel(dataset_summary, writer, worksheet, percent_cols=["样本占比", "坏客户占比"], start_row=end_row + 1)
+end_row, end_col = dataframe2excel(dataset_summary, writer, worksheet, percent_cols=["样本占比", "坏客户占比"], start_row=end_row + 1)
 
 # 建模样本时间分布情况
-temp = sp.distribution_plot(df, date="date", target=target, save="model_report/all_sample_time_count.png", result=True)
+temp = distribution_plot(df, date="date", target=target, save="model_report/all_sample_time_count.png", result=True)
 end_row, end_col = writer.insert_value2sheet(worksheet, (end_row + 2, start_col), value="建模样本时间分布情况", style="header")
 end_row, end_col = writer.insert_pic2sheet(worksheet, "model_report/all_sample_time_count.png", (end_row, start_col), figsize=(720, 370))
-end_row, end_col = sp.dataframe2excel(temp, writer, worksheet, percent_cols=["样本占比", "好样本占比", "坏样本占比", "坏样本率"], condition_cols=["坏样本率"], start_row=end_row)
+end_row, end_col = dataframe2excel(temp, writer, worksheet, percent_cols=["样本占比", "好样本占比", "坏样本占比", "坏样本率"], condition_cols=["坏样本率"], start_row=end_row)
 
 # ////////////////////////////////////// 模型报告 ///////////////////////////////////// #
 summary = logistic.summary2(feature_map=feature_map)
@@ -719,13 +720,13 @@ summary = logistic.summary2(feature_map=feature_map)
 worksheet = writer.get_sheet_by_name("逻辑回归拟合结果")
 
 end_row, end_col = writer.insert_value2sheet(worksheet, (start_row, start_col), value="逻辑回归拟合效果", style="header")
-end_row, end_col = sp.dataframe2excel(summary, writer, worksheet, condition_cols=["Coef."], start_row=end_row + 1)
+end_row, end_col = dataframe2excel(summary, writer, worksheet, condition_cols=["Coef."], start_row=end_row + 1)
 
 end_row, end_col = writer.insert_value2sheet(worksheet, (end_row + 2, start_col), value="训练数据集拟合报告", style="header")
-end_row, end_col = sp.dataframe2excel(logistic.report(train_woe_stepwise), writer, worksheet, percent_cols=["precision", "recall", "f1-score"], start_row=end_row + 1)
+end_row, end_col = dataframe2excel(logistic.report(train_woe_stepwise), writer, worksheet, percent_cols=["precision", "recall", "f1-score"], start_row=end_row + 1)
 
 end_row, end_col = writer.insert_value2sheet(worksheet, (end_row + 2, start_col), value="测试数据集拟合报告", style="header")
-end_row, end_col = sp.dataframe2excel(logistic.report(test_woe_stepwise), writer, worksheet, percent_cols=["precision", "recall", "f1-score"], start_row=end_row + 1)
+end_row, end_col = dataframe2excel(logistic.report(test_woe_stepwise), writer, worksheet, percent_cols=["precision", "recall", "f1-score"], start_row=end_row + 1)
 
 # ////////////////////////////////////// 特征概述 ///////////////////////////////////// #
 worksheet = writer.get_sheet_by_name("模型变量信息")
@@ -745,17 +746,17 @@ data_corr = train_woe_stepwise.corr()
 logistic.corr(train_woe_stepwise, save="model_report/train_corr.png", annot=False)
 end_row, end_col = writer.insert_value2sheet(worksheet, (end_row + 2, start_col), value="变量相关性", style="header")
 end_row, end_col = writer.insert_pic2sheet(worksheet, "model_report/train_corr.png", (end_row + 1, start_col), figsize=(700, 500))
-end_row, end_col = sp.dataframe2excel(data_corr.reset_index().rename(columns={"index": ""}), writer, worksheet, color_cols=list(data_corr.columns), start_row=end_row + 1)
+end_row, end_col = dataframe2excel(data_corr.reset_index().rename(columns={"index": ""}), writer, worksheet, color_cols=list(data_corr.columns), start_row=end_row + 1)
 
 # 变量分箱信息
 end_row, end_col = writer.insert_value2sheet(worksheet, (end_row + 2, start_col), value="变量分箱信息", style="header")
 
 for col in logistic.feature_names_in_:
-    feature_table = sp.feature_bin_stats(data, col, target=target, desc=feature_map.get(col, "") or "逻辑回归入模变量", combiner=combiner)
-    _ = sp.bin_plot(feature_table, desc=feature_map.get(col, "") or "逻辑回归入模变量", figsize=(8, 4), save=f"model_report/bin_plots/data_{col}.png")
+    feature_table = feature_bin_stats(data, col, target=target, desc=feature_map.get(col, "") or "逻辑回归入模变量", combiner=combiner)
+    _ = bin_plot(feature_table, desc=feature_map.get(col, "") or "逻辑回归入模变量", figsize=(8, 4), save=f"model_report/bin_plots/data_{col}.png")
     
     end_row, end_col = writer.insert_pic2sheet(worksheet, f"model_report/bin_plots/data_{col}.png", (end_row + 1, start_col), figsize=(700, 400))
-    end_row, end_col = sp.dataframe2excel(feature_table, writer, worksheet, percent_cols=["样本占比", "好样本占比", "坏样本占比", "坏样本率", "LIFT值", "累积LIFT值"], condition_cols=["坏样本率", "LIFT值"], start_row=end_row)
+    end_row, end_col = dataframe2excel(feature_table, writer, worksheet, percent_cols=["样本占比", "好样本占比", "坏样本占比", "坏样本率", "LIFT值", "累积LIFT值"], condition_cols=["坏样本率", "LIFT值"], start_row=end_row)
 
 # ////////////////////////////////////// 评分卡说明 ///////////////////////////////////// #
 worksheet = writer.get_sheet_by_name("评分卡结果")
@@ -763,7 +764,7 @@ worksheet = writer.get_sheet_by_name("评分卡结果")
 # 评分卡刻度
 scorecard_kedu = card.scorecard_scale()
 scorecard_points = card.scorecard_points(feature_map=feature_map)
-scorecard_clip = card.score_clip(train["score"], clip=100)
+scorecard_clip = card.score_clip(train["score"], clip=10)
 
 start_row, start_col = 2, 2
 end_row, end_col = writer.insert_value2sheet(worksheet, (start_row, start_col), value="评分卡刻度", style="header")
@@ -774,64 +775,64 @@ end_row, end_col = writer.insert_value2sheet(worksheet, (end_row + 2, start_col)
 end_row, end_col = writer.insert_df2sheet(worksheet, scorecard_points, (end_row + 1, start_col), merge_column="变量名称")
 
 # 评分效果
-score_table_train = sp.feature_bin_stats(train, "score", desc="测试集模型评分", target=target, rules=scorecard_clip)
-score_table_test = sp.feature_bin_stats(test, "score", desc="测试集模型评分", target=target, rules=scorecard_clip)
+score_table_train = feature_bin_stats(train, "score", desc="测试集模型评分", target=target, rules=scorecard_clip)
+score_table_test = feature_bin_stats(test, "score", desc="测试集模型评分", target=target, rules=scorecard_clip)
 
-sp.ks_plot(train["score"], train[target], title="Train \tDataset", save="model_report/train_ksplot.png")
-sp.ks_plot(test["score"], test[target], title="Test \tDataset", save="model_report/test_ksplot.png")
+ks_plot(train["score"], train[target], title="Train \tDataset", save="model_report/train_ksplot.png")
+ks_plot(test["score"], test[target], title="Test \tDataset", save="model_report/test_ksplot.png")
 
-sp.hist_plot(train["score"], train[target], save="model_report/train_scorehist.png", bins=30)
-sp.hist_plot(test["score"], test[target], save="model_report/test_scorehist.png", bins=30)
+hist_plot(train["score"], train[target], save="model_report/train_scorehist.png", bins=30)
+hist_plot(test["score"], test[target], save="model_report/test_scorehist.png", bins=30)
 
 end_row, end_col = writer.insert_value2sheet(worksheet, (end_row + 2, start_col), value="训练数据集评分模型效果", style="header")
 ks_row = end_row
 end_row, end_col = writer.insert_pic2sheet(worksheet, "model_report/train_ksplot.png", (ks_row, start_col))
 end_row, end_col = writer.insert_pic2sheet(worksheet, "model_report/train_scorehist.png", (ks_row, end_col))
-end_row, end_col = sp.dataframe2excel(score_table_train, writer, worksheet, percent_cols=["样本占比", "好样本占比", "坏样本占比", "坏样本率", "LIFT值", "累积LIFT值", "分档KS值"], condition_cols=["坏样本率", "LIFT值", "分档KS值"], start_row=end_row + 1)
+end_row, end_col = dataframe2excel(score_table_train, writer, worksheet, percent_cols=["样本占比", "好样本占比", "坏样本占比", "坏样本率", "LIFT值", "累积LIFT值", "分档KS值"], condition_cols=["坏样本率", "LIFT值", "分档KS值"], start_row=end_row + 1)
 
 end_row, end_col = writer.insert_value2sheet(worksheet, (end_row + 2, start_col), value="测试数据集评分模型效果", style="header")
 ks_row = end_row
 end_row, end_col = writer.insert_pic2sheet(worksheet, "model_report/test_ksplot.png", (ks_row, start_col))
 end_row, end_col = writer.insert_pic2sheet(worksheet, "model_report/test_scorehist.png", (ks_row, end_col))
-end_row, end_col = sp.dataframe2excel(score_table_test, writer, worksheet, percent_cols=["样本占比", "好样本占比", "坏样本占比", "坏样本率", "LIFT值", "累积LIFT值", "分档KS值"], condition_cols=["坏样本率", "LIFT值", "分档KS值"], start_row=end_row + 1)
+end_row, end_col = dataframe2excel(score_table_test, writer, worksheet, percent_cols=["样本占比", "好样本占比", "坏样本占比", "坏样本率", "LIFT值", "累积LIFT值", "分档KS值"], condition_cols=["坏样本率", "LIFT值", "分档KS值"], start_row=end_row + 1)
 
 # ////////////////////////////////////// 模型稳定性 ///////////////////////////////////// #
 worksheet = writer.get_sheet_by_name("模型稳定性")
 start_row, start_col = 2, 2
 
 # 评分分布稳定性
-train_test_score_psi = sp.psi_plot(score_table_train, score_table_test, labels=["训练数据集", "测试数据集"], save="model_report/train_test_psiplot.png", result=True)
+train_test_score_psi = psi_plot(score_table_train, score_table_test, labels=["训练数据集", "测试数据集"], save="model_report/train_test_psiplot.png", result=True)
 
 end_row, end_col = writer.insert_value2sheet(worksheet, (start_row, start_col), value="模型评分稳定性指标 (Population Stability Index, PSI): 训练数据集 vs 测试数据集", style="header")
 end_row, end_col = writer.insert_pic2sheet(worksheet, "model_report/train_test_psiplot.png", (end_row, start_col), figsize=(800, 400))
-end_row, end_col = sp.dataframe2excel(train_test_score_psi, writer, worksheet, percent_cols=["训练数据集样本占比", "训练数据集坏样本率", "测试数据集样本占比", "测试数据集坏样本率"], condition_cols=["分档PSI值"], start_row=end_row + 1)
+end_row, end_col = dataframe2excel(train_test_score_psi, writer, worksheet, percent_cols=["训练数据集样本占比", "训练数据集坏样本率", "测试数据集样本占比", "测试数据集坏样本率"], condition_cols=["分档PSI值"], start_row=end_row + 1)
 
 # 变量 PSI 表
 for col in card._feature_names:
-    feature_table_train = sp.feature_bin_stats(train, col, target=target, desc=feature_map.get(col, "") or "逻辑回归入模变量", combiner=combiner)
-    feature_table_test = sp.feature_bin_stats(test, col, target=target, desc=feature_map.get(col, "") or "逻辑回归入模变量", combiner=combiner)
-    psi_table = sp.psi_plot(feature_table_train, feature_table_test, desc=col, result=True, plot=True, max_len=35, figsize=(10, 6), labels=["训练数据集", "测试数据集"], save=f"model_report/psi_{col}.png")
+    feature_table_train = feature_bin_stats(train, col, target=target, desc=feature_map.get(col, "") or "逻辑回归入模变量", combiner=combiner)
+    feature_table_test = feature_bin_stats(test, col, target=target, desc=feature_map.get(col, "") or "逻辑回归入模变量", combiner=combiner)
+    psi_table = psi_plot(feature_table_train, feature_table_test, desc=col, result=True, plot=True, max_len=35, figsize=(10, 6), labels=["训练数据集", "测试数据集"], save=f"model_report/psi_{col}.png")
     
     end_row, end_col = writer.insert_pic2sheet(worksheet, f"model_report/psi_{col}.png", (end_row, start_col), figsize=(700, 400))
-    end_row, end_col = sp.dataframe2excel(psi_table, writer, worksheet, percent_cols=["训练数据集样本占比", "训练数据集坏样本率", "测试数据集样本占比", "测试数据集坏样本率", "测试数据集% - 训练数据集%"], condition_cols=["分档PSI值"], start_row=end_row + 1)
+    end_row, end_col = dataframe2excel(psi_table, writer, worksheet, percent_cols=["训练数据集样本占比", "训练数据集坏样本率", "测试数据集样本占比", "测试数据集坏样本率", "测试数据集% - 训练数据集%"], condition_cols=["分档PSI值"], start_row=end_row + 1)
 
 # 变量 CSI 表
 end_row, end_col = writer.insert_value2sheet(worksheet, (end_row + 2, start_col), value="入模变量稳定性指标 (Characteristic Stability Index, CSI): 训练数据集 vs 测试数据集", style="header")
 
 for col in card._feature_names:
-    feature_table_train = sp.feature_bin_stats(train, col, target=target, desc=feature_map.get(col, "") or "逻辑回归入模变量", combiner=combiner)
-    feature_table_test = sp.feature_bin_stats(test, col, target=target, desc=feature_map.get(col, "") or "逻辑回归入模变量", combiner=combiner)
-    train_test_csi_table = sp.csi_plot(feature_table_train, feature_table_test, card[col], desc=col, result=True, plot=True, max_len=35, figsize=(10, 6), labels=["训练数据集", "测试数据集"], save=f"model_report/csi_{col}.png")
+    feature_table_train = feature_bin_stats(train, col, target=target, desc=feature_map.get(col, "") or "逻辑回归入模变量", combiner=combiner)
+    feature_table_test = feature_bin_stats(test, col, target=target, desc=feature_map.get(col, "") or "逻辑回归入模变量", combiner=combiner)
+    train_test_csi_table = csi_plot(feature_table_train, feature_table_test, card[col], desc=col, result=True, plot=True, max_len=35, figsize=(10, 6), labels=["训练数据集", "测试数据集"], save=f"model_report/csi_{col}.png")
     
     end_row, end_col = writer.insert_pic2sheet(worksheet, f"model_report/csi_{col}.png", (end_row, start_col), figsize=(700, 400))
-    end_row, end_col = sp.dataframe2excel(train_test_csi_table, writer, worksheet, percent_cols=["训练数据集样本占比", "训练数据集坏样本率", "测试数据集样本占比", "测试数据集坏样本率", "测试数据集% - 训练数据集%"], condition_cols=["分档CSI值"], start_row=end_row + 1)
+    end_row, end_col = dataframe2excel(train_test_csi_table, writer, worksheet, percent_cols=["训练数据集样本占比", "训练数据集坏样本率", "测试数据集样本占比", "测试数据集坏样本率", "测试数据集% - 训练数据集%"], condition_cols=["分档CSI值"], start_row=end_row + 1)
 
 # 保存结果文件
 writer.save("model_report/评分卡模型报告.xlsx")
 ```
 
 <div style="display: flex; justify-content: space-around; ">
-    <img width="80%" src="https://itlubber.art/upload/scorecardpipeline.png" />
+    <img width="100%" src="https://itlubber.art/upload/scorecardpipeline.png" />
 </div>
 
 
