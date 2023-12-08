@@ -466,7 +466,7 @@ train["score"] = card.predict(train)
 test["score"] = card.predict(test)
 ```
 
-在 `scorecardpipeline` 中提供了方法输出评分卡刻度
+在 `scorecardpipeline` 中提供了输出评分卡刻度的方法 `scorecard_scale` :
 
 ```python
 # 输出评分卡刻度信息
@@ -482,6 +482,105 @@ card.scorecard_scale()
 |  4 | B          | 14.427   | 补偿值，计算方式：pdo / ln(rate)                                                           |
 |  5 | A          |  6.78072 | 刻度，计算方式：base_score - B * ln(base_odds)                                             |
 
+在 `scorecardpipeline` 中也提供了输出评分卡刻度的方法 `scorecard_points` :
+
+```python
+# 输出评分卡刻度信息
+card.scorecard_points()
+```
+
+| 序号 | 变量名称                                            | 变量分箱                                                                                                                          |   对应分数 |
+|---:|:----------------------------------------------------|:----------------------------------------------------------------------------------------------------------------------------------|-----------:|
+|  0 | status_of_existing_checking_account                 | no checking account                                                                                                               |    21.3836 |
+|  1 | status_of_existing_checking_account                 | ... >= 200 DM / salary assignments for at least 1 year,nan                                                                        |     6.0824 |
+|  2 | status_of_existing_checking_account                 | 0 <= ... < 200 DM                                                                                                                 |    -0.3605 |
+|  3 | status_of_existing_checking_account                 | ... < 0 DM                                                                                                                        |    -5.0818 |
+|  4 | purpose                                             | car (used),radio/television                                                                                                       |    12.0818 |
+|  5 | purpose                                             | retraining,furniture/equipment,education,business,nan,car (new),repairs,domestic appliances,others                                |     2.3125 |
+|  6 | credit_amount                                       | [-inf ~ 1382.0)                                                                                                                   |     2.4344 |
+|  7 | credit_amount                                       | [1382.0 ~ 3804.0)                                                                                                                 |    13.6608 |
+|  8 | credit_amount                                       | [3804.0 ~ inf)                                                                                                                    |    -2.9765 |
+|  9 | savings_account_and_bonds                           | ... >= 1000 DM,500 <= ... < 1000 DM,unknown/ no savings account                                                                   |    12.0593 |
+| 10 | savings_account_and_bonds                           | nan                                                                                                                               |     5.4614 |
+| 11 | savings_account_and_bonds                           | 100 <= ... < 500 DM,... < 100 DM                                                                                                  |     2.5373 |
+| 12 | present_employment_since                            | 4 <= ... < 7 years,... >= 7 years                                                                                                 |     9.1647 |
+| 13 | present_employment_since                            | 1 <= ... < 4 years,nan,unemployed,... < 1 year                                                                                    |     3.2488 |
+| 14 | installment_rate_in_percentage_of_disposable_income | [-inf ~ 4.0)                                                                                                                      |     7.997  |
+| 15 | installment_rate_in_percentage_of_disposable_income | [4.0 ~ inf)                                                                                                                       |     0.6935 |
+| 16 | personal_status_and_sex                             | female : divorced/separated/married,nan                                                                                           |     7.4426 |
+| 17 | personal_status_and_sex                             | male : single,male : divorced/separated,male : married/widowed                                                                    |     3.122  |
+| 18 | property                                            | real estate                                                                                                                       |    10.5651 |
+| 19 | property                                            | building society savings agreement/ life insurance,nan,car or other, not in attribute Savings account/bonds,unknown / no property |     3.5272 |
+| 20 | age_in_years                                        | [-inf ~ 23.0)                                                                                                                     |     6.0181 |
+| 21 | age_in_years                                        | [23.0 ~ 35.0)                                                                                                                     |    -0.7208 |
+| 22 | age_in_years                                        | [35.0 ~ inf)                                                                                                                      |    11.0045 |
+| 23 | housing                                             | nan,own                                                                                                                           |     6.1523 |
+| 24 | housing                                             | rent,for free                                                                                                                     |     1.6267 |
+
+`scorecardpipeline` 还提供了一些方法，让您可以快速查看评分效果和分布情况:
+
+```
+# 查看 KS 和 ROC 曲线
+ks_plot(train["score"], train[target], figsize=(10, 5), title="Train Dataset", save="model_report/sp_train_ksplot.png")
+```
+
+<div style="display: flex; justify-content: space-around; ">
+    <img width="80%" src="https://itlubber.art/upload/sp_train_ksplot.png" />
+</div>
+
+```
+# 查看评分分布情况
+hist_plot(train["score"], train[target], figsize=(10, 6), save="model_report/sp_train_histplot.png")
+```
+
+<div style="display: flex; justify-content: space-around; ">
+    <img width="80%" src="https://itlubber.art/upload/train_scorehist.png" />
+</div>
+
+通过 `scorecardpipeline` 提供的一些方法，您可以快速查看评分排序性，并得到相关的统计信息:
+
+```
+# 训练集评分排序性
+score_clip = card.score_clip(train["score"], clip=20) # 计算等频分箱的间隔
+score_table_train = feature_bin_stats(train, "score", desc="训练集模型评分", target=target, rules=score_clip) # 计算统计信息
+bin_plot(score_table_train, desc="训练集模型评分", figsize=(10, 6), anchor=0.935, save="model_report/train_score_bins.png") # 画图
+```
+
+| 指标名称   | 指标含义       | 分箱          |   样本总数 |   样本占比 |   好样本数 |   好样本占比 |   坏样本数 |   坏样本占比 |   坏样本率 |   分档WOE值 |    分档IV值 |   指标IV值 |   LIFT值 |   累积LIFT值 |   累积好样本数 |   累积坏样本数 |   分档KS值 |
+|:-----------|:---------------|:--------------|-----------:|-----------:|-----------:|-------------:|-----------:|-------------:|-----------:|------------:|------------:|-----------:|---------:|-------------:|---------------:|---------------:|-----------:|
+| score      | 训练集模型评分 | [负无穷 , 20) |          9 |  0.0128571 |          1 |   0.00204082 |          8 |   0.0380952  |  0.888889  |  -2.92677   | 0.105523    |    1.20035 |  2.96296 |      2.96296 |              1 |              8 |  0.0360544 |
+| score      | 训练集模型评分 | [20 , 40)     |        160 |  0.228571  |         63 |   0.128571   |         97 |   0.461905   |  0.60625   |  -1.27888   | 0.426292    |    1.20035 |  2.02083 |      2.07101 |             64 |            105 |  0.369388  |
+| score      | 训练集模型评分 | [40 , 60)     |        283 |  0.404286  |        197 |   0.402041   |         86 |   0.409524   |  0.303887  |  -0.0184439 | 0.000138015 |    1.20035 |  1.01296 |      1.40855 |            261 |            191 |  0.376871  |
+| score      | 训练集模型评分 | [60 , 80)     |        187 |  0.267143  |        170 |   0.346939   |         17 |   0.0809524  |  0.0909091 |   1.45527   | 0.387083    |    1.20035 |  0.30303 |      1.08503 |            431 |            208 |  0.110884  |
+| score      | 训练集模型评分 | [80 , 正无穷) |         61 |  0.0871429 |         59 |   0.120408   |          2 |   0.00952381 |  0.0327869 |   2.53699   | 0.281312    |    1.20035 |  0.10929 |      1       |            490 |            210 |  0         |
+
+<div style="display: flex; justify-content: space-around; ">
+    <img width="80%" src="https://itlubber.art/upload/train_score_bins.png" />
+</div>
+
+除了在单个数据集上查看评分效果，评分卡的稳定性也是一个重要的评估指标，`scorecardpipeline` 内提供了查看两个数据集某个特征的 `PSI` 指标，同时针对评分卡模型，也提供了查看入模特征 `CSI` 的方法:
+
+```python
+# 查看某个特征的 PSI
+score_table_train = feature_bin_stats(train, "score", desc="训练集模型评分", target=target, rules=score_clip)
+score_table_test = feature_bin_stats(test, "score", desc="测试集模型评分", target=target, rules=score_clip)
+train_test_score_psi = psi_plot(score_table_train, score_table_test, labels=["训练数据集", "测试数据集"], save="model_report/train_test_psiplot.png", result=True)
+
+# 查看某个入模特征的 CSI
+for col in card._feature_names:
+    rule = combiner[col]
+    feature_table_train = feature_bin_stats(train, col, target=target, desc="训练集分布", combiner=rule)
+    feature_table_test = feature_bin_stats(test, col, target=target, desc="测试集分布", combiner=rule)
+    train_test_csi_table = csi_plot(feature_table_train, feature_table_test, card[col], desc=col, result=True, plot=True, max_len=35, figsize=(10, 6), labels=["训练数据集", "测试数据集"], save=f"model_report/csi_{col}.png")
+```
+
+<div style="display: flex; justify-content: space-around; ">
+    <img width="80%" src="https://itlubber.art/upload/train_score_bins.png" />
+</div>
+
+<div style="display: flex; justify-content: space-around; ">
+    <img width="80%" src="https://itlubber.art/upload/train_score_bins.png" />
+</div>
 
 
 
@@ -494,8 +593,8 @@ card.scorecard_scale()
 ## 交流
 
 <div style="display: flex; justify-content: space-around;">
-    <img width="30%" alt="itlubber" src="https://itlubber.art//upload/itlubber.png"/>
-    <img width="30%" alt="itlubber_art" src="https://itlubber.art//upload/itlubber_art.png"/>
+    <img width="30%" alt="itlubber" src="https://itlubber.art/upload/itlubber.png"/>
+    <img width="30%" alt="itlubber_art" src="https://itlubber.art/upload/itlubber_art.png"/>
 </div>
 
 <div style="display: flex; justify-content: space-around; margin-bottom: 2rem;">

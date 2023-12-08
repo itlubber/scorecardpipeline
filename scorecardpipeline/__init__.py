@@ -19,7 +19,7 @@ from .excel_writer import ExcelWriter, dataframe2excel
 feature_bin_stats = Combiner.feature_bin_stats
 
 
-__version__ = "0.1.26"
+__version__ = "0.1.27"
 __all__ = (
     "__version__"
     , "FeatureSelection", "FeatureImportanceSelector", "StepwiseSelection", "Combiner", "WOETransformer"
