@@ -392,12 +392,12 @@ class FeatureImportanceSelector(BaseEstimator, TransformerMixin):
 
 class Combiner(TransformerMixin, BaseEstimator):
 
-    def __init__(self, target="target", method='chi', empty_separate=False, min_n_bins=2, max_n_bins=None, max_n_prebins=20, min_prebin_size=0.02, min_bin_size=0.05, max_bin_size=None, gamma=0.01, monotonic_trend="auto_asc_desc", adj_rules={}, n_jobs=1):
+    def __init__(self, target="target", method='chi', empty_separate=True, min_n_bins=2, max_n_bins=None, max_n_prebins=20, min_prebin_size=0.02, min_bin_size=0.05, max_bin_size=None, gamma=0.01, monotonic_trend="auto_asc_desc", adj_rules={}, n_jobs=1):
         """特征分箱封装方法
 
         :param target: 数据集中标签名称，默认 target
         :param method: 特征分箱方法，可选 "chi", "dt", "quantile", "step", "kmeans", "cart", "mdlp", "uniform", 参考 toad.Combiner: https://github.com/amphibian-dev/toad/blob/master/toad/transform.py#L178-L355 & optbinning.OptimalBinning: https://gnpalencia.org/optbinning/
-        :param empty_separate: 是否空值单独一箱, 默认 False，推荐设置为 True
+        :param empty_separate: 是否空值单独一箱, 默认 True
         :param min_n_bins: 最小分箱数，默认 2，即最小拆分2箱
         :param max_n_bins: 最大分箱数，默认 None，即不限制拆分箱数，推荐设置 3 ～ 5，不宜过多，偶尔使用 optbinning 时不起效
         :param max_n_prebins: 使用 optbinning 时预分箱数量
@@ -430,6 +430,10 @@ class Combiner(TransformerMixin, BaseEstimator):
         :param rules: dict，需要更新规则，格式如下：{特征名称: 分箱规则}
         """
         self.combiner.update(rules)
+
+        # 检查规则内容
+        for feature in rules.keys():
+            self.check_rules(feature=feature)
 
     def optbinning_bins(self, feature, data=None, target="target", min_n_bins=2, max_n_bins=3, max_n_prebins=10, min_prebin_size=0.02, min_bin_size=0.05, max_bin_size=None, gamma=0.01, monotonic_trend="auto_asc_desc"):
         """基于 optbinning.OptimalBinning 的特征分箱方法，使用 optbinning.OptimalBinning 分箱失败时，使用 toad.transform.Combiner 的卡方分箱处理
@@ -508,14 +512,30 @@ class Combiner(TransformerMixin, BaseEstimator):
 
         self.update(self.adj_rules)
 
+        # 检查类别变量空值是否被转为字符串，如果转为了字符串，强制转回空值，同时检查分箱顺序并调整为正确顺序
+        self.check_rules()
+
         return self
-    
-    def _check_rules(self):
-        """检查类别变量空值是否被转为字符串，如果转为了字符串，强制转回空值"""
+
+    def check_rules(self, feature=None):
+        """检查类别变量空值是否被转为字符串，如果转为了字符串，强制转回空值，同时检查分箱顺序并调整为正确顺序"""
         for col in self.combiner.rules.keys():
-            if not np.issubdtype(self.combiner[col].dtype, np.number):
-                if sum([sum([1 for b in r if b in ("nan", "None")]) for r in self.combiner[col]]) > 0:
-                    self.combiner.update({col: [[np.nan if b in ("nan", "None") else b for b in r] for r in self.combiner[col]]})
+            if feature is not None and col != feature:
+                continue
+
+            _rule = self.combiner[col]
+
+            if not np.issubdtype(_rule.dtype, np.number):
+                if sum([sum([1 for b in r if b in ("nan", "None")]) for r in _rule]) > 0:
+                    _rule = [[np.nan if b == "nan" else (None if b == "None" else b) for b in r] for r in _rule]
+                    if [np.nan] in _rule:
+                        _rule.remove([np.nan])
+                        _rule.append([np.nan])
+                    if [None] in _rule:
+                        _rule.remove([None])
+                        _rule.append([None])
+
+                    self.combiner.update({col: _rule})
 
     def transform(self, x, y=None, labels=False):
         """特征分箱转换方法
@@ -589,16 +609,15 @@ class Combiner(TransformerMixin, BaseEstimator):
         else:
             _combiner = deepcopy(combiner)
 
-        if rules and len(rules) > 0:
+        if rules is not None and len(rules) > 0:
             if isinstance(rules, (list, np.ndarray)):
                 _combiner.update({feature: rules})
             else:
                 _combiner.update(rules)
 
-        feature_bin_dict = feature_bins(np.array(_combiner[feature]))
+        feature_bin_dict = feature_bins(_combiner[feature])
 
         df_bin = _combiner.transform(data[[feature, target]], labels=False)
-
         table = df_bin[[feature, target]].groupby([feature, target]).agg(len).unstack()
         table.columns.name = None
         table = table.rename(columns={0: '好样本数', 1: '坏样本数'}).fillna(0)

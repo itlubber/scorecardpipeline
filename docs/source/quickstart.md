@@ -562,32 +562,277 @@ bin_plot(score_table_train, desc="训练集模型评分", figsize=(10, 6), ancho
 
 ```python
 # 查看某个特征的 PSI
+score_clip = card.score_clip(train["score"], clip=10)
 score_table_train = feature_bin_stats(train, "score", desc="训练集模型评分", target=target, rules=score_clip)
 score_table_test = feature_bin_stats(test, "score", desc="测试集模型评分", target=target, rules=score_clip)
 train_test_score_psi = psi_plot(score_table_train, score_table_test, labels=["训练数据集", "测试数据集"], save="model_report/train_test_psiplot.png", result=True)
 
 # 查看某个入模特征的 CSI
 for col in card._feature_names:
-    rule = combiner[col]
-    feature_table_train = feature_bin_stats(train, col, target=target, desc="训练集分布", combiner=rule)
-    feature_table_test = feature_bin_stats(test, col, target=target, desc="测试集分布", combiner=rule)
+    feature_table_train = feature_bin_stats(train, col, target=target, desc="训练集分布", combiner=combiner)
+    feature_table_test = feature_bin_stats(test, col, target=target, desc="测试集分布", combiner=combiner)
     train_test_csi_table = csi_plot(feature_table_train, feature_table_test, card[col], desc=col, result=True, plot=True, max_len=35, figsize=(10, 6), labels=["训练数据集", "测试数据集"], save=f"model_report/csi_{col}.png")
 ```
 
 <div style="display: flex; justify-content: space-around; ">
-    <img width="80%" src="https://itlubber.art/upload/train_score_bins.png" />
+    <img width="80%" src="https://itlubber.art/upload/train_test_psiplot.png" />
 </div>
 
 <div style="display: flex; justify-content: space-around; ">
-    <img width="80%" src="https://itlubber.art/upload/train_score_bins.png" />
+    <img width="80%" src="https://itlubber.art/upload/csi_status_of_existing_checking_account.png" />
 </div>
 
+
+### 模型持久化存储
+
+`scorecardpipeline` 提供了几种可选的模型持久化存储方式，可以将训练好的评分卡模型保存为 `pickle` 或 `pmml` 格式的模型文件，供后续生产部署或离线回溯使用，非常方便快捷
+
+```python
+# 将评分卡模型保存 pmml 文件
+scorecard_pipeline = card.scorecard2pmml(pmml="model_report/scorecard.pmml", debug=True)
+# 将评分卡模型保存 pickle 文件
+save_pickle(card, "model_report/scorecard.pkl")
+```
+
+
+### 评分卡 `pipeline` 建模
+
+在 `scorecardpipeline` 中，几乎所以的模型和数据预处理步骤都支持 `pipeline` 式构建模型，同时还可以与 `sklearn` 中其他的 `pipeline` 组件一起构建模型。
+
+```python
+# 构建 pipeline
+model_pipeline = Pipeline([
+    ("preprocessing", FeatureSelection(target=target, engine="scorecardpy")),
+    ("combiner", Combiner(target=target, min_bin_size=0.2)),
+    ("transform", WOETransformer(target=target)),
+    ("processing_select", FeatureSelection(target=target, engine="toad")),
+    ("stepwise", StepwiseSelection(target=target)),
+    ("logistic", ITLubberLogisticRegression(target=target)),
+])
+# 训练 pipeline
+model_pipeline.fit(train)
+# 转换评分卡
+card = ScoreCard(target=target, pipeline=model_pipeline, base_score=50, base_odds=(1 - bad_rate) / bad_rate, pdo=10)
+card.fit(model_pipeline[:-1].transform(train))
+card.scorecard_points()
+```
+
+| 序号 | 变量名称                                            | 变量分箱                                                                                                                             |   对应分数 |
+|:--:|:----------------------------------------------------|:-------------------------------------------------------------------------------------------------------------------------------------|-----------:|
+|  0 | purpose                                             | radio/television,car (used)                                                                                                          |    12.8514 |
+|  1 | purpose                                             | business,furniture/equipment,others,education,domestic appliances,retraining,car (new),缺失值,repairs                                |     2.7818 |
+|  2 | installment_rate_in_percentage_of_disposable_income | [负无穷 , 4.0)                                                                                                                       |     7.7878 |
+|  3 | installment_rate_in_percentage_of_disposable_income | [4.0 , 正无穷)                                                                                                                       |     0.9877 |
+|  4 | installment_rate_in_percentage_of_disposable_income | 缺失值                                                                                                                               |    10.7462 |
+|  5 | savings_account_and_bonds                           | 500 <= ... < 1000 DM,unknown/ no savings account,... >= 1000 DM                                                                      |     5.9834 |
+|  6 | savings_account_and_bonds                           | ... < 100 DM,100 <= ... < 500 DM                                                                                                     |    12.1585 |
+|  7 | savings_account_and_bonds                           | 缺失值                                                                                                                               |     3.2466 |
+|  8 | present_employment_since                            | 4 <= ... < 7 years,... >= 7 years                                                                                                    |     9.4896 |
+|  9 | present_employment_since                            | 缺失值,unemployed,1 <= ... < 4 years,... < 1 year                                                                                    |     3.8957 |
+| 10 | age_in_years                                        | [负无穷 , 35.0)                                                                                                                      |     0.8917 |
+| 11 | age_in_years                                        | [35.0 , 正无穷)                                                                                                                      |    10.8457 |
+| 12 | age_in_years                                        | 缺失值                                                                                                                               |     6.7213 |
+| 13 | property                                            | real estate                                                                                                                          |    11.2541 |
+| 14 | property                                            | 缺失值,building society savings agreement/ life insurance,unknown / no property,car or other, not in attribute Savings account/bonds |     4.0428 |
+| 15 | personal_status_and_sex                             | 缺失值,female : divorced/separated/married                                                                                           |     7.8997 |
+| 16 | personal_status_and_sex                             | male : single,male : married/widowed,male : divorced/separated                                                                       |     3.7463 |
+| 17 | credit_amount                                       | [负无穷 , 2145.0)                                                                                                                    |     8.0057 |
+| 18 | credit_amount                                       | [2145.0 , 3804.0)                                                                                                                    |    14.2751 |
+| 19 | credit_amount                                       | [3804.0 , 正无穷)                                                                                                                    |    -2.6347 |
+| 20 | credit_amount                                       | 缺失值                                                                                                                               |     2.1778 |
+| 21 | status_of_existing_checking_account                 | no checking account                                                                                                                  |    22.4653 |
+| 22 | status_of_existing_checking_account                 | 缺失值,... >= 200 DM / salary assignments for at least 1 year                                                                        |     6.6694 |
+| 23 | status_of_existing_checking_account                 | 0 <= ... < 200 DM                                                                                                                    |     0.0181 |
+| 24 | status_of_existing_checking_account                 | ... < 0 DM                                                                                                                           |    -4.8558 |
+
+
+### 评分卡全流程超参数搜索
+
+```python
+# 导入超参数搜索方法
+from sklearn.model_selection import GridSearchCV
+
+# 构建 pipeline
+model_pipeline = Pipeline([
+    ("preprocessing", FeatureSelection(target=target, engine="scorecardpy")),
+    ("combiner", Combiner(target=target, min_bin_size=0.2)),
+    ("transform", WOETransformer(target=target)),
+    ("processing_select", FeatureSelection(target=target, engine="toad")),
+    ("stepwise", StepwiseSelection(target=target)),
+    ("logistic", ITLubberLogisticRegression(target=target)),
+])
+
+# 定义超参数搜索空间，参数命名: {pipeline名称}__{对应超参数名称}
+params_grid = {
+    "combiner__max_n_bins": [3],
+    "logistic__C": [np.power(2, i) for i in range(5)],
+    "logistic__penalty": ["l2"],
+    "logistic__class_weight": [None, "balanced"] + [{1: i / 10.0, 0: 1 - i / 10.0} for i in range(1, 10, 2)],
+    "logistic__max_iter": [10, 50, 100],
+    "logistic__solver": ["sag"], # ["liblinear", "sag", "lbfgs", "newton-cg"],
+}
+
+pipeline_grid_search = GridSearchCV(model_pipeline, params_grid, cv=3, scoring='roc_auc', verbose=1, n_jobs=-1, return_train_score=True)
+pipeline_grid_search.fit(train, train[target])
+
+print(pipeline_grid_search.best_params_)
+
+# 更新模型
+model_pipeline.set_params(**pipeline_grid_search.best_params_)
+model_pipeline.fit(train)
+
+# 转换评分卡
+card = ScoreCard(target=target, pipeline=model_pipeline, base_score=50, base_odds=(1 - bad_rate) / bad_rate, pdo=10)
+card.fit(model_pipeline[:-1].transform(train))
+```
 
 
 ### 模型报告输出
 
+在 `scorecardpipeline` 中，提供了操作 `excel` 文件的写入器 `ExcelWriter`，支持将文字、表格、图像等过程内容保存至 `excel` 文件中，对相关方法抽象和封装后，能够满足日常大部分数据分析过程中结果保存的需求。
 
-### 模型持久化存储
+`ExcelWriter`支持调整列宽、调整单元格格式、条件格式、指定位置插入数据、插入图片等功能，且提供了 `dataframe2excel` 来在日常工作中快速保存 `dataframe` 至 `excel` 文件中，并且自动设置样式。
+
+```python
+# 初始化 Excel 写入器
+writer = sp.ExcelWriter()
+
+start_row, start_col = 2, 2
+
+# ////////////////////////////////////// 样本说明 ///////////////////////////////////// #
+worksheet = writer.get_sheet_by_name("汇总信息")
+
+# 样本总体分布情况
+end_row, end_col = writer.insert_value2sheet(worksheet, (start_row, start_col), value="样本总体分布情况", style="header")
+end_row, end_col = sp.dataframe2excel(dataset_summary, writer, worksheet, percent_cols=["样本占比", "坏客户占比"], start_row=end_row + 1)
+
+# 建模样本时间分布情况
+temp = sp.distribution_plot(df, date="date", target=target, save="model_report/all_sample_time_count.png", result=True)
+end_row, end_col = writer.insert_value2sheet(worksheet, (end_row + 2, start_col), value="建模样本时间分布情况", style="header")
+end_row, end_col = writer.insert_pic2sheet(worksheet, "model_report/all_sample_time_count.png", (end_row, start_col), figsize=(720, 370))
+end_row, end_col = sp.dataframe2excel(temp, writer, worksheet, percent_cols=["样本占比", "好样本占比", "坏样本占比", "坏样本率"], condition_cols=["坏样本率"], start_row=end_row)
+
+# ////////////////////////////////////// 模型报告 ///////////////////////////////////// #
+summary = logistic.summary2(feature_map=feature_map)
+
+# 逻辑回归拟合情况
+worksheet = writer.get_sheet_by_name("逻辑回归拟合结果")
+
+end_row, end_col = writer.insert_value2sheet(worksheet, (start_row, start_col), value="逻辑回归拟合效果", style="header")
+end_row, end_col = sp.dataframe2excel(summary, writer, worksheet, condition_cols=["Coef."], start_row=end_row + 1)
+
+end_row, end_col = writer.insert_value2sheet(worksheet, (end_row + 2, start_col), value="训练数据集拟合报告", style="header")
+end_row, end_col = sp.dataframe2excel(logistic.report(train_woe_stepwise), writer, worksheet, percent_cols=["precision", "recall", "f1-score"], start_row=end_row + 1)
+
+end_row, end_col = writer.insert_value2sheet(worksheet, (end_row + 2, start_col), value="测试数据集拟合报告", style="header")
+end_row, end_col = sp.dataframe2excel(logistic.report(test_woe_stepwise), writer, worksheet, percent_cols=["precision", "recall", "f1-score"], start_row=end_row + 1)
+
+# ////////////////////////////////////// 特征概述 ///////////////////////////////////// #
+worksheet = writer.get_sheet_by_name("模型变量信息")
+
+start_row, start_col = 2, 2
+end_row, end_col = writer.insert_value2sheet(worksheet, (start_row, start_col), value="入模变量信息", style="header")
+end_row, end_col = writer.insert_df2sheet(worksheet, feature_describe.reset_index().rename(columns={"index": "序号"}), (end_row + 1, start_col))
+
+# 变量分布情况
+import toad
+data_info = toad.detect(data[card.rules.keys()]).reset_index().rename(columns={"index": "变量名称", "type": "变量类型", "size": "样本个数", "missing": "缺失值", "unique": "唯一值个数"})
+end_row, end_col = writer.insert_value2sheet(worksheet, (end_row + 2, start_col), value="变量分布情况", style="header")
+end_row, end_col = writer.insert_df2sheet(worksheet, data_info, (end_row + 1, start_col))
+
+# 变量相关性
+data_corr = train_woe_stepwise.corr()
+logistic.corr(train_woe_stepwise, save="model_report/train_corr.png", annot=False)
+end_row, end_col = writer.insert_value2sheet(worksheet, (end_row + 2, start_col), value="变量相关性", style="header")
+end_row, end_col = writer.insert_pic2sheet(worksheet, "model_report/train_corr.png", (end_row + 1, start_col), figsize=(700, 500))
+end_row, end_col = sp.dataframe2excel(data_corr.reset_index().rename(columns={"index": ""}), writer, worksheet, color_cols=list(data_corr.columns), start_row=end_row + 1)
+
+# 变量分箱信息
+end_row, end_col = writer.insert_value2sheet(worksheet, (end_row + 2, start_col), value="变量分箱信息", style="header")
+
+for col in logistic.feature_names_in_:
+    feature_table = sp.feature_bin_stats(data, col, target=target, desc=feature_map.get(col, "") or "逻辑回归入模变量", combiner=combiner)
+    _ = sp.bin_plot(feature_table, desc=feature_map.get(col, "") or "逻辑回归入模变量", figsize=(8, 4), save=f"model_report/bin_plots/data_{col}.png")
+    
+    end_row, end_col = writer.insert_pic2sheet(worksheet, f"model_report/bin_plots/data_{col}.png", (end_row + 1, start_col), figsize=(700, 400))
+    end_row, end_col = sp.dataframe2excel(feature_table, writer, worksheet, percent_cols=["样本占比", "好样本占比", "坏样本占比", "坏样本率", "LIFT值", "累积LIFT值"], condition_cols=["坏样本率", "LIFT值"], start_row=end_row)
+
+# ////////////////////////////////////// 评分卡说明 ///////////////////////////////////// #
+worksheet = writer.get_sheet_by_name("评分卡结果")
+
+# 评分卡刻度
+scorecard_kedu = card.scorecard_scale()
+scorecard_points = card.scorecard_points(feature_map=feature_map)
+scorecard_clip = card.score_clip(train["score"], clip=100)
+
+start_row, start_col = 2, 2
+end_row, end_col = writer.insert_value2sheet(worksheet, (start_row, start_col), value="评分卡刻度", style="header")
+end_row, end_col = writer.insert_df2sheet(worksheet, scorecard_kedu, (end_row + 1, start_col))
+
+# 评分卡对应分数
+end_row, end_col = writer.insert_value2sheet(worksheet, (end_row + 2, start_col), value="评分卡分数", style="header")
+end_row, end_col = writer.insert_df2sheet(worksheet, scorecard_points, (end_row + 1, start_col), merge_column="变量名称")
+
+# 评分效果
+score_table_train = sp.feature_bin_stats(train, "score", desc="测试集模型评分", target=target, rules=scorecard_clip)
+score_table_test = sp.feature_bin_stats(test, "score", desc="测试集模型评分", target=target, rules=scorecard_clip)
+
+sp.ks_plot(train["score"], train[target], title="Train \tDataset", save="model_report/train_ksplot.png")
+sp.ks_plot(test["score"], test[target], title="Test \tDataset", save="model_report/test_ksplot.png")
+
+sp.hist_plot(train["score"], train[target], save="model_report/train_scorehist.png", bins=30)
+sp.hist_plot(test["score"], test[target], save="model_report/test_scorehist.png", bins=30)
+
+end_row, end_col = writer.insert_value2sheet(worksheet, (end_row + 2, start_col), value="训练数据集评分模型效果", style="header")
+ks_row = end_row
+end_row, end_col = writer.insert_pic2sheet(worksheet, "model_report/train_ksplot.png", (ks_row, start_col))
+end_row, end_col = writer.insert_pic2sheet(worksheet, "model_report/train_scorehist.png", (ks_row, end_col))
+end_row, end_col = sp.dataframe2excel(score_table_train, writer, worksheet, percent_cols=["样本占比", "好样本占比", "坏样本占比", "坏样本率", "LIFT值", "累积LIFT值", "分档KS值"], condition_cols=["坏样本率", "LIFT值", "分档KS值"], start_row=end_row + 1)
+
+end_row, end_col = writer.insert_value2sheet(worksheet, (end_row + 2, start_col), value="测试数据集评分模型效果", style="header")
+ks_row = end_row
+end_row, end_col = writer.insert_pic2sheet(worksheet, "model_report/test_ksplot.png", (ks_row, start_col))
+end_row, end_col = writer.insert_pic2sheet(worksheet, "model_report/test_scorehist.png", (ks_row, end_col))
+end_row, end_col = sp.dataframe2excel(score_table_test, writer, worksheet, percent_cols=["样本占比", "好样本占比", "坏样本占比", "坏样本率", "LIFT值", "累积LIFT值", "分档KS值"], condition_cols=["坏样本率", "LIFT值", "分档KS值"], start_row=end_row + 1)
+
+# ////////////////////////////////////// 模型稳定性 ///////////////////////////////////// #
+worksheet = writer.get_sheet_by_name("模型稳定性")
+start_row, start_col = 2, 2
+
+# 评分分布稳定性
+train_test_score_psi = sp.psi_plot(score_table_train, score_table_test, labels=["训练数据集", "测试数据集"], save="model_report/train_test_psiplot.png", result=True)
+
+end_row, end_col = writer.insert_value2sheet(worksheet, (start_row, start_col), value="模型评分稳定性指标 (Population Stability Index, PSI): 训练数据集 vs 测试数据集", style="header")
+end_row, end_col = writer.insert_pic2sheet(worksheet, "model_report/train_test_psiplot.png", (end_row, start_col), figsize=(800, 400))
+end_row, end_col = sp.dataframe2excel(train_test_score_psi, writer, worksheet, percent_cols=["训练数据集样本占比", "训练数据集坏样本率", "测试数据集样本占比", "测试数据集坏样本率"], condition_cols=["分档PSI值"], start_row=end_row + 1)
+
+# 变量 PSI 表
+for col in card._feature_names:
+    feature_table_train = sp.feature_bin_stats(train, col, target=target, desc=feature_map.get(col, "") or "逻辑回归入模变量", combiner=combiner)
+    feature_table_test = sp.feature_bin_stats(test, col, target=target, desc=feature_map.get(col, "") or "逻辑回归入模变量", combiner=combiner)
+    psi_table = sp.psi_plot(feature_table_train, feature_table_test, desc=col, result=True, plot=True, max_len=35, figsize=(10, 6), labels=["训练数据集", "测试数据集"], save=f"model_report/psi_{col}.png")
+    
+    end_row, end_col = writer.insert_pic2sheet(worksheet, f"model_report/psi_{col}.png", (end_row, start_col), figsize=(700, 400))
+    end_row, end_col = sp.dataframe2excel(psi_table, writer, worksheet, percent_cols=["训练数据集样本占比", "训练数据集坏样本率", "测试数据集样本占比", "测试数据集坏样本率", "测试数据集% - 训练数据集%"], condition_cols=["分档PSI值"], start_row=end_row + 1)
+
+# 变量 CSI 表
+end_row, end_col = writer.insert_value2sheet(worksheet, (end_row + 2, start_col), value="入模变量稳定性指标 (Characteristic Stability Index, CSI): 训练数据集 vs 测试数据集", style="header")
+
+for col in card._feature_names:
+    feature_table_train = sp.feature_bin_stats(train, col, target=target, desc=feature_map.get(col, "") or "逻辑回归入模变量", combiner=combiner)
+    feature_table_test = sp.feature_bin_stats(test, col, target=target, desc=feature_map.get(col, "") or "逻辑回归入模变量", combiner=combiner)
+    train_test_csi_table = sp.csi_plot(feature_table_train, feature_table_test, card[col], desc=col, result=True, plot=True, max_len=35, figsize=(10, 6), labels=["训练数据集", "测试数据集"], save=f"model_report/csi_{col}.png")
+    
+    end_row, end_col = writer.insert_pic2sheet(worksheet, f"model_report/csi_{col}.png", (end_row, start_col), figsize=(700, 400))
+    end_row, end_col = sp.dataframe2excel(train_test_csi_table, writer, worksheet, percent_cols=["训练数据集样本占比", "训练数据集坏样本率", "测试数据集样本占比", "测试数据集坏样本率", "测试数据集% - 训练数据集%"], condition_cols=["分档CSI值"], start_row=end_row + 1)
+
+# 保存结果文件
+writer.save("model_report/评分卡模型报告.xlsx")
+```
+
+<div style="display: flex; justify-content: space-around; ">
+    <img width="80%" src="https://itlubber.art/upload/scorecardpipeline.png" />
+</div>
 
 
 ## 交流

@@ -572,11 +572,11 @@ def psi_plot(expected, actual, labels=["预期", "实际"], desc="", save=None, 
         ax1.tick_params(axis='x', labelrotation=90)
 
         ax2 = ax1.twinx()
-        ax2.plot(df_psi["分箱"], df_psi[f"{labels[0]}坏样本率"], color=colors[0], label=f"{labels[0]}坏样本率", linestyle=(5, (10, 3)))
-        ax2.plot(df_psi["分箱"], df_psi[f"{labels[1]}坏样本率"], color=colors[1], label=f"{labels[1]}坏样本率", linestyle=(5, (10, 3)))
+        ax2.plot(x, df_psi[f"{labels[0]}坏样本率"], color=colors[0], label=f"{labels[0]}坏样本率", linestyle=(5, (10, 3)))
+        ax2.plot(x, df_psi[f"{labels[1]}坏样本率"], color=colors[1], label=f"{labels[1]}坏样本率", linestyle=(5, (10, 3)))
 
-        ax2.scatter(df_psi["分箱"], df_psi[f"{labels[0]}坏样本率"], marker=".")
-        ax2.scatter(df_psi["分箱"], df_psi[f"{labels[1]}坏样本率"], marker=".")
+        ax2.scatter(x, df_psi[f"{labels[0]}坏样本率"], marker=".")
+        ax2.scatter(x, df_psi[f"{labels[1]}坏样本率"], marker=".")
 
         ax2.set_ylabel('坏样本率: 坏样本数 / 样本总数')
 
@@ -629,7 +629,7 @@ def csi_plot(expected, actual, score_bins, labels=["预期", "实际"], desc="",
     df_csi["指标名称"] = desc
 
     if plot:
-        x = df_csi['分箱'].apply(lambda l: l if max_len is None or len(str(l)) < max_len else f"{str(l)[:max_len]}...")
+        x = df_csi['分箱'].apply(lambda l: str(l) if pd.isnull(l) or len(str(l)) < max_len else f"{str(l)[:max_len]}...")
         x_indexes = np.arange(len(x))
         fig, ax1 = plt.subplots(figsize=figsize)
 
@@ -642,11 +642,11 @@ def csi_plot(expected, actual, score_bins, labels=["预期", "实际"], desc="",
         ax1.tick_params(axis='x', labelrotation=90)
 
         ax2 = ax1.twinx()
-        ax2.plot(df_csi["分箱"], df_csi[f"{labels[0]}坏样本率"], color=colors[0], label=f"{labels[0]}坏样本率", linestyle=(5, (10, 3)))
-        ax2.plot(df_csi["分箱"], df_csi[f"{labels[1]}坏样本率"], color=colors[1], label=f"{labels[1]}坏样本率", linestyle=(5, (10, 3)))
+        ax2.plot(x, df_csi[f"{labels[0]}坏样本率"], color=colors[0], label=f"{labels[0]}坏样本率", linestyle=(5, (10, 3)))
+        ax2.plot(x, df_csi[f"{labels[1]}坏样本率"], color=colors[1], label=f"{labels[1]}坏样本率", linestyle=(5, (10, 3)))
 
-        ax2.scatter(df_csi["分箱"], df_csi[f"{labels[0]}坏样本率"], marker=".")
-        ax2.scatter(df_csi["分箱"], df_csi[f"{labels[1]}坏样本率"], marker=".")
+        ax2.scatter(x, df_csi[f"{labels[0]}坏样本率"], marker=".")
+        ax2.scatter(x, df_csi[f"{labels[1]}坏样本率"], marker=".")
 
         ax2.set_ylabel('坏样本率: 坏样本数 / 样本总数')
 

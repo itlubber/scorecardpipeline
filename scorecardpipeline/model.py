@@ -439,6 +439,51 @@ class ScoreCard(toad.ScoreCard, TransformerMixin):
         )
         return scorecard_kedu
 
+    @classmethod
+    def format_bins(self, bins, index=False, ellipsis=None, decimal=4):
+        """分箱转换为标签
+
+        :param bins: 分箱
+        :param index: 是否需要索引
+        :param ellipsis: 字符显示最大长度
+
+        :return: ndarray: 分箱标签
+        """
+        if len(bins) == 0:
+            return ["全部样本"]
+
+        if isinstance(bins, list): bins = np.array(bins)
+        EMPTYBINS = len(bins) if not isinstance(bins[0], (set, list, np.ndarray)) else -1
+
+        l = []
+        if not isinstance(bins[0], (set, list, np.ndarray)):
+            has_empty = len(bins) > 0 and pd.isnull(bins[-1])
+            if has_empty: bins = bins[:-1]
+            sp_l = ["负无穷"] + [round_float(b, decimal=decimal) for b in bins] + ["正无穷"]
+            for i in range(len(sp_l) - 1): l.append('[' + str(sp_l[i]) + ' , ' + str(sp_l[i + 1]) + ')')
+            if has_empty: l.append('缺失值')
+        else:
+            for keys in bins:
+                keys_update = set()
+                for key in keys:
+                    if pd.isnull(key) or key == "nan":
+                        keys_update.add("缺失值")
+                    elif key.strip() == "":
+                        keys_update.add("空字符串")
+                    else:
+                        keys_update.add(key)
+                label = ','.join(keys_update)
+
+                if ellipsis is not None:
+                    label = label[:ellipsis] + '..' if len(label) > ellipsis else label
+
+                l.append(label)
+
+        if index:
+            l = ["{:02}.{}".format(i if b != '缺失值' else EMPTYBINS, b) for i, b in enumerate(l)]
+
+        return np.array(l)
+
     def scorecard_points(self, feature_map={}):
         """输出评分卡分箱信息及其对应的分数
 
@@ -476,10 +521,10 @@ class ScoreCard(toad.ScoreCard, TransformerMixin):
                 mapping = {}
                 for bins, score in zip(rule['bins'], rule['scores'].tolist()):
                     for _bin in bins:
-                        if _bin == 'nan':
+                        if pd.isnull(_bin) or _bin == 'nan':
                             default_value = float(score)
-
-                        mapping[_bin] = float(score)
+                        else:
+                            mapping[_bin] = float(score)
 
                 mapper.append((
                     [var],
@@ -532,7 +577,12 @@ class ScoreCard(toad.ScoreCard, TransformerMixin):
 
         pipeline.named_steps['scorecard'].coef_ = np.ones(len(scorecard_mapper.features))
 
-        sklearn2pmml(pipeline, pmml, with_repr=True, debug=debug)
+        try:
+            sklearn2pmml(pipeline, pmml, with_repr=True, debug=debug)
+        except:
+            import traceback
+            print(traceback.format_exc())
+            return pipeline
 
         if debug:
             return pipeline
