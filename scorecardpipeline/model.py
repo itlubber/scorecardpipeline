@@ -400,7 +400,11 @@ class ScoreCard(toad.ScoreCard, TransformerMixin):
                         raise Exception('column \'{col}\' is not matched, assert {l_t} bins but given {l_c}'.format(col=col, l_t=l_t, l_c=l_c + 1))
             else:
                 if l_c != l_t:
-                    raise Exception('column \'{col}\' is not matched, assert {l_t} bins but given {l_c}'.format(col=col, l_t=l_t, l_c=l_c))
+                    if sum([sum([1 for b in r if b in ("nan", "None")]) for r in combiner[col]]) > 0:
+                        combiner.update({col: [[np.nan if b == "nan" else (None if b == "None" else b)  for b in r] for r in combiner[col]]})
+                        self._check_rules(combiner, transer)
+                    else:
+                        raise Exception('column \'{col}\' is not matched, assert {l_t} bins but given {l_c}'.format(col=col, l_t=l_t, l_c=l_c))
 
         return True
 

@@ -486,7 +486,7 @@ def hist_plot(score, y_true=None, figsize=(15, 10), bins=30, save=None, labels=[
     :return: Figure
     """
     fig, ax = plt.subplots(1, 1, figsize=figsize)
-    palette = sns.diverging_palette(340, 267, n=2, s=100, l=40)
+    palette = sns.diverging_palette(340, 267, n=y_true.nunique() if y_true else 1, s=100, l=40)
 
     sns.histplot(
         x=score, hue=y_true.replace({i: v for i, v in enumerate(labels)}) if y_true is not None else y_true, element="step", stat="probability", bins=bins, common_bins=True, common_norm=True, palette=palette, ax=ax, **kwargs

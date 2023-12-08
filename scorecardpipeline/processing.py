@@ -490,7 +490,7 @@ class Combiner(TransformerMixin, BaseEstimator):
         
         # 处理数据集中分类变量包含 np.nan，toad 分箱后被转为 'nan' 字符串的问题
         cat_cols = list(x.drop(columns=self.target).select_dtypes(exclude="number").columns)
-        x[cat_cols] = x[cat_cols].replace(np.nan, None)
+        # x[cat_cols] = x[cat_cols].replace(np.nan, None)
         
         if self.method in ["cart", "mdlp", "uniform"]:
             feature_optbinning_bins = partial(self.optbinning_bins, data=x, target=self.target, min_n_bins=self.min_n_bins, max_n_bins=self.max_n_bins, max_n_prebins=self.max_n_prebins, min_prebin_size=self.min_prebin_size, min_bin_size=self.min_bin_size, max_bin_size=self.max_bin_size, gamma=self.gamma, monotonic_trend=self.monotonic_trend)
@@ -509,6 +509,13 @@ class Combiner(TransformerMixin, BaseEstimator):
         self.update(self.adj_rules)
 
         return self
+    
+    def _check_rules(self):
+        """检查类别变量空值是否被转为字符串，如果转为了字符串，强制转回空值"""
+        for col in self.combiner.rules.keys():
+            if not np.issubdtype(self.combiner[col].dtype, np.number):
+                if sum([sum([1 for b in r if b in ("nan", "None")]) for r in self.combiner[col]]) > 0:
+                    self.combiner.update({col: [[np.nan if b in ("nan", "None") else b for b in r] for r in self.combiner[col]]})
 
     def transform(self, x, y=None, labels=False):
         """特征分箱转换方法
