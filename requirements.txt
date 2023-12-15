@@ -19,3 +19,4 @@ pypmml
 joblib>=0.12
 six>=1.15.0
 openpyxl==3.0.7
+sweetviz

@@ -14,12 +14,13 @@ from .utils import *
 from .processing import FeatureSelection, FeatureImportanceSelector, StepwiseSelection, Combiner, WOETransformer
 from .model import ITLubberLogisticRegression, ScoreCard
 from .excel_writer import ExcelWriter, dataframe2excel
+from .auto_eda import auto_eda_sweetviz
 
 
 feature_bin_stats = Combiner.feature_bin_stats
 
 
-__version__ = "0.1.27"
+__version__ = "0.1.28"
 __all__ = (
     "__version__"
     , "FeatureSelection", "FeatureImportanceSelector", "StepwiseSelection", "Combiner", "WOETransformer"
@@ -29,5 +30,5 @@ __all__ = (
     , "ColorScaleRule", "get_column_letter", "column_index_from_string", "seed_everything"
     , "feature_bins", "feature_bin_stats", "extract_feature_bin", "inverse_feature_bins"
     , "bin_plot", "corr_plot", "ks_plot", "hist_plot", "psi_plot", "csi_plot", "dataframe_plot", "distribution_plot"
-    , "ExcelWriter", "dataframe2excel",
+    , "ExcelWriter", "dataframe2excel", "auto_eda_sweetviz",
 )
