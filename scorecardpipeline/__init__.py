@@ -20,7 +20,7 @@ from .auto_eda import auto_eda_sweetviz
 feature_bin_stats = Combiner.feature_bin_stats
 
 
-__version__ = "0.1.28"
+__version__ = "0.1.29"
 __all__ = (
     "__version__"
     , "FeatureSelection", "FeatureImportanceSelector", "StepwiseSelection", "Combiner", "WOETransformer"
