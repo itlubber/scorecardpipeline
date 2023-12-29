@@ -25,6 +25,24 @@ scorecardpipeline.model
    :show-inheritance:
 
 
+scorecardpipeline.auto_eda
+======================================
+
+.. automodule:: scorecardpipeline.auto_eda
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+
+scorecardpipeline.auto_report
+======================================
+
+.. automodule:: scorecardpipeline.auto_report
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+
 scorecardpipeline.utils
 ======================================
 
