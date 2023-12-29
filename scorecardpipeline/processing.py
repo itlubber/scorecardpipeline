@@ -567,7 +567,7 @@ class Combiner(TransformerMixin, BaseEstimator):
         return self
 
     @classmethod
-    def feature_bin_stats(cls, data, feature, target="target", rules=None, method='step', desc="", combiner=None, ks=True, max_n_bins=None, min_bin_size=None, max_bin_size=None, empty_separate=True, return_cols=None, return_rules=False, verbose=0, **kwargs):
+    def feature_bin_stats(cls, data, feature, target="target", rules=None, method='step', desc="", combiner=None, ks=True, max_n_bins=None, min_bin_size=None, max_bin_size=None, greater_is_better="auto", empty_separate=True, return_cols=None, return_rules=False, verbose=0, **kwargs):
         """特征分箱统计表，汇总统计特征每个分箱的各项指标信息
 
         :param data: 需要查看分箱统计表的数据集
@@ -584,6 +584,7 @@ class Combiner(TransformerMixin, BaseEstimator):
         :param empty_separate: 是否空值单独一箱, 默认 False，推荐设置为 True
         :param return_cols: list，指定返回部分特征分箱统计表的列，默认 None
         :param return_rules: 是否返回特征分箱信息，默认 False
+        :param greater_is_better: 是否越大越好，默认 ""auto", 根据最后两箱的 lift 指标自动推断是否越大越好, 可选 True、False、auto
         :param kwargs: scorecardpipeline.processing.Combiner 的其他参数
 
         :return:
@@ -646,13 +647,39 @@ class Combiner(TransformerMixin, BaseEstimator):
         table['指标IV值'] = table['分档IV值'].sum()
 
         table["LIFT值"] = table['坏样本率'] / (table["坏样本数"].sum() / table["样本总数"].sum())
-        table["累积LIFT值"] = (table['坏样本数'].cumsum() / table['样本总数'].cumsum()) / (table["坏样本数"].sum() / table["样本总数"].sum())
-
-        if ks:
-            table = table.sort_values("分箱")
-            table["累积好样本数"] = table["好样本数"].cumsum()
-            table["累积坏样本数"] = table["坏样本数"].cumsum()
-            table["分档KS值"] = table["累积坏样本数"] / table['坏样本数'].sum() - table["累积好样本数"] / table['好样本数'].sum()
+        
+        def reverse_series(series):
+            return series.reindex(series.index[::-1])
+        
+        if greater_is_better == "auto":
+            if table["LIFT值"].iloc[-1] > table["LIFT值"].iloc[0]:
+                table["累积LIFT值"] = (reverse_series(table['坏样本数']).cumsum() / reverse_series(table['样本总数']).cumsum()) / (table["坏样本数"].sum() / table["样本总数"].sum())
+                if ks:
+                    table = table.sort_values("分箱")
+                    table["累积好样本数"] = reverse_series(table["好样本数"]).cumsum()
+                    table["累积坏样本数"] = reverse_series(table["坏样本数"]).cumsum()
+                    table["分档KS值"] = table["累积坏样本数"] / table['坏样本数'].sum() - table["累积好样本数"] / table['好样本数'].sum()
+            else:
+                table["累积LIFT值"] = (table['坏样本数'].cumsum() / table['样本总数'].cumsum()) / (table["坏样本数"].sum() / table["样本总数"].sum())
+                if ks:
+                    table = table.sort_values("分箱")
+                    table["累积好样本数"] = table["好样本数"].cumsum()
+                    table["累积坏样本数"] = table["坏样本数"].cumsum()
+                    table["分档KS值"] = table["累积坏样本数"] / table['坏样本数'].sum() - table["累积好样本数"] / table['好样本数'].sum()
+        elif greater_is_better is False:
+            table["累积LIFT值"] = (reverse_series(table['坏样本数']).cumsum() / reverse_series(table['样本总数']).cumsum()) / (table["坏样本数"].sum() / table["样本总数"].sum())
+            if ks:
+                table = table.sort_values("分箱")
+                table["累积好样本数"] = reverse_series(table["好样本数"]).cumsum()
+                table["累积坏样本数"] = reverse_series(table["坏样本数"]).cumsum()
+                table["分档KS值"] = table["累积坏样本数"] / table['坏样本数'].sum() - table["累积好样本数"] / table['好样本数'].sum()
+        else:
+            table["累积LIFT值"] = (table['坏样本数'].cumsum() / table['样本总数'].cumsum()) / (table["坏样本数"].sum() / table["样本总数"].sum())
+            if ks:
+                table = table.sort_values("分箱")
+                table["累积好样本数"] = table["好样本数"].cumsum()
+                table["累积坏样本数"] = table["坏样本数"].cumsum()
+                table["分档KS值"] = table["累积坏样本数"] / table['坏样本数'].sum() - table["累积好样本数"] / table['好样本数'].sum()
 
         table["分箱"] = table["分箱"].map(feature_bin_dict)
         table = table.set_index(['指标名称', '指标含义', '分箱']).reindex([(feature, desc, b) for b in feature_bin_dict.values()]).fillna(0).reset_index()
