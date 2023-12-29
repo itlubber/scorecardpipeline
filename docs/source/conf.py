@@ -29,6 +29,9 @@ copyright = '2023, itlubber'
 author = 'itlubber'
 
 # The full version, including alpha/beta/rc tags
+import sys
+sys.path.append("../../scorecardpipeline")
+
 import scorecardpipeline
 
 release = scorecardpipeline.__version__
