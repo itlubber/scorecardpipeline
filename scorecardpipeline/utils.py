@@ -469,7 +469,7 @@ def ks_plot(score, target, title="", fontsize=14, figsize=(16, 8), save=None, co
     return fig
 
 
-def hist_plot(score, y_true=None, figsize=(15, 10), bins=30, save=None, labels=["坏样本", "好样本"], anchor=1.1, fontsize=14, **kwargs):
+def hist_plot(score, y_true=None, figsize=(15, 10), bins=30, save=None, labels=["好样本", "坏样本"], anchor=1.1, fontsize=14, **kwargs):
     """
     数值特征分布图
 
@@ -478,7 +478,7 @@ def hist_plot(score, y_true=None, figsize=(15, 10), bins=30, save=None, labels=[
     :param figsize: 图像大小，默认 (15, 10)
     :param bins: 分箱数量大小，默认 30
     :param save: 图片保存的地址，如果传入路径中有文件夹不存在，会新建相关文件夹，默认 None
-    :param labels: 图例显示的分类名称，默认 ["坏样本", "好样本"]
+    :param labels: 字典或列表，图例显示的分类名称，默认 ["好样本", "坏样本"]，按照目标变量顺序对应即可，从0开始
     :param anchor: 图例显示的位置，默认 1.1，根据实际显示情况进行调整即可，1.1 附近小范围调整
     :param fontsize: 字体大小，默认 14
     :param kwargs: sns.histplot 函数其他参数，参考：https://seaborn.pydata.org/generated/seaborn.histplot.html
@@ -490,32 +490,35 @@ def hist_plot(score, y_true=None, figsize=(15, 10), bins=30, save=None, labels=[
     if y_true is not None:
         if isinstance(labels, dict):
             y_true = y_true.map(labels)
+            hue_order = list(labels.values())
         else:
             y_true = y_true.map({i: v for i, v in enumerate(labels)})
+            hue_order = labels
     else:
         y_true = None
+        hue_order = None
     
     fig, ax = plt.subplots(1, 1, figsize=figsize)
     palette = sns.diverging_palette(340, 267, n=target_unique, s=100, l=40)
 
     sns.histplot(
-        x=score, hue=y_true, element="step", stat="probability", bins=bins, common_bins=True, common_norm=True, palette=palette, ax=ax, **kwargs
+        x=score, hue=y_true, element="step", stat="probability", bins=bins, common_bins=True, common_norm=True, palette=palette, hue_order=hue_order[::-1], ax=ax, **kwargs
     )
 
-    sns.despine()
+    # sns.despine()
 
     ax.spines['top'].set_color("#2639E9")
     ax.spines['bottom'].set_color("#2639E9")
     ax.spines['right'].set_color("#2639E9")
     ax.spines['left'].set_color("#2639E9")
 
-    ax.set_xlabel("评分分布", fontsize=fontsize)
+    ax.set_xlabel("分布情况", fontsize=fontsize)
     ax.set_ylabel("样本占比", fontsize=fontsize)
 
     ax.yaxis.set_major_formatter(PercentFormatter(1))
 
     if y_true is not None:
-        ax.legend(labels[:y_true.nunique()], loc='upper center', ncol=y_true.nunique(), bbox_to_anchor=(0.5, anchor), frameon=False, fontsize=fontsize)
+        ax.legend(hue_order, loc='upper center', ncol=y_true.nunique(), bbox_to_anchor=(0.5, anchor), frameon=False, fontsize=fontsize)
 
     fig.tight_layout()
 
