@@ -121,7 +121,7 @@ class ExcelWriter:
 
         self.workbook.move_sheet(worksheet, offset=offset)
 
-    def insert_value2sheet(self, worksheet, insert_space, value="", style="content", auto_width=False):
+    def insert_value2sheet(self, worksheet, insert_space, value="", style="content", auto_width=False, end_space=None):
         """
         向sheet中的某个单元格插入某种样式的内容
 
@@ -129,27 +129,42 @@ class ExcelWriter:
         :param insert_space: 内容插入的单元格位置，可以是 "B2" 或者 (2, 2) 任意一种形式
         :param value: 需要插入的内容
         :param style: 渲染的样式，参考 init_style 中初始设置的样式
+        :param end_space: 如果需要合并单元格，传入需要截止的单元格位置信息，可以是 "B2" 或者 (2, 2) 任意一种形式
         :param auto_width: 是否开启自动调整列宽
 
         :return: 返回插入元素最后一列之后、最后一行之后的位置
         """
         if isinstance(insert_space, str):
-            worksheet[insert_space] = value
-            cell = worksheet[insert_space]
             start_col = re.findall('\D+', insert_space)[0]
             start_row = int(re.findall("\d+", insert_space)[0])
         else:
-            cell = worksheet.cell(insert_space[0], insert_space[1], value)
             start_col = get_column_letter(insert_space[1])
             start_row = insert_space[0]
+
+        cell = worksheet[f"{start_col}{start_row}"]
         cell.style = style
+
+        if end_space is not None:
+            if isinstance(end_space, str):
+                end_col = re.findall('\D+', end_space)[0]
+                end_row = int(re.findall("\d+", end_space)[0])
+            else:
+                end_col = get_column_letter(end_space[1])
+                end_row = end_space[0]
+
+            worksheet.merge_cells(f"{start_col}{start_row}:{end_col}{end_row}")
+
+        worksheet[f"{start_col}{start_row}"] = value
 
         if auto_width:
             curr_width = worksheet.column_dimensions[start_col].width
             auto_width = min(max([(self.check_contain_chinese(value)[1] * self.english_width + self.check_contain_chinese(value)[2] * self.chinese_width) * self.fontsize, 10, curr_width]), 50)
             worksheet.column_dimensions[start_col].width = auto_width
 
-        return start_row + 1, column_index_from_string(start_col) + 1
+        if end_space is not None:
+            return end_row + 1, column_index_from_string(end_col) + 1
+        else:
+            return start_row + 1, column_index_from_string(start_col) + 1
 
     def insert_pic2sheet(self, worksheet, fig, insert_space, figsize=(600, 250)):
         """
@@ -530,7 +545,7 @@ class ExcelWriter:
             self.workbook.close()
 
 
-def dataframe2excel(data, excel_writer, sheet_name=None, title=None, header=True, theme_color="2639E9", fill=True, percent_cols=None, condition_cols=None, custom_cols=None, custom_format="#,##0", color_cols=None, start_col=2, start_row=2, mode="replace", writer_params={}, **kwargs):
+def dataframe2excel(data, excel_writer, sheet_name=None, title=None, header=True, theme_color="2639E9", fill=True, percent_cols=None, condition_cols=None, custom_cols=None, custom_format="#,##0", color_cols=None, start_col=2, start_row=2, mode="replace", figures=None, figsize=(600, 350), writer_params={}, **kwargs):
     """
     向excel文件中插入指定样式的dataframe数据
 
@@ -538,6 +553,8 @@ def dataframe2excel(data, excel_writer, sheet_name=None, title=None, header=True
     :param excel_writer: 需要保存到的 excel 文件路径或者 ExcelWriter
     :param sheet_name: 需要插入内容的sheet，如果是 Worksheet，则直接向 Worksheet 插入数据
     :param title: 是否在dataframe之前的位置插入一个标题
+    :param figures: 需要数据表与标题之间插入的图片，支持一次性传入多张图片的路径，会根据传入顺序依次插入
+    :param figsize: 插入图像的大小，为了统一排版，目前仅支持设置一个图片大小，默认: (600, 350) (长度, 高度)
     :param header: 是否存储dataframe的header，暂不支持多级表头
     :param theme_color: 主题色
     :param fill: 是否使用单元个颜色填充样式还是使用边框样式
@@ -577,8 +594,19 @@ def dataframe2excel(data, excel_writer, sheet_name=None, title=None, header=True
         worksheet = writer.get_sheet_by_name(sheet_name or "Sheet1")
 
     if title:
-        start_row, end_col = writer.insert_value2sheet(worksheet, (start_row, start_col), value=title, style="header")
+        start_row, end_col = writer.insert_value2sheet(worksheet, (start_row, start_col), value=title, style="header", end_space=(start_row, start_col + len(data.reset_index(drop=~kwargs.get("index", False)).columns) - 1))
         start_row += 1
+
+    if figures is not None:
+        if isinstance(figures, str):
+            figures = [figures]
+
+        pic_row = start_row
+        for i, pic in enumerate(figures):
+            if i == 0:
+                start_row, end_col = writer.insert_pic2sheet(worksheet, pic, (pic_row, start_col), figsize=figsize)
+            else:
+                start_row, end_col = writer.insert_pic2sheet(worksheet, pic, (pic_row, end_col - 1), figsize=figsize)
 
     end_row, end_col = writer.insert_df2sheet(worksheet, data, (start_row, start_col), fill=fill, header=header, **kwargs)
 
@@ -617,7 +645,8 @@ if __name__ == "__main__":
     writer = ExcelWriter()
     worksheet = writer.get_sheet_by_name("模型报告")
     end_row, end_col = writer.insert_value2sheet(worksheet, "B2", value="模型报告", style="header")
-    end_row, end_col = writer.insert_value2sheet(worksheet, "B3", value="当前模型主要为评分卡模型", style="content", auto_width=True)
+    end_row, end_col = writer.insert_value2sheet(worksheet, "B3", value="模型报告", style="header", end_space="D3")
+    end_row, end_col = writer.insert_value2sheet(worksheet, "B4", value="当前模型主要为评分卡模型", style="content", auto_width=True)
     sample = pd.DataFrame(np.concatenate([np.random.random_sample((10, 10)) * 40, np.random.randint(0, 3, (10, 2))], axis=1), columns=[f"B{i}" for i in range(10)] + ["target", "type"])
     end_row, end_col = writer.insert_df2sheet(worksheet, sample, (end_row + 2, column_index_from_string("B")))
     end_row, end_col = writer.insert_df2sheet(worksheet, sample, (end_row + 2, column_index_from_string("B")), fill=True)
@@ -626,4 +655,7 @@ if __name__ == "__main__":
     end_row, end_col = writer.insert_df2sheet(worksheet, sample, (end_row + 2, column_index_from_string("B")), merge_column=["target", "type"])
     end_row, end_col = writer.insert_df2sheet(worksheet, sample, (end_row + 2, column_index_from_string("B")), merge_column=[10, 11])
     end_row, end_col = dataframe2excel(sample, writer, sheet_name="模型报告", start_row=end_row + 2, percent_cols=["B2", "B6"], condition_cols=["B3", "B9"], color_cols=["B4"])
+    end_row, end_col = dataframe2excel(sample, writer, sheet_name="模型报告", start_row=end_row + 2, percent_cols=["B2", "B6"], condition_cols=["B3", "B9"], color_cols=["B4"], title="测试样例")
+    end_row, end_col = dataframe2excel(sample, writer, sheet_name="模型报告", start_row=end_row + 2, percent_cols=["B2", "B6"], condition_cols=["B3", "B9"], color_cols=["B4"], title="测试样例", figures=[
+        "../examples/model_report/feature_ks_plot_number_of_existing_credits_at_this_bank.png", "../examples/model_report/psi_duration_in_month.png"])
     writer.save("测试样例.xlsx")

@@ -15,6 +15,7 @@ from .processing import FeatureSelection, FeatureImportanceSelector, StepwiseSel
 from .model import ITLubberLogisticRegression, ScoreCard
 from .excel_writer import ExcelWriter, dataframe2excel
 from .auto_eda import auto_eda_sweetviz
+from .auto_report import auto_data_testing_report
 
 
 feature_bin_stats = Combiner.feature_bin_stats
@@ -30,5 +31,5 @@ __all__ = (
     , "ColorScaleRule", "get_column_letter", "column_index_from_string", "seed_everything"
     , "feature_bins", "feature_bin_stats", "extract_feature_bin", "inverse_feature_bins"
     , "bin_plot", "corr_plot", "ks_plot", "hist_plot", "psi_plot", "csi_plot", "dataframe_plot", "distribution_plot"
-    , "ExcelWriter", "dataframe2excel", "auto_eda_sweetviz",
+    , "ExcelWriter", "dataframe2excel", "auto_eda_sweetviz", "auto_data_testing_report",
 )
