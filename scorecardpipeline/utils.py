@@ -469,7 +469,7 @@ def ks_plot(score, target, title="", fontsize=14, figsize=(16, 8), save=None, co
     return fig
 
 
-def hist_plot(score, y_true=None, figsize=(15, 10), bins=30, save=None, labels=["好样本", "坏样本"], anchor=1.1, fontsize=14, **kwargs):
+def hist_plot(score, y_true=None, figsize=(15, 10), bins=30, save=None, labels=["好样本", "坏样本"], desc="", anchor=1.11, fontsize=14, kde=False, **kwargs):
     """
     数值特征分布图
 
@@ -502,7 +502,7 @@ def hist_plot(score, y_true=None, figsize=(15, 10), bins=30, save=None, labels=[
     palette = sns.diverging_palette(340, 267, n=target_unique, s=100, l=40)
 
     sns.histplot(
-        x=score, hue=y_true, element="step", stat="probability", bins=bins, common_bins=True, common_norm=True, palette=palette, hue_order=hue_order[::-1], ax=ax, **kwargs
+        x=score, hue=y_true, element="step", stat="probability", bins=bins, common_bins=True, common_norm=True, palette=palette, hue_order=hue_order[::-1], ax=ax, kde=kde, **kwargs
     )
 
     # sns.despine()
@@ -512,13 +512,15 @@ def hist_plot(score, y_true=None, figsize=(15, 10), bins=30, save=None, labels=[
     ax.spines['right'].set_color("#2639E9")
     ax.spines['left'].set_color("#2639E9")
 
-    ax.set_xlabel("分布情况", fontsize=fontsize)
+    ax.set_xlabel("值域范围", fontsize=fontsize)
     ax.set_ylabel("样本占比", fontsize=fontsize)
 
     ax.yaxis.set_major_formatter(PercentFormatter(1))
+    
+    ax.set_title(f"{desc + ' ' if desc else '特征'}分布情况\n\n", fontsize=fontsize)
 
     if y_true is not None:
-        ax.legend(hue_order, loc='upper center', ncol=y_true.nunique(), bbox_to_anchor=(0.5, anchor), frameon=False, fontsize=fontsize)
+        ax.legend([t for t in hue_order for _ in range(2)] if kde else hue_order, loc='upper center', ncol=target_unique * 2 if kde else target_unique, bbox_to_anchor=(0.5, anchor), frameon=False, fontsize=fontsize)
 
     fig.tight_layout()
 
