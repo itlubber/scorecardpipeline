@@ -15,7 +15,7 @@ from datetime import datetime, timedelta
 import sweetviz as sv
 
 
-def auto_eda_sweetviz(all_data, target=None, save="auto_eda.html", pairwise=True, labels=None, exclude=None, num_features=None, cat_features=None, text_features=None):
+def auto_eda_sweetviz(all_data, target=None, save="model_report/auto_eda.html", pairwise=True, labels=None, exclude=None, num_features=None, cat_features=None, text_features=None):
     """对数据量和特征个数较少的数据集进行自动 EDA 产出分析报告文档
 
     :param all_data: 需要 EDA 的数据集
