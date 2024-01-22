@@ -7,6 +7,7 @@
 
 import re
 import os
+import copy
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -268,7 +269,7 @@ class ExcelWriter:
             if isinstance(merge_column[0], (int, float)):
                 merge_column = [df.columns.tolist()[col] if col not in df.columns else col for col in merge_column]
 
-            df = df.sort_values(merge_column).reset_index(drop=True)
+            # df = df.sort_values(merge_column).reset_index(drop=True)
 
             merge_cols = [get_column_letter(df.columns.get_loc(col) + column_index_from_string(start_col)) for col in merge_column]
             if header:
@@ -326,14 +327,17 @@ class ExcelWriter:
         # 合并单元格, 仅支持单列, 两列及其以上不进行合并
         if merge and merge_column and merge_cols and len(merge_cols) == 1:
             if header:
-                merge_rows = [start_row + 2] + merge_rows
+                merge_rows = [start_row + df.columns.nlevels] + merge_rows
             else:
-                merge_rows = [r - 1 for r in [start_row + 2] + merge_rows]
+                merge_rows = [start_row] + merge_rows
 
             for s, e in zip(merge_rows[:-1], merge_rows[1:]):
                 if e - s > 1:
                     for merge_col in merge_cols:
-                        worksheet.merge_cells(f"{merge_col}{s - 1}:{merge_col}{e - 1}")
+                        cell_style = worksheet[f"{merge_col}{e - 1}"].style
+                        merged_cell = worksheet[f"{merge_col}{s}"]
+                        merged_cell.style = copy.deepcopy(cell_style)
+                        worksheet.merge_cells(f"{merge_col}{s}:{merge_col}{e - 1}")
 
         end_row = start_row + len(data) + df.columns.nlevels if header else start_row + len(data)
 
@@ -703,4 +707,16 @@ if __name__ == "__main__":
     end_row, end_col = dataframe2excel(multi_sample, writer, sheet_name="模型报告", start_row=end_row + 2, title="测试样例", index=True)
     end_row, end_col = dataframe2excel(multi_sample, writer, sheet_name="模型报告", start_row=end_row + 2, title="测试样例", index=True, fill=False)
     end_row, end_col = dataframe2excel(multi_sample.reset_index(names=multi_sample.index.names, col_level=-1), writer, sheet_name="模型报告", start_row=end_row + 2, title="测试样例", index=False, fill=False, merge_column=[('', '考试类型'), ('', '姓名')])
+    end_row, end_col = dataframe2excel(multi_sample.reset_index(names=multi_sample.index.names, col_level=-1), writer, sheet_name="模型报告", start_row=end_row + 2, title="测试样例", index=False, fill=False, merge_column=[('', '考试类型')], merge=True)
+
+    data = pd.read_pickle("/Users/lubberit/Downloads/black_list.pkl").reset_index(names=[("数据指标", ""), ("渠道", "时间")]).sort_values([("数据指标", ""), ("渠道", "时间")]).reset_index(drop=True)
+    end_row, end_col = dataframe2excel(data, writer, sheet_name="模型报告", start_row=end_row + 2, title="测试样例", index=False, fill=False, merge_column=[("数据指标", "")], merge=True)
+
+    end_row, end_col = dataframe2excel(data, writer, sheet_name="模型报告", start_row=end_row + 2, index=False, fill=True, merge_column=[("数据指标", "")], merge=True)
+    for color_rows in data[data[("渠道", "时间")] == "命中率"].index:
+        rule = ColorScaleRule(start_type='num', start_value=0, start_color='7d5fff', end_type='num', end_value=data.iloc[color_rows, 2:].max(), end_color='ff3838')
+        worksheet.conditional_formatting.add(f"{get_column_letter(2 + 2)}{end_row - len(data) + color_rows}:{get_column_letter(2 + len(data.columns))}{end_row - len(data) + color_rows}", rule)
+        writer.set_number_format(worksheet, f"{get_column_letter(2 + 2)}{end_row - len(data) + color_rows}:{get_column_letter(2 + len(data.columns))}{end_row - len(data) + color_rows}", "0.00%")
+
     writer.save("测试样例.xlsx")
+
