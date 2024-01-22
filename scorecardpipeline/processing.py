@@ -616,6 +616,7 @@ class Combiner(TransformerMixin, BaseEstimator):
             else:
                 _combiner.update(rules)
 
+        auc = toad.metrics.AUC(data[feature], data[target])
         feature_bin_dict = feature_bins(_combiner[feature])
 
         df_bin = _combiner.transform(data[[feature, target]], labels=False)
@@ -652,7 +653,7 @@ class Combiner(TransformerMixin, BaseEstimator):
             return series.reindex(series.index[::-1])
         
         if greater_is_better == "auto":
-            if table[table["分箱"] != "缺失值"]["LIFT值"].iloc[-1] > table["LIFT值"].iloc[0]:
+            if auc < 0.5:
                 table["累积LIFT值"] = (reverse_series(table['坏样本数']).cumsum() / reverse_series(table['样本总数']).cumsum()) / (table["坏样本数"].sum() / table["样本总数"].sum())
                 if ks:
                     table = table.sort_values("分箱")

@@ -279,6 +279,7 @@ def bin_plot(feature_table, desc="", figsize=(10, 6), colors=["#2639E9", "#F76E6
     ax2 = ax1.twiny()
     ax2.plot(feature_table['坏样本率'], feature_table['分箱'], colors[2], label='坏样本率', linestyle='-.')
     ax2.set_xlabel('坏样本率: 坏样本数 / 样本总数')
+    ax2.set_xlim(xmin=0.)
 
     for i, rate in enumerate(feature_table['坏样本率']):
         ax2.scatter(rate, i, color=colors[2])

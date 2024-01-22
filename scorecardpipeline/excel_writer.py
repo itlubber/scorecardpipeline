@@ -260,27 +260,38 @@ class ExcelWriter:
             merge_cols = None
             merge_rows = None
 
-        for i, row in enumerate(dataframe_to_rows(df, header=header, index=index)):
+        def _iterrows(df, header=True, index=True):
+            for i, row in enumerate(dataframe_to_rows(df, header=header, index=index)):
+                if header:
+                    if index:
+                        if i == df.columns.nlevels:
+                            continue
+                        elif i == df.columns.nlevels - 1:
+                            yield list(df.index.names) + row[df.index.nlevels:]
+                            continue
+                else:
+                    if index and i == 0:
+                        continue
+                yield row
+
+        for i, row in enumerate(_iterrows(df, header=header, index=index)):
             if fill:
-                if i == 0:
-                    if header:
-                        self.insert_rows(worksheet, row, start_row + i, start_col, style="header", auto_width=auto_width)
-                    else:
-                        self.insert_rows(worksheet, row, start_row + i, start_col, style="middle_even_first", auto_width=auto_width, style_only=True)
+                if header and i < df.columns.nlevels:
+                    self.insert_rows(worksheet, row, start_row + i, start_col, style="header", auto_width=auto_width)
+                elif i == 0:
+                    self.insert_rows(worksheet, row, start_row + i, start_col, style="middle_even_first", auto_width=auto_width, style_only=True)
                 else:
                     if i % 2 == 1:
-                        style = "middle_odd_last" if (header and i == len(df)) or (not header and i + 1 == len(df)) else "middle_odd"
+                        style = "middle_odd_last" if (header and i == len(df) + df.columns.nlevels - 1) or (not header and i + 1 == len(df)) else "middle_odd"
                     else:
-                        style = "middle_even_last" if (header and i == len(df)) or (not header and i + 1 == len(df)) else "middle_even"
-
+                        style = "middle_even_last" if (header and i == len(df) + df.columns.nlevels - 1) or (not header and i + 1 == len(df)) else "middle_even"
                     self.insert_rows(worksheet, row, start_row + i, start_col, style=style, auto_width=auto_width, style_only=True)
             else:
-                if i == 0:
-                    if header:
-                        self.insert_rows(worksheet, row, start_row + i, start_col, style="header", auto_width=auto_width)
-                    else:
-                        self.insert_rows(worksheet, row, start_row + i, start_col, style="first", auto_width=auto_width)
-                elif (header and i == len(df)) or (not header and i + 1 == len(df)):
+                if header and i < df.columns.nlevels:
+                    self.insert_rows(worksheet, row, start_row + i, start_col, style="header", auto_width=auto_width)
+                elif i == 0:
+                    self.insert_rows(worksheet, row, start_row + i, start_col, style="first", auto_width=auto_width)
+                elif (header and i == len(df) + df.columns.nlevels - 1) or (not header and i + 1 == len(df)):
                     self.insert_rows(worksheet, row, start_row + i, start_col, style="last", auto_width=auto_width)
                 else:
                     self.insert_rows(worksheet, row, start_row + i, start_col, auto_width=auto_width, merge_rows=merge_rows)
@@ -297,7 +308,7 @@ class ExcelWriter:
                     for merge_col in merge_cols:
                         worksheet.merge_cells(f"{merge_col}{s - 1}:{merge_col}{e - 1}")
 
-        end_row = start_row + len(data) + 1 if header else start_row + len(data)
+        end_row = start_row + len(data) + df.columns.nlevels if header else start_row + len(data)
 
         return (end_row, column_index_from_string(start_col) + len(data.columns))
 
@@ -345,12 +356,12 @@ class ExcelWriter:
 
         **参考样例**
 
-        >>> list_ = ['A','A','A','A','B','C','C','D','D','D']
-        >>> calc_continuous_cnt(list_, 0)
+        >> list_ = ['A','A','A','A','B','C','C','D','D','D']
+        >> calc_continuous_cnt(list_, 0)
         ('A', 0, 4)
-        >>> calc_continuous_cnt(list_, 4)
+        >> calc_continuous_cnt(list_, 4)
         ('B', 4, 1)
-        >>> calc_continuous_cnt(list_, 6)
+        >> calc_continuous_cnt(list_, 6)
         ('C', 6, 1)
         """
         if index_ >= len(list_):
@@ -391,9 +402,9 @@ class ExcelWriter:
 
         **参考样例**
 
-        >>> get_cell_space("B2")
+        >> get_cell_space("B2")
         (2, 2)
-        >>> get_cell_space((2, 2))
+        >> get_cell_space((2, 2))
         'B2'
         """
         if isinstance(space, str):
@@ -594,7 +605,8 @@ def dataframe2excel(data, excel_writer, sheet_name=None, title=None, header=True
         worksheet = writer.get_sheet_by_name(sheet_name or "Sheet1")
 
     if title:
-        start_row, end_col = writer.insert_value2sheet(worksheet, (start_row, start_col), value=title, style="header", end_space=(start_row, start_col + len(data.reset_index(drop=~kwargs.get("index", False)).columns) - 1))
+        col_width = len(data.columns) + data.index.nlevels if kwargs.get("index", False) else len(data.columns)
+        start_row, end_col = writer.insert_value2sheet(worksheet, (start_row, start_col), value=title, style="header", end_space=(start_row, start_col + col_width - 1))
         start_row += 1
 
     if figures is not None:
@@ -650,7 +662,7 @@ if __name__ == "__main__":
     sample = pd.DataFrame(np.concatenate([np.random.random_sample((10, 10)) * 40, np.random.randint(0, 3, (10, 2))], axis=1), columns=[f"B{i}" for i in range(10)] + ["target", "type"])
     end_row, end_col = writer.insert_df2sheet(worksheet, sample, (end_row + 2, column_index_from_string("B")))
     end_row, end_col = writer.insert_df2sheet(worksheet, sample, (end_row + 2, column_index_from_string("B")), fill=True)
-    end_row, end_col = writer.insert_df2sheet(worksheet, sample, (end_row + 2, column_index_from_string("B")), fill=True, header=False)
+    end_row, end_col = writer.insert_df2sheet(worksheet, sample, (end_row + 2, column_index_from_string("B")), fill=True, header=False, index=True)
     end_row, end_col = writer.insert_df2sheet(worksheet, sample, (end_row + 2, column_index_from_string("B")), merge_column="target")
     end_row, end_col = writer.insert_df2sheet(worksheet, sample, (end_row + 2, column_index_from_string("B")), merge_column=["target", "type"])
     end_row, end_col = writer.insert_df2sheet(worksheet, sample, (end_row + 2, column_index_from_string("B")), merge_column=[10, 11])
@@ -658,4 +670,9 @@ if __name__ == "__main__":
     end_row, end_col = dataframe2excel(sample, writer, sheet_name="模型报告", start_row=end_row + 2, percent_cols=["B2", "B6"], condition_cols=["B3", "B9"], color_cols=["B4"], title="测试样例")
     end_row, end_col = dataframe2excel(sample, writer, sheet_name="模型报告", start_row=end_row + 2, percent_cols=["B2", "B6"], condition_cols=["B3", "B9"], color_cols=["B4"], title="测试样例", figures=[
         "../examples/model_report/feature_ks_plot_number_of_existing_credits_at_this_bank.png", "../examples/model_report/psi_duration_in_month.png"])
+    multi_sample = pd.DataFrame(np.random.randint(0, 150, size=(8, 12)), columns=pd.MultiIndex.from_product([['模拟考', '正式考'], ['数学', '语文', '英语', '物理', '化学', '生物']]), index=pd.MultiIndex.from_product([['期中', '期末'], ['雷军', '李斌'], ['测试一', '测试二']]))
+    multi_sample.index.names = ["考试类型", "姓名", "测试"]
+    end_row, end_col = dataframe2excel(multi_sample, writer, sheet_name="模型报告", start_row=end_row + 2, title="测试样例", index=True, header=False)
+    end_row, end_col = dataframe2excel(multi_sample, writer, sheet_name="模型报告", start_row=end_row + 2, title="测试样例", index=True)
+    end_row, end_col = dataframe2excel(multi_sample, writer, sheet_name="模型报告", start_row=end_row + 2, title="测试样例", index=True, fill=False)
     writer.save("测试样例.xlsx")
