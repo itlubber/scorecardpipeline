@@ -271,26 +271,37 @@ class ExcelWriter:
             df = df.sort_values(merge_column).reset_index(drop=True)
 
             merge_cols = [get_column_letter(df.columns.get_loc(col) + column_index_from_string(start_col)) for col in merge_column]
-            merge_rows = list(np.cumsum(df.groupby(merge_column)[merge_column].count().values[:, 0]) + start_row + 1)
+            if header:
+                merge_rows = list(np.cumsum(df.groupby(merge_column)[merge_column].count().values[:, 0]) + start_row + df.columns.nlevels)
+            else:
+                merge_rows = list(np.cumsum(df.groupby(merge_column)[merge_column].count().values[:, 0]) + start_row)
         else:
             merge_cols = None
             merge_rows = None
 
-        def _iterrows(df, header=True, index=True):
+        def _iter_rows(df, header=True, index=True):
             for i, row in enumerate(dataframe_to_rows(df, header=header, index=index)):
+                columns = df.columns.tolist()
                 if header:
                     if index:
                         if i == df.columns.nlevels:
                             continue
                         elif i == df.columns.nlevels - 1:
-                            yield list(df.index.names) + row[df.index.nlevels:]
+                            yield list(df.index.names) + [c[i] for c in columns]
+                            continue
+                        elif i < df.columns.nlevels - 1:
+                            yield [None] * df.index.nlevels + [c[i] for c in columns]
+                            continue
+                    else:
+                        if i < df.columns.nlevels:
+                            yield [c[i] for c in columns]
                             continue
                 else:
                     if index and i == 0:
                         continue
                 yield row
 
-        for i, row in enumerate(_iterrows(df, header=header, index=index)):
+        for i, row in enumerate(_iter_rows(df, header=header, index=index)):
             if fill:
                 if header and i < df.columns.nlevels:
                     self.insert_rows(worksheet, row, start_row + i, start_col, style="header", auto_width=auto_width, multi_levels=True if df.columns.nlevels > 1 else False)
@@ -691,4 +702,5 @@ if __name__ == "__main__":
     end_row, end_col = dataframe2excel(multi_sample, writer, sheet_name="模型报告", start_row=end_row + 2, title="测试样例", index=True, header=False)
     end_row, end_col = dataframe2excel(multi_sample, writer, sheet_name="模型报告", start_row=end_row + 2, title="测试样例", index=True)
     end_row, end_col = dataframe2excel(multi_sample, writer, sheet_name="模型报告", start_row=end_row + 2, title="测试样例", index=True, fill=False)
+    end_row, end_col = dataframe2excel(multi_sample.reset_index(names=multi_sample.index.names, col_level=-1), writer, sheet_name="模型报告", start_row=end_row + 2, title="测试样例", index=False, fill=False, merge_column=[('', '考试类型'), ('', '姓名')])
     writer.save("测试样例.xlsx")
