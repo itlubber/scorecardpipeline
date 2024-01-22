@@ -189,7 +189,7 @@ class ExcelWriter:
 
         return start_row + int(figsize[1] / 17.5), column_index_from_string(start_col) + 8
 
-    def insert_rows(self, worksheet, row, row_index, col_index, merge_rows=None, style="", auto_width=False, style_only=False):
+    def insert_rows(self, worksheet, row, row_index, col_index, merge_rows=None, style="", auto_width=False, style_only=False, multi_levels=False):
         """
         向excel中插入一行数据，insert_df2sheet 依赖本方法
 
@@ -201,25 +201,41 @@ class ExcelWriter:
         :param style: 插入数据的excel风格
         :param auto_width: 是否自动调整列宽，自动调整列宽会导致该列样式模版发生变化，非内容列默认填充的白色失效
         :param style_only: 是否使用填充样式
+        :param multi_levels: 是否多层索引或多层级列
         """
         curr_col = column_index_from_string(col_index)
-        for j, v in enumerate(row):
-            if merge_rows is not None and row_index + 1 not in merge_rows:
-                if j == 0:
-                    self.insert_value2sheet(worksheet, f'{get_column_letter(curr_col + j)}{row_index}', self.astype_insertvalue(v), style="merge_left", auto_width=auto_width)
-                elif j == len(row) - 1:
-                    self.insert_value2sheet(worksheet, f'{get_column_letter(curr_col + j)}{row_index}', self.astype_insertvalue(v), style="merge_right", auto_width=auto_width)
+
+        if multi_levels and style == "header":
+            row = pd.Series(row).ffill().to_list()
+            item, start, length = self.calc_continuous_cnt(row)
+            while start is not None:
+                if start + length < len(row):
+                    if start == 0:
+                        self.insert_value2sheet(worksheet, f'{get_column_letter(curr_col + start)}{row_index}', self.astype_insertvalue(item), style=f"{style}_left" if style else "left", auto_width=auto_width, end_space=f'{get_column_letter(curr_col + start + length - 1)}{row_index}')
+                    else:
+                        self.insert_value2sheet(worksheet, f'{get_column_letter(curr_col + start)}{row_index}', self.astype_insertvalue(item), style=f"{style}_middle" if style else "middle", auto_width=auto_width, end_space=f'{get_column_letter(curr_col + start + length - 1)}{row_index}')
                 else:
-                    self.insert_value2sheet(worksheet, f'{get_column_letter(curr_col + j)}{row_index}', self.astype_insertvalue(v), style="merge_middle", auto_width=auto_width)
-            elif style_only or len(row) <= 1:
-                self.insert_value2sheet(worksheet, f'{get_column_letter(curr_col + j)}{row_index}', self.astype_insertvalue(v), style=style or "middle", auto_width=auto_width)
-            else:
-                if j == 0:
-                    self.insert_value2sheet(worksheet, f'{get_column_letter(curr_col + j)}{row_index}', self.astype_insertvalue(v), style=f"{style}_left" if style else "left", auto_width=auto_width)
-                elif j == len(row) - 1:
-                    self.insert_value2sheet(worksheet, f'{get_column_letter(curr_col + j)}{row_index}', self.astype_insertvalue(v), style=f"{style}_right" if style else "right", auto_width=auto_width)
+                    self.insert_value2sheet(worksheet, f'{get_column_letter(curr_col + start)}{row_index}', self.astype_insertvalue(item), style=f"{style}_right" if style else "right", auto_width=auto_width, end_space=f'{get_column_letter(curr_col + start + length - 1)}{row_index}')
+
+                item, start, length = self.calc_continuous_cnt(row, start + length)
+        else:
+            for j, v in enumerate(row):
+                if merge_rows is not None and row_index + 1 not in merge_rows:
+                    if j == 0:
+                        self.insert_value2sheet(worksheet, f'{get_column_letter(curr_col + j)}{row_index}', self.astype_insertvalue(v), style="merge_left", auto_width=auto_width)
+                    elif j == len(row) - 1:
+                        self.insert_value2sheet(worksheet, f'{get_column_letter(curr_col + j)}{row_index}', self.astype_insertvalue(v), style="merge_right", auto_width=auto_width)
+                    else:
+                        self.insert_value2sheet(worksheet, f'{get_column_letter(curr_col + j)}{row_index}', self.astype_insertvalue(v), style="merge_middle", auto_width=auto_width)
+                elif style_only or len(row) <= 1:
+                    self.insert_value2sheet(worksheet, f'{get_column_letter(curr_col + j)}{row_index}', self.astype_insertvalue(v), style=style or "middle", auto_width=auto_width)
                 else:
-                    self.insert_value2sheet(worksheet, f'{get_column_letter(curr_col + j)}{row_index}', self.astype_insertvalue(v), style=f"{style}_middle" if style else "middle", auto_width=auto_width)
+                    if j == 0:
+                        self.insert_value2sheet(worksheet, f'{get_column_letter(curr_col + j)}{row_index}', self.astype_insertvalue(v), style=f"{style}_left" if style else "left", auto_width=auto_width)
+                    elif j == len(row) - 1:
+                        self.insert_value2sheet(worksheet, f'{get_column_letter(curr_col + j)}{row_index}', self.astype_insertvalue(v), style=f"{style}_right" if style else "right", auto_width=auto_width)
+                    else:
+                        self.insert_value2sheet(worksheet, f'{get_column_letter(curr_col + j)}{row_index}', self.astype_insertvalue(v), style=f"{style}_middle" if style else "middle", auto_width=auto_width)
 
     def insert_df2sheet(self, worksheet, data, insert_space, merge_column=None, header=True, index=False, auto_width=False, fill=False, merge=False):
         """
@@ -277,7 +293,7 @@ class ExcelWriter:
         for i, row in enumerate(_iterrows(df, header=header, index=index)):
             if fill:
                 if header and i < df.columns.nlevels:
-                    self.insert_rows(worksheet, row, start_row + i, start_col, style="header", auto_width=auto_width)
+                    self.insert_rows(worksheet, row, start_row + i, start_col, style="header", auto_width=auto_width, multi_levels=True if df.columns.nlevels > 1 else False)
                 elif i == 0:
                     self.insert_rows(worksheet, row, start_row + i, start_col, style="middle_even_first", auto_width=auto_width, style_only=True)
                 else:
@@ -288,7 +304,7 @@ class ExcelWriter:
                     self.insert_rows(worksheet, row, start_row + i, start_col, style=style, auto_width=auto_width, style_only=True)
             else:
                 if header and i < df.columns.nlevels:
-                    self.insert_rows(worksheet, row, start_row + i, start_col, style="header", auto_width=auto_width)
+                    self.insert_rows(worksheet, row, start_row + i, start_col, style="header", auto_width=auto_width, multi_levels=True if df.columns.nlevels > 1 else False)
                 elif i == 0:
                     self.insert_rows(worksheet, row, start_row + i, start_col, style="first", auto_width=auto_width)
                 elif (header and i == len(df) + df.columns.nlevels - 1) or (not header and i + 1 == len(df)):
