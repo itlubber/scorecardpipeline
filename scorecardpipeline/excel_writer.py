@@ -269,7 +269,8 @@ class ExcelWriter:
             if isinstance(merge_column[0], (int, float)):
                 merge_column = [df.columns.tolist()[col] if col not in df.columns else col for col in merge_column]
 
-            # df = df.sort_values(merge_column).reset_index(drop=True)
+            if df[merge_column].values.tolist() != df[merge_column].sort_values(merge_column).values.tolist():
+                df = df.sort_values(merge_column).reset_index(drop=True)
 
             merge_cols = [get_column_letter(df.columns.get_loc(col) + column_index_from_string(start_col)) for col in merge_column]
             if header:
@@ -685,7 +686,7 @@ def dataframe2excel(data, excel_writer, sheet_name=None, title=None, header=True
 
 
 if __name__ == "__main__":
-    writer = ExcelWriter()
+    writer = ExcelWriter(theme_color='3f1dba')
     worksheet = writer.get_sheet_by_name("模型报告")
     end_row, end_col = writer.insert_value2sheet(worksheet, "B2", value="模型报告", style="header")
     end_row, end_col = writer.insert_value2sheet(worksheet, "B3", value="模型报告", style="header", end_space="D3")
@@ -701,6 +702,7 @@ if __name__ == "__main__":
     end_row, end_col = dataframe2excel(sample, writer, sheet_name="模型报告", start_row=end_row + 2, percent_cols=["B2", "B6"], condition_cols=["B3", "B9"], color_cols=["B4"], title="测试样例")
     end_row, end_col = dataframe2excel(sample, writer, sheet_name="模型报告", start_row=end_row + 2, percent_cols=["B2", "B6"], condition_cols=["B3", "B9"], color_cols=["B4"], title="测试样例", figures=[
         "../examples/model_report/feature_ks_plot_number_of_existing_credits_at_this_bank.png", "../examples/model_report/psi_duration_in_month.png"])
+
     multi_sample = pd.DataFrame(np.random.randint(0, 150, size=(8, 12)), columns=pd.MultiIndex.from_product([['模拟考', '正式考'], ['数学', '语文', '英语', '物理', '化学', '生物']]), index=pd.MultiIndex.from_product([['期中', '期末'], ['雷军', '李斌'], ['测试一', '测试二']]))
     multi_sample.index.names = ["考试类型", "姓名", "测试"]
     end_row, end_col = dataframe2excel(multi_sample, writer, sheet_name="模型报告", start_row=end_row + 2, title="测试样例", index=True, header=False)
@@ -709,14 +711,13 @@ if __name__ == "__main__":
     end_row, end_col = dataframe2excel(multi_sample.reset_index(names=multi_sample.index.names, col_level=-1), writer, sheet_name="模型报告", start_row=end_row + 2, title="测试样例", index=False, fill=False, merge_column=[('', '考试类型'), ('', '姓名')])
     end_row, end_col = dataframe2excel(multi_sample.reset_index(names=multi_sample.index.names, col_level=-1), writer, sheet_name="模型报告", start_row=end_row + 2, title="测试样例", index=False, fill=False, merge_column=[('', '考试类型')], merge=True)
 
-    data = pd.read_pickle("/Users/lubberit/Downloads/black_list.pkl").reset_index(names=[("数据指标", ""), ("渠道", "时间")]).sort_values([("数据指标", ""), ("渠道", "时间")]).reset_index(drop=True)
-    end_row, end_col = dataframe2excel(data, writer, sheet_name="模型报告", start_row=end_row + 2, title="测试样例", index=False, fill=False, merge_column=[("数据指标", "")], merge=True)
-
-    end_row, end_col = dataframe2excel(data, writer, sheet_name="模型报告", start_row=end_row + 2, index=False, fill=True, merge_column=[("数据指标", "")], merge=True)
+    data = pd.read_pickle("/Users/lubberit/Downloads/black_list.pkl")
+    data = data.reset_index(names=[("", ""), ("渠道", "时间")]).sort_values([("", ""), ("渠道", "时间")]).reset_index(drop=True)
+    # end_row, end_col = dataframe2excel(data, writer, sheet_name="模型报告", start_row=end_row + 2, title="测试样例", index=False, fill=False, merge_column=[("", "")], merge=True)
+    end_row, end_col = dataframe2excel(data, writer, sheet_name="模型报告", start_row=end_row + 2, index=False, fill=False, merge_column=[("", "")], merge=True)
     for color_rows in data[data[("渠道", "时间")] == "命中率"].index:
-        rule = ColorScaleRule(start_type='num', start_value=0, start_color='7d5fff', end_type='num', end_value=data.iloc[color_rows, 2:].max(), end_color='ff3838')
+        rule = ColorScaleRule(start_type='num', start_value=0, start_color='3f1dba', end_type='num', end_value=data.iloc[color_rows, 2:].max(), end_color='c04d9c')
         worksheet.conditional_formatting.add(f"{get_column_letter(2 + 2)}{end_row - len(data) + color_rows}:{get_column_letter(2 + len(data.columns))}{end_row - len(data) + color_rows}", rule)
         writer.set_number_format(worksheet, f"{get_column_letter(2 + 2)}{end_row - len(data) + color_rows}:{get_column_letter(2 + len(data.columns))}{end_row - len(data) + color_rows}", "0.00%")
 
     writer.save("测试样例.xlsx")
-

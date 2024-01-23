@@ -21,7 +21,7 @@ from .auto_report import auto_data_testing_report
 feature_bin_stats = Combiner.feature_bin_stats
 
 
-__version__ = "0.1.29"
+__version__ = "0.1.30"
 __all__ = (
     "__version__"
     , "FeatureSelection", "FeatureImportanceSelector", "StepwiseSelection", "Combiner", "WOETransformer"

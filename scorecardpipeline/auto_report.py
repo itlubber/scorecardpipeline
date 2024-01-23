@@ -98,7 +98,7 @@ def auto_data_testing_report(data, features=None, target="target", date=None, da
         end_row, end_col = writer.insert_pic2sheet(worksheet, f"model_report/feature_ks_plot_{col}.png", (ks_row, end_col - 1), figsize=(600, 350))
         end_row, end_col = writer.insert_pic2sheet(worksheet, f"model_report/feature_hist_plot_{col}.png", (ks_row, end_col - 1), figsize=(600, 350))
 
-        end_row, end_col = dataframe2excel(score_table_train, writer, worksheet, percent_cols=["样本占比", "好样本占比", "坏样本占比", "坏样本率", "LIFT值", "累积LIFT值"], condition_cols=["坏样本率", "LIFT值"], start_row=end_row)
+        end_row, end_col = dataframe2excel(score_table_train, writer, worksheet, percent_cols=["样本占比", "好样本占比", "坏样本占比", "坏样本率", "LIFT值", "累积LIFT值"], condition_cols=["坏样本率", "LIFT值"], merge_column=["指标名称"], merge=True, fill=True, start_row=end_row)
 
     if not isinstance(excel_writer, ExcelWriter) and not isinstance(sheet, Worksheet):
         writer.save(excel_writer)
