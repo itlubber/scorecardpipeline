@@ -409,19 +409,29 @@ class ExcelWriter:
             return str_, index_, cnt
 
     @staticmethod
-    def itlubber_border(border, color):
+    def itlubber_border(border, color, white=False):
         """
         itlubber 的边框样式生成器
 
         :param border: 边框样式，如果输入长度为 3，则生成 [左，右，下]，如果长度为4，则生成 [左，右，下，上]
         :param color: 边框颜色
+        :param white: 是否显示白色边框
 
         :return: Border
         """
         if len(border) == 3:
-            return Border(left=Side(border_style=border[0], color=color[0]), right=Side(border_style=border[1], color=color[1]), bottom=Side(border_style=border[2], color=color[2]), )
+            return Border(
+                left=Side(border_style=None if not white and color[0] == "FFFFFF" else border[0], color=None if not white and color[0] == "FFFFFF" else color[0]),
+                right=Side(border_style=None if not white and color[1] == "FFFFFF" else border[1], color=None if not white and color[1] == "FFFFFF" else color[1]),
+                bottom=Side(border_style=border[2], color=color[2]),
+            )
         else:
-            return Border(left=Side(border_style=border[0], color=color[0]), right=Side(border_style=border[1], color=color[1]), bottom=Side(border_style=border[2], color=color[2]), top=Side(border_style=border[3], color=color[3]), )
+            return Border(
+                left=Side(border_style=None if not white and color[0] == "FFFFFF" else border[0], color=None if not white and color[0] == "FFFFFF" else color[0]),
+                right=Side(border_style=None if not white and color[1] == "FFFFFF" else border[1], color=None if not white and color[1] == "FFFFFF" else color[1]),
+                bottom=Side(border_style=border[2], color=color[2]),
+                top=Side(border_style=border[3], color=color[3]),
+            )
 
     @staticmethod
     def get_cell_space(space):
@@ -491,10 +501,10 @@ class ExcelWriter:
         header_style.fill, header_left_style.fill, header_middle_style.fill, header_right_style.fill = header_fill, header_fill, header_fill, header_fill
         header_style.alignment, header_left_style.alignment, header_middle_style.alignment, header_right_style.alignment = Alignment(horizontal='left', vertical='center', wrap_text=True), alignment, alignment, alignment
 
-        header_style.border = self.itlubber_border(["medium", "medium", "medium", "medium"], [theme_color, theme_color, theme_color, theme_color])
-        header_left_style.border = self.itlubber_border(["medium", "thin", "medium", "medium"], [theme_color, "FFFFFF", theme_color, theme_color])
-        header_middle_style.border = self.itlubber_border(["thin", "thin", "medium", "medium"], ["FFFFFF", "FFFFFF", theme_color, theme_color])
-        header_right_style.border = self.itlubber_border(["thin", "medium", "medium", "medium"], ["FFFFFF", theme_color, theme_color, theme_color])
+        header_style.border = self.itlubber_border(["medium", "medium", "medium", "medium"], [theme_color, theme_color, theme_color, theme_color], white=True)
+        header_left_style.border = self.itlubber_border(["medium", "thin", "medium", "medium"], [theme_color, "FFFFFF", theme_color, theme_color], white=True)
+        header_middle_style.border = self.itlubber_border(["thin", "thin", "medium", "medium"], ["FFFFFF", "FFFFFF", theme_color, theme_color], white=True)
+        header_right_style.border = self.itlubber_border(["thin", "medium", "medium", "medium"], ["FFFFFF", theme_color, theme_color, theme_color], white=True)
 
         last_style.font, last_left_style.font, last_middle_style.font, last_right_style.font = content_font, content_font, content_font, content_font
         last_style.fill, last_left_style.fill, last_middle_style.fill, last_right_style.fill = content_fill, content_fill, content_fill, content_fill
