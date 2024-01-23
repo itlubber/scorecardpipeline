@@ -158,9 +158,12 @@ class ExcelWriter:
         worksheet[f"{start_col}{start_row}"] = value
 
         if auto_width:
+            # original_styles = [worksheet[f"{start_col}{i}"].fill for i in range(1, worksheet.max_row + 1)]
             curr_width = worksheet.column_dimensions[start_col].width
             auto_width = min(max([(self.check_contain_chinese(value)[1] * self.english_width + self.check_contain_chinese(value)[2] * self.chinese_width) * self.fontsize, 10, curr_width]), 50)
             worksheet.column_dimensions[start_col].width = auto_width
+            # for i in range(worksheet.max_row):
+            #     worksheet[f"{start_col}{i + 1}"].fill = original_styles[i].copy()
 
         if end_space is not None:
             return end_row + 1, column_index_from_string(end_col) + 1
@@ -388,12 +391,13 @@ class ExcelWriter:
 
         **参考样例**
 
-        >> list_ = ['A','A','A','A','B','C','C','D','D','D']
-        >> calc_continuous_cnt(list_, 0)
+        >>> calc_continuous_cnt = ExcelWriter.calc_continuous_cnt
+        >>> list_ = ['A','A','A','A','B','C','C','D','D','D']
+        >>> calc_continuous_cnt(list_, 0)
         ('A', 0, 4)
-        >> calc_continuous_cnt(list_, 4)
+        >>> calc_continuous_cnt(list_, 4)
         ('B', 4, 1)
-        >> calc_continuous_cnt(list_, 6)
+        >>> calc_continuous_cnt(list_, 6)
         ('C', 6, 1)
         """
         if index_ >= len(list_):
@@ -444,22 +448,23 @@ class ExcelWriter:
 
         **参考样例**
 
-        >> get_cell_space("B2")
-        (2, 2)
-        >> get_cell_space((2, 2))
+        >>> get_cell_space = ExcelWriter.get_cell_space
+        >>> get_cell_space("B3")
+        (2, 3)
+        >>> get_cell_space((2, 2))
         'B2'
         """
         if isinstance(space, str):
             start_row = int(re.findall("\d+", space)[0])
             start_col = re.findall('\D+', space)[0]
-            return start_row, column_index_from_string(start_col)
+            return column_index_from_string(start_col), start_row
         else:
             start_row = space[0]
             if isinstance(space[1], int):
                 start_col = get_column_letter(space[1])
             else:
                 start_col = space[1]
-            return f"{start_row}{start_col}"
+            return f"{start_col}{start_row}"
 
     @staticmethod
     def calculate_rgba_color(hex_color, opacity, prefix="#"):
@@ -623,6 +628,34 @@ def dataframe2excel(data, excel_writer, sheet_name=None, title=None, header=True
     :param **kwargs: 其他参数，透传至 insert_df2sheet 方法，例如 传入 auto_width=True 会根据内容自动调整列宽
 
     :return: 返回插入元素最后一列之后、最后一行之后的位置
+
+    **参考样例**
+
+    >>> writer = ExcelWriter(theme_color='3f1dba')
+    >>> worksheet = writer.get_sheet_by_name("模型报告")
+    >>> end_row, end_col = writer.insert_value2sheet(worksheet, "B2", value="模型报告", style="header")
+    >>> end_row, end_col = writer.insert_value2sheet(worksheet, "B4", value="模型报告", style="header", end_space="D4")
+    >>> end_row, end_col = writer.insert_value2sheet(worksheet, "B6", value="当前模型主要为评分卡模型", style="header_middle", auto_width=True)
+    >>> # 单层索引保存样例
+    >>> sample = pd.DataFrame(np.concatenate([np.random.random_sample((10, 10)) * 40, np.random.randint(0, 3, (10, 2))], axis=1), columns=[f"B{i}" for i in range(10)] + ["target", "type"])
+    >>> end_row, end_col = writer.insert_df2sheet(worksheet, sample, (end_row + 2, column_index_from_string("B")))
+    >>> end_row, end_col = writer.insert_df2sheet(worksheet, sample, (end_row + 2, column_index_from_string("B")), fill=True)
+    >>> end_row, end_col = writer.insert_df2sheet(worksheet, sample, (end_row + 2, column_index_from_string("B")), fill=True, header=False, index=True)
+    >>> end_row, end_col = writer.insert_df2sheet(worksheet, sample, (end_row + 2, column_index_from_string("B")), merge_column="target")
+    >>> end_row, end_col = writer.insert_df2sheet(worksheet, sample, (end_row + 2, column_index_from_string("B")), merge_column=["target", "type"])
+    >>> end_row, end_col = writer.insert_df2sheet(worksheet, sample, (end_row + 2, column_index_from_string("B")), merge_column=[10, 11])
+    >>> end_row, end_col = dataframe2excel(sample, writer, sheet_name="模型报告", start_row=end_row + 2, percent_cols=["B2", "B6"], condition_cols=["B3", "B9"], color_cols=["B4"])
+    >>> end_row, end_col = dataframe2excel(sample, writer, sheet_name="模型报告", start_row=end_row + 2, percent_cols=["B2", "B6"], condition_cols=["B3", "B9"], color_cols=["B4"], title="测试样例")
+    >>> end_row, end_col = dataframe2excel(sample, writer, sheet_name="模型报告", start_row=end_row + 2, percent_cols=["B2", "B6"], condition_cols=["B3", "B9"], color_cols=["B4"], title="测试样例", figures=["../examples/model_report/psi_duration_in_month.png"])
+    >>> # 多层索引保存样例
+    >>> multi_sample = pd.DataFrame(np.random.randint(0, 150, size=(8, 12)), columns=pd.MultiIndex.from_product([['模拟考', '正式考'], ['数学', '语文', '英语', '物理', '化学', '生物']]), index=pd.MultiIndex.from_product([['期中', '期末'], ['雷军', '李斌'], ['测试一', '测试二']]))
+    >>> multi_sample.index.names = ["考试类型", "姓名", "测试"]
+    >>> end_row, end_col = dataframe2excel(multi_sample, writer, sheet_name="模型报告", start_row=end_row + 2, title="测试样例", index=True, header=False)
+    >>> end_row, end_col = dataframe2excel(multi_sample, writer, sheet_name="模型报告", start_row=end_row + 2, title="测试样例", index=True)
+    >>> end_row, end_col = dataframe2excel(multi_sample, writer, sheet_name="模型报告", start_row=end_row + 2, title="测试样例", index=True, fill=False)
+    >>> end_row, end_col = dataframe2excel(multi_sample.reset_index(names=multi_sample.index.names, col_level=-1), writer, sheet_name="模型报告", start_row=end_row + 2, title="测试样例", index=False, fill=False, merge_column=[('', '考试类型'), ('', '姓名')])
+    >>> end_row, end_col = dataframe2excel(multi_sample.reset_index(names=multi_sample.index.names, col_level=-1), writer, sheet_name="模型报告", start_row=end_row + 2, title="测试样例", index=False, fill=False, merge_column=[('', '考试类型')], merge=True)
+    >>> writer.save("测试样例.xlsx")
     """
     if isinstance(excel_writer, ExcelWriter):
         writer = excel_writer
@@ -696,35 +729,14 @@ def dataframe2excel(data, excel_writer, sheet_name=None, title=None, header=True
 
 
 if __name__ == "__main__":
-    writer = ExcelWriter(theme_color='3f1dba')
-    worksheet = writer.get_sheet_by_name("模型报告")
-    end_row, end_col = writer.insert_value2sheet(worksheet, "B2", value="模型报告", style="header")
-    end_row, end_col = writer.insert_value2sheet(worksheet, "B3", value="模型报告", style="header", end_space="D3")
-    end_row, end_col = writer.insert_value2sheet(worksheet, "B4", value="当前模型主要为评分卡模型", style="content", auto_width=True)
-    sample = pd.DataFrame(np.concatenate([np.random.random_sample((10, 10)) * 40, np.random.randint(0, 3, (10, 2))], axis=1), columns=[f"B{i}" for i in range(10)] + ["target", "type"])
-    end_row, end_col = writer.insert_df2sheet(worksheet, sample, (end_row + 2, column_index_from_string("B")))
-    end_row, end_col = writer.insert_df2sheet(worksheet, sample, (end_row + 2, column_index_from_string("B")), fill=True)
-    end_row, end_col = writer.insert_df2sheet(worksheet, sample, (end_row + 2, column_index_from_string("B")), fill=True, header=False, index=True)
-    end_row, end_col = writer.insert_df2sheet(worksheet, sample, (end_row + 2, column_index_from_string("B")), merge_column="target")
-    end_row, end_col = writer.insert_df2sheet(worksheet, sample, (end_row + 2, column_index_from_string("B")), merge_column=["target", "type"])
-    end_row, end_col = writer.insert_df2sheet(worksheet, sample, (end_row + 2, column_index_from_string("B")), merge_column=[10, 11])
-    end_row, end_col = dataframe2excel(sample, writer, sheet_name="模型报告", start_row=end_row + 2, percent_cols=["B2", "B6"], condition_cols=["B3", "B9"], color_cols=["B4"])
-    end_row, end_col = dataframe2excel(sample, writer, sheet_name="模型报告", start_row=end_row + 2, percent_cols=["B2", "B6"], condition_cols=["B3", "B9"], color_cols=["B4"], title="测试样例")
-    end_row, end_col = dataframe2excel(sample, writer, sheet_name="模型报告", start_row=end_row + 2, percent_cols=["B2", "B6"], condition_cols=["B3", "B9"], color_cols=["B4"], title="测试样例", figures=[
-        "../examples/model_report/feature_ks_plot_number_of_existing_credits_at_this_bank.png", "../examples/model_report/psi_duration_in_month.png"])
-
-    multi_sample = pd.DataFrame(np.random.randint(0, 150, size=(8, 12)), columns=pd.MultiIndex.from_product([['模拟考', '正式考'], ['数学', '语文', '英语', '物理', '化学', '生物']]), index=pd.MultiIndex.from_product([['期中', '期末'], ['雷军', '李斌'], ['测试一', '测试二']]))
-    multi_sample.index.names = ["考试类型", "姓名", "测试"]
-    end_row, end_col = dataframe2excel(multi_sample, writer, sheet_name="模型报告", start_row=end_row + 2, title="测试样例", index=True, header=False)
-    end_row, end_col = dataframe2excel(multi_sample, writer, sheet_name="模型报告", start_row=end_row + 2, title="测试样例", index=True)
-    end_row, end_col = dataframe2excel(multi_sample, writer, sheet_name="模型报告", start_row=end_row + 2, title="测试样例", index=True, fill=False)
-    end_row, end_col = dataframe2excel(multi_sample.reset_index(names=multi_sample.index.names, col_level=-1), writer, sheet_name="模型报告", start_row=end_row + 2, title="测试样例", index=False, fill=False, merge_column=[('', '考试类型'), ('', '姓名')])
-    end_row, end_col = dataframe2excel(multi_sample.reset_index(names=multi_sample.index.names, col_level=-1), writer, sheet_name="模型报告", start_row=end_row + 2, title="测试样例", index=False, fill=False, merge_column=[('', '考试类型')], merge=True)
-
+    end_row = 0
     data = pd.read_pickle("/Users/lubberit/Downloads/black_list.pkl")
     data = data.reset_index(names=[("", ""), ("渠道", "时间")]).sort_values([("", ""), ("渠道", "时间")]).reset_index(drop=True)
-    # end_row, end_col = dataframe2excel(data, writer, sheet_name="模型报告", start_row=end_row + 2, title="测试样例", index=False, fill=False, merge_column=[("", "")], merge=True)
-    end_row, end_col = dataframe2excel(data, writer, sheet_name="模型报告", start_row=end_row + 2, index=False, fill=False, merge_column=[("", "")], merge=True)
+
+    writer = ExcelWriter(theme_color='3f1dba')
+    worksheet = writer.get_sheet_by_name("模型报告")
+    end_row, end_col = dataframe2excel(data, writer, sheet_name="模型报告", start_row=end_row + 2, title="测试样例", index=False, fill=False, merge_column=[("", "")], merge=True)
+    end_row, end_col = dataframe2excel(data, writer, sheet_name="模型报告", start_row=end_row + 2, index=False, fill=False, merge_column=[("", "")], merge=True, auto_width=True)
     for color_rows in data[data[("渠道", "时间")] == "命中率"].index:
         rule = ColorScaleRule(start_type='num', start_value=0, start_color='3f1dba', end_type='num', end_value=data.iloc[color_rows, 2:].max(), end_color='c04d9c')
         worksheet.conditional_formatting.add(f"{get_column_letter(2 + 2)}{end_row - len(data) + color_rows}:{get_column_letter(2 + len(data.columns))}{end_row - len(data) + color_rows}", rule)
