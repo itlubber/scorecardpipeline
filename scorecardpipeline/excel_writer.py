@@ -298,7 +298,7 @@ class ExcelWriter:
                             yield [None] * df.index.nlevels + [c[i] for c in columns]
                             continue
                     else:
-                        if i < df.columns.nlevels:
+                        if df.columns.nlevels > 1 and i < df.columns.nlevels:
                             yield [c[i] for c in columns]
                             continue
                 else:
@@ -597,6 +597,9 @@ class ExcelWriter:
 
             _workbook.close()
 
+        if os.path.dirname(filename) != "" and not os.path.exists(os.path.dirname(filename)):
+            os.makedirs(os.path.dirname(filename), exist_ok=True)
+
         self.workbook.save(filename)
 
         if close:
@@ -644,17 +647,17 @@ def dataframe2excel(data, excel_writer, sheet_name=None, title=None, header=True
     >>> end_row, end_col = writer.insert_df2sheet(worksheet, sample, (end_row + 2, column_index_from_string("B")), merge_column="target")
     >>> end_row, end_col = writer.insert_df2sheet(worksheet, sample, (end_row + 2, column_index_from_string("B")), merge_column=["target", "type"])
     >>> end_row, end_col = writer.insert_df2sheet(worksheet, sample, (end_row + 2, column_index_from_string("B")), merge_column=[10, 11])
-    >>> end_row, end_col = dataframe2excel(sample, writer, sheet_name="模型报告", start_row=end_row + 2, percent_cols=["B2", "B6"], condition_cols=["B3", "B9"], color_cols=["B4"])
-    >>> end_row, end_col = dataframe2excel(sample, writer, sheet_name="模型报告", start_row=end_row + 2, percent_cols=["B2", "B6"], condition_cols=["B3", "B9"], color_cols=["B4"], title="测试样例")
-    >>> end_row, end_col = dataframe2excel(sample, writer, sheet_name="模型报告", start_row=end_row + 2, percent_cols=["B2", "B6"], condition_cols=["B3", "B9"], color_cols=["B4"], title="测试样例", figures=["../examples/model_report/psi_duration_in_month.png"])
+    >>> end_row, end_col = dataframe2excel(sample, writer, theme_color='3f1dba', sheet_name="模型报告", start_row=end_row + 2, percent_cols=["B2", "B6"], condition_cols=["B3", "B9"], color_cols=["B4"])
+    >>> end_row, end_col = dataframe2excel(sample, writer, theme_color='3f1dba', sheet_name="模型报告", start_row=end_row + 2, percent_cols=["B2", "B6"], condition_cols=["B3", "B9"], color_cols=["B4"], title="测试样例")
+    >>> end_row, end_col = dataframe2excel(sample, writer, theme_color='3f1dba', sheet_name="模型报告", start_row=end_row + 2, percent_cols=["B2", "B6"], condition_cols=["B3", "B9"], color_cols=["B4"], title="测试样例", figures=["../examples/model_report/psi_duration_in_month.png"])
     >>> # 多层索引保存样例
     >>> multi_sample = pd.DataFrame(np.random.randint(0, 150, size=(8, 12)), columns=pd.MultiIndex.from_product([['模拟考', '正式考'], ['数学', '语文', '英语', '物理', '化学', '生物']]), index=pd.MultiIndex.from_product([['期中', '期末'], ['雷军', '李斌'], ['测试一', '测试二']]))
     >>> multi_sample.index.names = ["考试类型", "姓名", "测试"]
-    >>> end_row, end_col = dataframe2excel(multi_sample, writer, sheet_name="模型报告", start_row=end_row + 2, title="测试样例", index=True, header=False)
-    >>> end_row, end_col = dataframe2excel(multi_sample, writer, sheet_name="模型报告", start_row=end_row + 2, title="测试样例", index=True)
-    >>> end_row, end_col = dataframe2excel(multi_sample, writer, sheet_name="模型报告", start_row=end_row + 2, title="测试样例", index=True, fill=False)
-    >>> end_row, end_col = dataframe2excel(multi_sample.reset_index(names=multi_sample.index.names, col_level=-1), writer, sheet_name="模型报告", start_row=end_row + 2, title="测试样例", index=False, fill=False, merge_column=[('', '考试类型'), ('', '姓名')])
-    >>> end_row, end_col = dataframe2excel(multi_sample.reset_index(names=multi_sample.index.names, col_level=-1), writer, sheet_name="模型报告", start_row=end_row + 2, title="测试样例", index=False, fill=False, merge_column=[('', '考试类型')], merge=True)
+    >>> end_row, end_col = dataframe2excel(multi_sample, writer, theme_color='3f1dba', sheet_name="模型报告", start_row=end_row + 2, title="测试样例", index=True, header=False)
+    >>> end_row, end_col = dataframe2excel(multi_sample, writer, theme_color='3f1dba', sheet_name="模型报告", start_row=end_row + 2, title="测试样例", index=True)
+    >>> end_row, end_col = dataframe2excel(multi_sample, writer, theme_color='3f1dba', sheet_name="模型报告", start_row=end_row + 2, title="测试样例", index=True, fill=False)
+    >>> end_row, end_col = dataframe2excel(multi_sample.reset_index(names=multi_sample.index.names, col_level=-1), writer, theme_color='3f1dba', sheet_name="模型报告", start_row=end_row + 2, title="测试样例", index=False, fill=False, merge_column=[('', '考试类型'), ('', '姓名')])
+    >>> end_row, end_col = dataframe2excel(multi_sample.reset_index(names=multi_sample.index.names, col_level=-1), writer, theme_color='3f1dba', sheet_name="模型报告", start_row=end_row + 2, title="测试样例", index=False, fill=False, merge_column=[('', '考试类型')], merge=True)
     >>> writer.save("测试样例.xlsx")
     """
     if isinstance(excel_writer, ExcelWriter):
@@ -735,8 +738,12 @@ if __name__ == "__main__":
 
     writer = ExcelWriter(theme_color='3f1dba')
     worksheet = writer.get_sheet_by_name("模型报告")
-    end_row, end_col = dataframe2excel(data, writer, sheet_name="模型报告", start_row=end_row + 2, title="测试样例", index=False, fill=False, merge_column=[("", "")], merge=True)
-    end_row, end_col = dataframe2excel(data, writer, sheet_name="模型报告", start_row=end_row + 2, index=False, fill=False, merge_column=[("", "")], merge=True, auto_width=True)
+
+    sample = pd.DataFrame(np.concatenate([np.random.random_sample((10, 10)) * 40, np.random.randint(0, 3, (10, 2))], axis=1), columns=[f"B{i}" for i in range(10)] + ["target", "type"])
+    end_row, end_col = writer.insert_df2sheet(worksheet, sample, (end_row + 2, column_index_from_string("B")))
+
+    end_row, end_col = dataframe2excel(data, writer, sheet_name="模型报告", start_row=end_row + 2, title="测试样例", index=False, fill=False, merge_column=[("", "")], merge=True, theme_color='3f1dba')
+    end_row, end_col = dataframe2excel(data, writer, sheet_name="模型报告", start_row=end_row + 2, index=False, fill=False, merge_column=[("", "")], merge=True, auto_width=True, theme_color='3f1dba')
     for color_rows in data[data[("渠道", "时间")] == "命中率"].index:
         rule = ColorScaleRule(start_type='num', start_value=0, start_color='3f1dba', end_type='num', end_value=data.iloc[color_rows, 2:].max(), end_color='c04d9c')
         worksheet.conditional_formatting.add(f"{get_column_letter(2 + 2)}{end_row - len(data) + color_rows}:{get_column_letter(2 + len(data.columns))}{end_row - len(data) + color_rows}", rule)
