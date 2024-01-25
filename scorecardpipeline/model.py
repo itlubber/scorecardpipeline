@@ -158,7 +158,7 @@ class ITLubberLogisticRegression(LogisticRegression):
         xp, _ = get_namespace(x)
         x = self._validate_data(x, accept_sparse="csr", reset=False)
         scores = safe_sparse_dot(x, self.coef_.T, dense_output=True) + self.intercept_
-        return xp.reshape(scores, -1) if scores.shape[1] == 1 else scores
+        return xp.reshape(scores, (-1,)) if scores.shape[1] == 1 else scores
 
     def corr(self, data, save=None, annot=True):
         """数据集的特征相关性图
