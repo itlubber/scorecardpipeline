@@ -94,11 +94,14 @@ def auto_data_testing_report(data, features=None, target="target", date=None, da
                 if "bin" in pictures:
                     bin_plot(score_table_train, desc=f"{feature_map.get(col, col)}", figsize=(10, 5), anchor=0.935, save=f"model_report/feature_bins_plot_{col}.png")
                 if "ks" in pictures:
-                    temp = temp.dropna().reset_index(drop=True)
-                    ks_plot(temp[col], temp[target], figsize=(10, 5), title=f"{feature_map.get(col, col)}", save=f"model_report/feature_ks_plot_{col}.png")
+                    _ = temp.dropna().reset_index(drop=True)
+                    has_ks = len(_) > 0 and _[col].nunique() > 1 and _[target].nunique() > 1
+                    if has_ks:
+                        ks_plot(_[col], _[target], figsize=(10, 5), title=f"{feature_map.get(col, col)}", save=f"model_report/feature_ks_plot_{col}.png")
                 if "hist" in pictures:
-                    temp = temp.dropna().reset_index(drop=True)
-                    hist_plot(temp[col], y_true=temp[target], figsize=(10, 6), desc=f"{feature_map.get(col, col)} 好客户 VS 坏客户", bins=30, anchor=1.11, fontsize=14, labels={0: "好客户", 1: "坏客户"}, save=f"model_report/feature_hist_plot_{col}.png")
+                    _ = temp.dropna().reset_index(drop=True)
+                    if len(_) > 0:
+                        hist_plot(_[col], y_true=_[target], figsize=(10, 6), desc=f"{feature_map.get(col, col)} 好客户 VS 坏客户", bins=30, anchor=1.11, fontsize=14, labels={0: "好客户", 1: "坏客户"}, save=f"model_report/feature_hist_plot_{col}.png")
 
             end_row, end_col = writer.insert_value2sheet(worksheet, (end_row + 2, start_col), value=f"数据字段: {feature_map.get(col, col)}", style="header", end_space=(end_row + 2, start_col + len(score_table_train.columns) - 1))
 
@@ -106,10 +109,11 @@ def auto_data_testing_report(data, features=None, target="target", date=None, da
                 ks_row = end_row + 1
                 if "bin" in pictures:
                     end_row, end_col = writer.insert_pic2sheet(worksheet, f"model_report/feature_bins_plot_{col}.png", (ks_row, start_col), figsize=(600, 350))
-                if "ks" in pictures:
-                    end_row, end_col = writer.insert_pic2sheet(worksheet, f"model_report/feature_ks_plot_{col}.png", (ks_row, end_col - 1), figsize=(600, 350))
-                if "hist" in pictures:
-                    end_row, end_col = writer.insert_pic2sheet(worksheet, f"model_report/feature_hist_plot_{col}.png", (ks_row, end_col - 1), figsize=(600, 350))
+                if temp[col].isnull().sum() != len(temp):
+                    if "ks" in pictures and has_ks:
+                        end_row, end_col = writer.insert_pic2sheet(worksheet, f"model_report/feature_ks_plot_{col}.png", (ks_row, end_col - 1), figsize=(600, 350))
+                    if "hist" in pictures:
+                        end_row, end_col = writer.insert_pic2sheet(worksheet, f"model_report/feature_hist_plot_{col}.png", (ks_row, end_col - 1), figsize=(600, 350))
 
             end_row, end_col = dataframe2excel(score_table_train, writer, worksheet, percent_cols=["样本占比", "好样本占比", "坏样本占比", "坏样本率", "LIFT值", "累积LIFT值"], condition_cols=["坏样本率", "LIFT值"], merge_column=["指标名称"], merge=True, fill=True, start_row=end_row)
         except:
