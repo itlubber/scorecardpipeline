@@ -189,9 +189,9 @@ def feature_bins(bins, decimal=4):
         for keys in bins:
             keys_update = set()
             for key in keys:
-                if pd.isnull(key) or key == "nan":
+                if pd.isnull(key) or (isinstance(key, str) and key == "nan"):
                     keys_update.add("缺失值")
-                elif key.strip() == "":
+                elif isinstance(key, str) and key.strip() == "":
                     keys_update.add("空字符串")
                 else:
                     keys_update.add(key)
