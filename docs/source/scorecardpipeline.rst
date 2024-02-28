@@ -61,6 +61,15 @@ scorecardpipeline.excel\_writer
    :show-inheritance:
 
 
+scorecardpipeline.rule
+======================================
+
+.. automodule:: scorecardpipeline.rule
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+
 scorecardpipeline.logger
 ======================================
 
