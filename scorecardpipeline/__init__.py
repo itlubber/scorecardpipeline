@@ -19,7 +19,7 @@ from .auto_report import auto_data_testing_report
 from .rule import Rule
 
 
-__version__ = "0.1.30"
+__version__ = "0.1.31"
 __all__ = (
     "__version__"
     , "FeatureSelection", "FeatureImportanceSelector", "StepwiseSelection", "Combiner", "WOETransformer"

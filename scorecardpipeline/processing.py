@@ -556,14 +556,14 @@ class Combiner(TransformerMixin, BaseEstimator):
         """
         return self.combiner.export(to_json=to_json)
 
-    def load(self, from_json=None):
+    def load(self, from_json):
         """特征分箱器加载离线保存的 json 文件
 
         :param from_json: json 文件的路径
 
         :return: Combiner，特征分箱器
         """
-        self.combiner.load(from_json=from_json)
+        self.combiner.load(from_json)
         return self
 
     @classmethod

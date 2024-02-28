@@ -13,7 +13,7 @@ from pandas import DataFrame
 from sklearn.utils import check_array
 from sklearn.metrics import f1_score, recall_score, accuracy_score, precision_score
 
-from .processing import feature_bin_stats
+from .processing import feature_bin_stats, Combiner
 
 
 def _get_context(X, feature_names):
@@ -75,6 +75,24 @@ def json2expr(data, max_index, feature_list):
 
 class Rule:
     def __init__(self, expr):  # expr 既可以传递字符串，也可以传递dict
+        """规则集
+
+        :param expr: 类似 DataFrame 的 query 方法传参方式即可，目前仅支持数值型变量规则
+
+        **参考样例**
+
+        >>> from scorecardpipeline import *
+        >>> target = "creditability"
+        >>> data = germancredit()
+        >>> data[target] = data[target].map({"good": 0, "bad": 1})
+        >>> data = data.select_dtypes("number") # 暂不支持字符型规则
+        >>> rule1 = Rule("duration_in_month < 10")
+        >>> rule2 = Rule("credit_amount < 500")
+        >>> rule1.report(data, target=target)
+        >>> rule2.report(data, target=target)
+        >>> (rule1 | rule2).report(data, target=target)
+        >>> (rule1 & rule2).report(data, target=target)
+        """
         self._state = RuleState.INITIALIZED
         self.expr = expr
 
@@ -113,9 +131,22 @@ class Rule:
 
         return result
 
-    def report(self, datasets, target="target", overdue="overdue", dpd=-1, del_grey=False, valid=None, desc="", return_cols=None, prior_rules=None):
+    def report(self, datasets, target="target", overdue="overdue", dpd=-1, del_grey=False, desc="", return_cols=None, prior_rules=None) -> pd.DataFrame:
+        """规则效果报告表格输出
+
+        :param datasets: 数据集，需要包含 目标变量 或 逾期天数，当不包含目标变量时，会通过逾期天数计算目标变量，同时需要传入逾期定义的DPD天数
+        :param target: 目标变量名称，默认 target
+        :param desc: 规则相关的描述，会出现在返回的表格当中
+        :param return_cols: 指定返回的字段列表，默认不传
+        :param prior_rules: 先验规则，可以传入先验规则先筛选数据后再评估规则效果
+        :param overdue: 逾期天数字读名称
+        :param dpd: 逾期定义方式，逾期天数 > DPD 为 1，其他为 0，仅 overdue 字段起作用时有用
+        :param del_grey: 是否删除逾期天数 (0, dpd] 的数据，仅 overdue 字段起作用时有用
+
+        :return: pd.DataFrame，规则效果评估表
+        """
         if return_cols is None:
-            return_cols = ['指标名称', "指标含义", '分箱', '样本总数', '样本占比', '好样本数', '好样本占比', '坏样本数', '坏样本占比', '坏样本率', 'LIFT值', '分档KS值']
+            return_cols = ['指标名称', "指标含义", '分箱', '样本总数', '样本占比', '好样本数', '好样本占比', '坏样本数', '坏样本占比', '坏样本率', 'LIFT值']
             if desc is None or desc == "" and "指标含义" in return_cols:
                 return_cols.remove("指标含义")
 
@@ -130,14 +161,16 @@ class Rule:
         rule_expr = self.expr
 
         if prior_rules:
-            prior_tables = prior_rules.report(datasets, target=target, overdue=overdue, dpd=dpd, del_grey=del_grey, valid=valid, desc=desc, return_cols=return_cols, prior_rules=None)
+            prior_tables = prior_rules.report(datasets, target=target, overdue=overdue, dpd=dpd, del_grey=del_grey, desc=desc, return_cols=return_cols, prior_rules=None)
             temp = datasets[~prior_rules.predict(datasets)]
             rule_result = pd.DataFrame({rule_expr: np.where(self.predict(temp), "命中", "未命中"), "target": temp[target].tolist()})
         else:
             prior_tables = pd.DataFrame(columns=return_cols)
             rule_result = pd.DataFrame({rule_expr: np.where(self.predict(datasets), "命中", "未命中"), "target": datasets[target].tolist()})
 
-        table = feature_bin_stats(rule_result, rule_expr, rules=[["命中"], ["未命中"]], desc=desc, return_cols=return_cols)
+        combiner = Combiner(target=target)
+        combiner.load({rule_expr: [["命中"], ["未命中"]]})
+        table = feature_bin_stats(rule_result, rule_expr, combiner=combiner, desc=desc, return_cols=return_cols)
 
         # 准确率、精确率、召回率、F1分数
         metrics = pd.DataFrame({
@@ -149,14 +182,17 @@ class Rule:
         })
         table = table.merge(metrics, on="分箱", how="left")
 
+        # 规则上线后增益评估
+        # 坏账率变化情况: 上线后拒绝多少比例的坏客户同时拒绝后坏账水平多少，在原始数据基础上换张改善多少
+        total_bad, total = table["坏样本数"].sum(), table["样本总数"].sum()
+        total_bad_rate = total_bad / total
+        table["坏账改善"] = (total_bad_rate - (total_bad - table["坏样本数"]) / (total - table["样本总数"])) / total_bad_rate
+
         if prior_rules:
             prior_tables.insert(loc=0, column="规则分类", value=["先验规则"] * len(prior_tables))
+            prior_tables["坏账改善"] = np.nan
             table.insert(loc=0, column="规则分类", value=["验证规则"] * len(table))
-            table = pd.concat([prior_tables, table])
-
-        # 规则上线后增益评估
-        # 通过率变化情况: 上线后拒绝多少客户
-        # 坏账率变化情况: 上线后拒绝多少比例的坏客户同时拒绝后坏账水平多少
+            table = pd.concat([prior_tables, table]).set_index(["规则分类"])
 
         return table
 
