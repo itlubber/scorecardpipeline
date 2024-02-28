@@ -7,9 +7,9 @@ seaborn>=0.10.0
 scipy>=1.6.0
 statsmodels<0.14,>=0.13.2
 scikit-learn
-toad<=0.1.2
+toad<=0.1.1
 scorecardpy
-ortools>=9.5.0,<9.8.0
+ortools
 ropwr>=0.4.0
 optbinning
 category-encoders
