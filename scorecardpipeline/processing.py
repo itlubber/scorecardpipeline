@@ -803,6 +803,9 @@ class Combiner(TransformerMixin, BaseEstimator):
         return iter(self.combiner._rules)
 
 
+feature_bin_stats = Combiner.feature_bin_stats
+
+
 class WOETransformer(TransformerMixin, BaseEstimator):
 
     def __init__(self, target="target", exclude=None):
