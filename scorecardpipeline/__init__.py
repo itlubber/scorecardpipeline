@@ -17,13 +17,14 @@ from .excel_writer import ExcelWriter, dataframe2excel
 from .auto_eda import auto_eda_sweetviz
 from .auto_report import auto_data_testing_report
 from .rule import Rule
+from .rule_extraction import DecisionTreeRuleExtractor
 
 
 __version__ = "0.1.32"
 __all__ = (
     "__version__"
     , "FeatureSelection", "FeatureImportanceSelector", "StepwiseSelection", "Combiner", "WOETransformer"
-    , "ITLubberLogisticRegression", "ScoreCard", "Rule"
+    , "ITLubberLogisticRegression", "ScoreCard", "Rule", "DecisionTreeRuleExtractor"
     , "Pipeline", "KS", "AUC", "PSI", "F1", "FeatureUnion", "make_pipeline", "make_union"
     , "init_logger", "init_setting", "load_pickle", "save_pickle", "germancredit"
     , "ColorScaleRule", "get_column_letter", "column_index_from_string", "seed_everything"

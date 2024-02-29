@@ -1,1 +1,1 @@
-include scorecardpipeline/*.ttf scorecardpipeline/*.csv scorecardpipeline/*.xlsx
+include scorecardpipeline/*.ttf scorecardpipeline/*.csv scorecardpipeline/*.xlsx requirements*.txt
