@@ -291,12 +291,21 @@ class ExcelWriter:
                     if index:
                         if i == df.columns.nlevels:
                             continue
-                        elif i == df.columns.nlevels - 1:
-                            yield list(df.index.names) + [c[i] for c in columns]
-                            continue
-                        elif i < df.columns.nlevels - 1:
-                            yield [None] * df.index.nlevels + [c[i] for c in columns]
-                            continue
+                        elif i < df.columns.nlevels:
+                            if df.columns.nlevels > 1:
+                                if i == df.columns.nlevels - 1:
+                                    yield list(df.index.names) + [c[i] for c in columns]
+                                    continue
+                                elif i < df.columns.nlevels - 1:
+                                    yield [None] * df.index.nlevels + [c[i] for c in columns]
+                                    continue
+                            else:
+                                if i == 0:
+                                    yield list(df.index.names) + columns
+                                    continue
+                                else:
+                                    yield [None] * df.index.nlevels + [c[i] for c in columns]
+                                    continue
                     else:
                         if df.columns.nlevels > 1 and i < df.columns.nlevels:
                             yield [c[i] for c in columns]
@@ -702,24 +711,24 @@ def dataframe2excel(data, excel_writer, sheet_name=None, title=None, header=True
 
     if percent_cols:
         for c in [c for c in percent_cols if c in data.columns]:
-            conditional_column = get_column_letter(start_col + data.columns.get_loc(c))
+            conditional_column = get_column_letter(start_col + data.columns.get_loc(c) + data.index.nlevels if kwargs.get("index", False) else start_col + data.columns.get_loc(c))
             writer.set_number_format(worksheet, f"{conditional_column}{end_row - len(data)}:{conditional_column}{end_row - 1}", "0.00%")
 
     if custom_cols:
         for c in [c for c in custom_cols if c in data.columns]:
-            conditional_column = get_column_letter(start_col + data.columns.get_loc(c))
+            conditional_column = get_column_letter(start_col + data.columns.get_loc(c) + data.index.nlevels if kwargs.get("index", False) else start_col + data.columns.get_loc(c))
             writer.set_number_format(worksheet, f"{conditional_column}{end_row - len(data)}:{conditional_column}{end_row - 1}", custom_format)
 
     if condition_cols:
         for c in [c for c in condition_cols if c in data.columns]:
-            conditional_column = get_column_letter(start_col + data.columns.get_loc(c))
+            conditional_column = get_column_letter(start_col + data.columns.get_loc(c) + data.index.nlevels if kwargs.get("index", False) else start_col + data.columns.get_loc(c))
             writer.add_conditional_formatting(worksheet, f'{conditional_column}{end_row - len(data)}', f'{conditional_column}{end_row - 1}')
 
     if color_cols:
         for c in [c for c in color_cols if c in data.columns]:
             try:
                 rule = ColorScaleRule(start_type='num', start_value=data[c].min(), start_color=theme_color, mid_type='num', mid_value=0., mid_color='FFFFFF', end_type='num', end_value=data[c].max(), end_color=theme_color)
-                conditional_column = get_column_letter(start_col + data.columns.get_loc(c))
+                conditional_column = get_column_letter(start_col + data.columns.get_loc(c) + data.index.nlevels if kwargs.get("index", False) else start_col + data.columns.get_loc(c))
                 worksheet.conditional_formatting.add(f"{conditional_column}{end_row - len(data)}:{conditional_column}{end_row - 1}", rule)
             except:
                 import traceback
