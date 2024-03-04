@@ -275,7 +275,11 @@ class ExcelWriter:
             if df[merge_column].values.tolist() != df[merge_column].sort_values(merge_column).values.tolist():
                 df = df.sort_values(merge_column).reset_index(drop=True)
 
-            merge_cols = [get_column_letter(df.columns.get_loc(col) + column_index_from_string(start_col)) for col in merge_column]
+            if index:
+                merge_cols = [get_column_letter(df.columns.get_loc(col) + column_index_from_string(start_col) + df.index.nlevels) for col in merge_column]
+            else:
+                merge_cols = [get_column_letter(df.columns.get_loc(col) + column_index_from_string(start_col)) for col in merge_column]
+
             if header:
                 merge_rows = list(np.cumsum(df.groupby(merge_column)[merge_column].count().values[:, 0]) + start_row + df.columns.nlevels)
             else:
@@ -296,16 +300,12 @@ class ExcelWriter:
                                 if i == df.columns.nlevels - 1:
                                     yield list(df.index.names) + [c[i] for c in columns]
                                     continue
-                                elif i < df.columns.nlevels - 1:
-                                    yield [None] * df.index.nlevels + [c[i] for c in columns]
-                                    continue
-                            else:
-                                if i == 0:
-                                    yield list(df.index.names) + columns
-                                    continue
                                 else:
                                     yield [None] * df.index.nlevels + [c[i] for c in columns]
                                     continue
+                            else:
+                                yield list(df.index.names) + columns
+                                continue
                     else:
                         if df.columns.nlevels > 1 and i < df.columns.nlevels:
                             yield [c[i] for c in columns]
@@ -347,14 +347,29 @@ class ExcelWriter:
             for s, e in zip(merge_rows[:-1], merge_rows[1:]):
                 if e - s > 1:
                     for merge_col in merge_cols:
-                        cell_style = worksheet[f"{merge_col}{e - 1}"].style
+                        cell_style = worksheet[f"{merge_col}{s}"].style
+                        border_style = worksheet[f"{merge_col}{e - 1}"].border
                         merged_cell = worksheet[f"{merge_col}{s}"]
                         merged_cell.style = copy.deepcopy(cell_style)
+                        merged_cell.border = border_style.copy()
                         worksheet.merge_cells(f"{merge_col}{s}:{merge_col}{e - 1}")
 
         end_row = start_row + len(data) + df.columns.nlevels if header else start_row + len(data)
 
         return (end_row, column_index_from_string(start_col) + len(data.columns))
+
+    # def merge_cells(self, worksheet, start, end):
+    #     if isinstance(start):
+    #         col, row = self.get_cell_space(start)
+    #     else:
+    #         col, row =
+    #
+    #     cell_style = worksheet[f"{merge_col}{s}"].style
+    #     border_style = worksheet[f"{merge_col}{e - 1}"].border
+    #     merged_cell = worksheet[f"{merge_col}{s}"]
+    #     merged_cell.style = copy.deepcopy(cell_style)
+    #     merged_cell.border = border_style.copy()
+    #     worksheet.merge_cells(f"{merge_col}{s}:{merge_col}{e - 1}")
 
     @staticmethod
     def check_contain_chinese(check_str):
@@ -654,11 +669,12 @@ def dataframe2excel(data, excel_writer, sheet_name=None, title=None, header=True
     >>> end_row, end_col = writer.insert_df2sheet(worksheet, sample, (end_row + 2, column_index_from_string("B")), fill=True)
     >>> end_row, end_col = writer.insert_df2sheet(worksheet, sample, (end_row + 2, column_index_from_string("B")), fill=True, header=False, index=True)
     >>> end_row, end_col = writer.insert_df2sheet(worksheet, sample, (end_row + 2, column_index_from_string("B")), merge_column="target")
+    >>> end_row, end_col = writer.insert_df2sheet(worksheet, sample.set_index("type"), (end_row + 2, column_index_from_string("B")), merge_column="target", index=True, fill=True)
     >>> end_row, end_col = writer.insert_df2sheet(worksheet, sample, (end_row + 2, column_index_from_string("B")), merge_column=["target", "type"])
     >>> end_row, end_col = writer.insert_df2sheet(worksheet, sample, (end_row + 2, column_index_from_string("B")), merge_column=[10, 11])
     >>> end_row, end_col = dataframe2excel(sample, writer, theme_color='3f1dba', sheet_name="模型报告", start_row=end_row + 2, percent_cols=["B2", "B6"], condition_cols=["B3", "B9"], color_cols=["B4"])
     >>> end_row, end_col = dataframe2excel(sample, writer, theme_color='3f1dba', sheet_name="模型报告", start_row=end_row + 2, percent_cols=["B2", "B6"], condition_cols=["B3", "B9"], color_cols=["B4"], title="测试样例")
-    >>> end_row, end_col = dataframe2excel(sample, writer, theme_color='3f1dba', sheet_name="模型报告", start_row=end_row + 2, percent_cols=["B2", "B6"], condition_cols=["B3", "B9"], color_cols=["B4"], title="测试样例", figures=["../examples/model_report/psi_duration_in_month.png"])
+    >>> end_row, end_col = dataframe2excel(sample, writer, theme_color='3f1dba', sheet_name="模型报告", start_row=end_row + 2, percent_cols=["B2", "B6"], condition_cols=["B3", "B9"], color_cols=["B4"], title="测试样例", figures=["../examples/model_report/auto_report_corr_plot.png"])
     >>> # 多层索引保存样例
     >>> multi_sample = pd.DataFrame(np.random.randint(0, 150, size=(8, 12)), columns=pd.MultiIndex.from_product([['模拟考', '正式考'], ['数学', '语文', '英语', '物理', '化学', '生物']]), index=pd.MultiIndex.from_product([['期中', '期末'], ['雷军', '李斌'], ['测试一', '测试二']]))
     >>> multi_sample.index.names = ["考试类型", "姓名", "测试"]
@@ -667,6 +683,7 @@ def dataframe2excel(data, excel_writer, sheet_name=None, title=None, header=True
     >>> end_row, end_col = dataframe2excel(multi_sample, writer, theme_color='3f1dba', sheet_name="模型报告", start_row=end_row + 2, title="测试样例", index=True, fill=False)
     >>> end_row, end_col = dataframe2excel(multi_sample.reset_index(names=multi_sample.index.names, col_level=-1), writer, theme_color='3f1dba', sheet_name="模型报告", start_row=end_row + 2, title="测试样例", index=False, fill=False, merge_column=[('', '考试类型'), ('', '姓名')])
     >>> end_row, end_col = dataframe2excel(multi_sample.reset_index(names=multi_sample.index.names, col_level=-1), writer, theme_color='3f1dba', sheet_name="模型报告", start_row=end_row + 2, title="测试样例", index=False, fill=False, merge_column=[('', '考试类型')], merge=True)
+    >>> end_row, end_col = dataframe2excel(multi_sample.reset_index(names=multi_sample.index.names, col_level=-1), writer, theme_color='3f1dba', sheet_name="模型报告", start_row=end_row + 2, title="测试样例", index=True, fill=True, merge_column=[('', '考试类型')], merge=True)
     >>> writer.save("测试样例.xlsx")
     """
     if isinstance(excel_writer, ExcelWriter):
