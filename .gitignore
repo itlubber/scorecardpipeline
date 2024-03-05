@@ -164,4 +164,5 @@ cython_debug/
 *.virtual_documents
 test*
 *.png
+examples/model_report/*.png
 examples/scorecard_samples_360.ipynb

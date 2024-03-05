@@ -4,6 +4,9 @@
 @Author  : itlubber
 @Site    : itlubber.art
 """
+import warnings
+
+warnings.filterwarnings("ignore")
 
 import re
 import os
@@ -24,7 +27,7 @@ from openpyxl.styles import NamedStyle, Border, Side, Alignment, PatternFill, Fo
 
 class ExcelWriter:
 
-    def __init__(self, style_excel=None, style_sheet_name="初始化", mode="replace", fontsize=10, font='楷体', theme_color='2639E9', opacity=0.85):
+    def __init__(self, style_excel=None, style_sheet_name="初始化", mode="replace", fontsize=10, font='楷体', theme_color='2639E9', opacity=0.85, system="mac"):
         """excel 写入方法
 
         :param style_excel: 样式模版文件，默认安装包路径下的 template.xlsx ，如果路径调整需要进行相应的调整
@@ -33,8 +36,10 @@ class ExcelWriter:
         :param fontsize: 插入excel文件中内容的字体大小，默认 10
         :param font: 插入excel文件中内容的字体，默认 楷体
         :param theme_color: 主题色，默认 2639E9，注意不包含 #
+        :param system: excel报告适配的系统，默认 mac，可选 windows、linux，设置为 windows 时会重新适配 picture 的大小
         :param opacity: 写入dataframe时使用颜色填充主题色的透明度设置，默认 0.85
         """
+        self.system = system
         self.english_width = 0.12
         self.chinese_width = 0.21
         self.mode = mode
@@ -191,7 +196,7 @@ class ExcelWriter:
         image.width, image.height = figsize
         worksheet.add_image(image, f"{start_col}{start_row}")
 
-        return start_row + int(figsize[1] / 17.5), column_index_from_string(start_col) + 8
+        return start_row + int(figsize[1] / (17.5 if self.system != 'windows' else 16.0)), column_index_from_string(start_col) + 8
 
     def insert_rows(self, worksheet, row, row_index, col_index, merge_rows=None, style="", auto_width=False, style_only=False, multi_levels=False):
         """
@@ -248,11 +253,11 @@ class ExcelWriter:
         :param worksheet: 需要插入内容的sheet
         :param data: 需要插入的dataframe
         :param insert_space: 插入内容的起始单元格位置
-        :param merge_column: 需要分组显示的列，index或者列名
-        :param header: 是否存储dataframe的header，暂不支持多级表头
+        :param merge_column: 需要分组显示的列，index或者列名，需要提前排好序，从 0.1.33 开始 ExcleWriter 不会自动处理顺序
+        :param header: 是否存储dataframe的header，暂不支持多级表头，从 0.1.30 开始支持多层表头和多层索引
         :param index: 是否存储dataframe的index
         :param auto_width: 是否自动调整列宽，自动调整列宽会导致该列样式模版发生变化，非内容列默认填充的白色失效
-        :param fill: 是否使用颜色填充而非边框
+        :param fill: 是否使用颜色填充而非边框，当 fill 为 True 时，merge_column 失效
         :param merge: 是否合并单元格，配合 merge_column 一起使用，当前版本仅在 merge_column 只有一列时有效
         :return: 返回插入元素最后一列之后、最后一行之后的位置
         """
@@ -269,21 +274,39 @@ class ExcelWriter:
             if not isinstance(merge_column, (list, np.ndarray)):
                 merge_column = [merge_column]
 
-            if isinstance(merge_column[0], (int, float)):
+            if isinstance(merge_column[0], (int, float)) and (merge_column[0] not in df.columns):
                 merge_column = [df.columns.tolist()[col] if col not in df.columns else col for col in merge_column]
 
-            if df[merge_column].values.tolist() != df[merge_column].sort_values(merge_column).values.tolist():
-                df = df.sort_values(merge_column).reset_index(drop=True)
+            # 从 0.1.33 开始不修改需要保存的原始数据
+            # if df[merge_column].values.tolist() != df[merge_column].sort_values(merge_column).values.tolist():
+            #     df = df.sort_values(merge_column)
 
             if index:
-                merge_cols = [get_column_letter(df.columns.get_loc(col) + column_index_from_string(start_col) + df.index.nlevels) for col in merge_column]
+                # merge_cols = [get_column_letter(df.columns.get_loc(col) + column_index_from_string(start_col) + df.index.nlevels) for col in merge_column]
+                merge_cols = {col: get_column_letter(df.columns.get_loc(col) + column_index_from_string(start_col) + df.index.nlevels) for col in merge_column}
             else:
-                merge_cols = [get_column_letter(df.columns.get_loc(col) + column_index_from_string(start_col)) for col in merge_column]
+                # merge_cols = [get_column_letter(df.columns.get_loc(col) + column_index_from_string(start_col)) for col in merge_column]
+                merge_cols = {col: get_column_letter(df.columns.get_loc(col) + column_index_from_string(start_col)) for col in merge_column}
+
+            def get_merge_rows(data, col, start_row):
+                _rows = []
+                values = data[col].tolist()
+
+                item, start, length = self.calc_continuous_cnt(values)
+                while start is not None:
+                    _rows.append(start + start_row)
+                    item, start, length = self.calc_continuous_cnt(values, start + length)
+
+                _rows.append(len(data) + start_row)
+
+                return _rows
 
             if header:
-                merge_rows = list(np.cumsum(df.groupby(merge_column)[merge_column].count().values[:, 0]) + start_row + df.columns.nlevels)
+                # merge_rows = list(np.cumsum(df.groupby(merge_column)[merge_column].count().values[:, 0]) + start_row + df.columns.nlevels)
+                merge_rows = {col: get_merge_rows(df, col, start_row + df.columns.nlevels) for col in merge_column}
             else:
-                merge_rows = list(np.cumsum(df.groupby(merge_column)[merge_column].count().values[:, 0]) + start_row)
+                # merge_rows = list(np.cumsum(df.groupby(merge_column)[merge_column].count().values[:, 0]) + start_row)
+                merge_rows = {col: get_merge_rows(df, col, start_row) for col in merge_column}
         else:
             merge_cols = None
             merge_rows = None
@@ -335,41 +358,80 @@ class ExcelWriter:
                 elif (header and i == len(df) + df.columns.nlevels - 1) or (not header and i + 1 == len(df)):
                     self.insert_rows(worksheet, row, start_row + i, start_col, style="last", auto_width=auto_width)
                 else:
-                    self.insert_rows(worksheet, row, start_row + i, start_col, auto_width=auto_width, merge_rows=merge_rows)
+                    # self.insert_rows(worksheet, row, start_row + i, start_col, auto_width=auto_width, merge_rows=merge_rows)
+                    if merge_rows and len(merge_rows) > 0:
+                        self.insert_rows(worksheet, row, start_row + i, start_col, auto_width=auto_width, merge_rows=sorted(set(_row for _rows in merge_rows.values() for _row in _rows)))
+                    else:
+                        self.insert_rows(worksheet, row, start_row + i, start_col, auto_width=auto_width)
 
         # 合并单元格, 仅支持单列, 两列及其以上不进行合并
-        if merge and merge_column and merge_cols and len(merge_cols) == 1:
-            if header:
-                merge_rows = [start_row + df.columns.nlevels] + merge_rows
-            else:
-                merge_rows = [start_row] + merge_rows
+        if merge and merge_column and merge_cols and len(merge_cols) > 0:
 
-            for s, e in zip(merge_rows[:-1], merge_rows[1:]):
-                if e - s > 1:
-                    for merge_col in merge_cols:
-                        cell_style = worksheet[f"{merge_col}{s}"].style
-                        border_style = worksheet[f"{merge_col}{e - 1}"].border
-                        merged_cell = worksheet[f"{merge_col}{s}"]
-                        merged_cell.style = copy.deepcopy(cell_style)
-                        merged_cell.border = border_style.copy()
-                        worksheet.merge_cells(f"{merge_col}{s}:{merge_col}{e - 1}")
+            for col in merge_cols.keys():
+                merge_col = merge_cols[col]
+                merge_row = merge_rows[col]
+
+                for s, e in zip(merge_row[:-1], merge_row[1:]):
+                    if e - s > 1:
+                        self.merge_cells(worksheet, f"{merge_col}{s}", f"{merge_col}{e - 1}")
+
+            # if header:
+            #     merge_rows = [start_row + df.columns.nlevels] + merge_rows
+            # else:
+            #     merge_rows = [start_row] + merge_rows
+            #
+            # for s, e in zip(merge_rows[:-1], merge_rows[1:]):
+            #     if e - s > 1:
+            #         for merge_col in merge_cols:
+            #             # cell_style = worksheet[f"{merge_col}{s}"].style
+            #             # border_style = worksheet[f"{merge_col}{e - 1}"].border
+            #             # merged_cell = worksheet[f"{merge_col}{s}"]
+            #             # merged_cell.style = copy.deepcopy(cell_style)
+            #             # merged_cell.border = border_style.copy()
+            #             # worksheet.merge_cells(f"{merge_col}{s}:{merge_col}{e - 1}")
+            #             self.merge_cells(worksheet, f"{merge_col}{s}", f"{merge_col}{e - 1}")
 
         end_row = start_row + len(data) + df.columns.nlevels if header else start_row + len(data)
 
-        return (end_row, column_index_from_string(start_col) + len(data.columns))
+        return end_row, column_index_from_string(start_col) + len(data.columns)
 
-    # def merge_cells(self, worksheet, start, end):
-    #     if isinstance(start):
-    #         col, row = self.get_cell_space(start)
-    #     else:
-    #         col, row =
-    #
-    #     cell_style = worksheet[f"{merge_col}{s}"].style
-    #     border_style = worksheet[f"{merge_col}{e - 1}"].border
-    #     merged_cell = worksheet[f"{merge_col}{s}"]
-    #     merged_cell.style = copy.deepcopy(cell_style)
-    #     merged_cell.border = border_style.copy()
-    #     worksheet.merge_cells(f"{merge_col}{s}:{merge_col}{e - 1}")
+    def merge_cells(self, worksheet, start, end):
+        """合并同一列单元格并保证样式相应合并
+
+        :param worksheet: 需要合并单元格的sheet
+        :param start: 合并单元格开始的位置
+        :param end: 合并单元格结束的位置
+        :return:
+        """
+        if isinstance(start, str):
+            start_col, start_row = self.get_cell_space(start)
+        elif isinstance(start, (tuple, list)):
+            start_col, start_row = start[0], start[1]
+        else:
+            raise TypeError("仅支持二元组或字符串")
+
+        if isinstance(end, str):
+            end_col, end_row = self.get_cell_space(end)
+        elif isinstance(end, (tuple, list)):
+            end_col, end_row = end[0], end[1]
+        else:
+            raise TypeError("仅支持二元组或字符串")
+
+        # 判断是否单列合并
+        if end_col - start_col != 0:
+            raise ValueError("仅支持单列合并单元格")
+
+        # 暂存单元格样式
+        cell_style = worksheet[f"{get_column_letter(start_col)}{start_row}"].style
+        border_style = worksheet[f"{get_column_letter(start_col)}{end_row}"].border
+
+        # 将单元格样式应用到需要合并的单元格
+        merged_cell = worksheet[f"{get_column_letter(start_col)}{start_row}"]
+        merged_cell.style = copy.deepcopy(cell_style)
+        merged_cell.border = border_style.copy()
+
+        # 合并单元格
+        worksheet.merge_cells(f"{get_column_letter(start_col)}{start_row}:{get_column_letter(start_col)}{end_row}")
 
     @staticmethod
     def check_contain_chinese(check_str):
@@ -759,20 +821,25 @@ def dataframe2excel(data, excel_writer, sheet_name=None, title=None, header=True
 
 if __name__ == "__main__":
     end_row = 0
-    data = pd.read_pickle("/Users/lubberit/Downloads/black_list.pkl")
-    data = data.reset_index(names=[("", ""), ("渠道", "时间")]).sort_values([("", ""), ("渠道", "时间")]).reset_index(drop=True)
 
     writer = ExcelWriter(theme_color='3f1dba')
     worksheet = writer.get_sheet_by_name("模型报告")
 
     sample = pd.DataFrame(np.concatenate([np.random.random_sample((10, 10)) * 40, np.random.randint(0, 3, (10, 2))], axis=1), columns=[f"B{i}" for i in range(10)] + ["target", "type"])
+    end_row, end_col = writer.insert_df2sheet(worksheet, sample.set_index("type"), (end_row + 2, column_index_from_string("B")), merge_column=["target"], index=True, fill=True, merge=True)
+    print(sample)
+    end_row, end_col = writer.insert_df2sheet(worksheet, sample, (end_row + 2, column_index_from_string("B")), merge_column=["target", "type"], index=True, fill=False, merge=True)
+    print(sample.sort_values(["target", "type"]))
+    end_row, end_col = writer.insert_df2sheet(worksheet, sample.sort_values(["target", "type"]), (end_row + 2, column_index_from_string("B")), merge_column=["target"], index=True, fill=False, merge=True)
     end_row, end_col = writer.insert_df2sheet(worksheet, sample, (end_row + 2, column_index_from_string("B")))
 
-    end_row, end_col = dataframe2excel(data, writer, sheet_name="模型报告", start_row=end_row + 2, title="测试样例", index=False, fill=False, merge_column=[("", "")], merge=True, theme_color='3f1dba')
-    end_row, end_col = dataframe2excel(data, writer, sheet_name="模型报告", start_row=end_row + 2, index=False, fill=False, merge_column=[("", "")], merge=True, auto_width=True, theme_color='3f1dba')
-    for color_rows in data[data[("渠道", "时间")] == "命中率"].index:
-        rule = ColorScaleRule(start_type='num', start_value=0, start_color='3f1dba', end_type='num', end_value=data.iloc[color_rows, 2:].max(), end_color='c04d9c')
-        worksheet.conditional_formatting.add(f"{get_column_letter(2 + 2)}{end_row - len(data) + color_rows}:{get_column_letter(2 + len(data.columns))}{end_row - len(data) + color_rows}", rule)
-        writer.set_number_format(worksheet, f"{get_column_letter(2 + 2)}{end_row - len(data) + color_rows}:{get_column_letter(2 + len(data.columns))}{end_row - len(data) + color_rows}", "0.00%")
+    # data = pd.read_pickle("/Users/lubberit/Downloads/black_list.pkl")
+    # data = data.reset_index(names=[("", ""), ("渠道", "时间")]).sort_values([("", ""), ("渠道", "时间")]).reset_index(drop=True)
+    # end_row, end_col = dataframe2excel(data, writer, sheet_name="模型报告", start_row=end_row + 2, title=None, index=False, fill=True, merge_column=[("", "")], merge=True, theme_color='3f1dba')
+    # end_row, end_col = dataframe2excel(data, writer, sheet_name="模型报告", start_row=end_row + 2, index=False, fill=False, merge_column=[("", "")], merge=True, auto_width=False, theme_color='3f1dba')
+    # for color_rows in data[data[("渠道", "时间")] == "命中率"].index:
+    #     rule = ColorScaleRule(start_type='num', start_value=0, start_color='3f1dba', end_type='num', end_value=data.iloc[color_rows, 2:].max(), end_color='c04d9c')
+    #     worksheet.conditional_formatting.add(f"{get_column_letter(2 + 2)}{end_row - len(data) + color_rows}:{get_column_letter(2 + len(data.columns))}{end_row - len(data) + color_rows}", rule)
+    #     writer.set_number_format(worksheet, f"{get_column_letter(2 + 2)}{end_row - len(data) + color_rows}:{get_column_letter(2 + len(data.columns))}{end_row - len(data) + color_rows}", "0.00%")
 
     writer.save("测试样例.xlsx")
