@@ -131,6 +131,8 @@ def auto_data_testing_report(data, features=None, target="target", date=None, da
     if not isinstance(excel_writer, ExcelWriter) and not isinstance(sheet, Worksheet):
         writer.save(excel_writer)
 
+    return end_row, end_col
+
 
 if __name__ == '__main__':
     target = "creditability"
