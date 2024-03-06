@@ -124,7 +124,7 @@ def auto_data_testing_report(data, features=None, target="target", date=None, da
                     if "hist" in pictures:
                         end_row, end_col = writer.insert_pic2sheet(worksheet, f"model_report/feature_hist_plot_{col}.png", (ks_row, end_col - 1), figsize=(600, 350))
 
-            end_row, end_col = dataframe2excel(score_table_train, writer, worksheet, percent_cols=["样本占比", "好样本占比", "坏样本占比", "坏样本率", "LIFT值", "累积LIFT值"], condition_cols=["坏样本率", "LIFT值"], merge_column=["指标名称"], merge=True, fill=True, start_row=end_row)
+            end_row, end_col = dataframe2excel(score_table_train, writer, worksheet, percent_cols=["样本占比", "好样本占比", "坏样本占比", "坏样本率", "LIFT值", "坏账改善", "累积LIFT值", "累积坏账改善"], condition_cols=["坏样本率", "LIFT值"], merge_column=["指标名称", "指标含义"], merge=True, fill=True, start_row=end_row)
         except:
             print(f"数据字段 {col} 分析时发生异常，请排查数据中是否存在异常:\n{traceback.format_exc()}")
 

@@ -246,7 +246,7 @@ class ExcelWriter:
                     else:
                         self.insert_value2sheet(worksheet, f'{get_column_letter(curr_col + j)}{row_index}', self.astype_insertvalue(v), style=f"{style}_middle" if style else "middle", auto_width=auto_width)
 
-    def insert_df2sheet(self, worksheet, data, insert_space, merge_column=None, header=True, index=False, auto_width=False, fill=False, merge=False):
+    def insert_df2sheet(self, worksheet, data, insert_space, merge_column=None, header=True, index=False, auto_width=False, fill=False, merge=False, merge_index=True):
         """
         向excel文件中插入指定样式的dataframe数据
 
@@ -256,6 +256,7 @@ class ExcelWriter:
         :param merge_column: 需要分组显示的列，index或者列名，需要提前排好序，从 0.1.33 开始 ExcleWriter 不会自动处理顺序
         :param header: 是否存储dataframe的header，暂不支持多级表头，从 0.1.30 开始支持多层表头和多层索引
         :param index: 是否存储dataframe的index
+        :param merge_index: 当存储dataframe的index时，index中同一层级连续相同值是否合并，默认 True，即合并
         :param auto_width: 是否自动调整列宽，自动调整列宽会导致该列样式模版发生变化，非内容列默认填充的白色失效
         :param fill: 是否使用颜色填充而非边框，当 fill 为 True 时，merge_column 失效
         :param merge: 是否合并单元格，配合 merge_column 一起使用，当前版本仅在 merge_column 只有一列时有效
@@ -269,6 +270,23 @@ class ExcelWriter:
         else:
             start_row, start_col = insert_space
             start_col = get_column_letter(start_col)
+
+        def get_merge_rows(values, start_row):
+            _rows = []
+            item, start, length = self.calc_continuous_cnt(values)
+            while start is not None:
+                _rows.append(start + start_row)
+                item, start, length = self.calc_continuous_cnt(values, start + length)
+
+            _rows.append(len(values) + start_row)
+            return _rows
+
+        if index and merge_index:
+            merge_index_cols = {i: get_column_letter(column_index_from_string(start_col) + i) for i in range(df.index.nlevels)}
+            merge_index_rows = {i: get_merge_rows(df.index.get_level_values(i).tolist(), start_row + df.columns.nlevels + i if header else start_row + i) for i in range(df.index.nlevels)}
+        else:
+            merge_index_cols = None
+            merge_index_rows = None
 
         if merge_column:
             if not isinstance(merge_column, (list, np.ndarray)):
@@ -288,25 +306,12 @@ class ExcelWriter:
                 # merge_cols = [get_column_letter(df.columns.get_loc(col) + column_index_from_string(start_col)) for col in merge_column]
                 merge_cols = {col: get_column_letter(df.columns.get_loc(col) + column_index_from_string(start_col)) for col in merge_column}
 
-            def get_merge_rows(data, col, start_row):
-                _rows = []
-                values = data[col].tolist()
-
-                item, start, length = self.calc_continuous_cnt(values)
-                while start is not None:
-                    _rows.append(start + start_row)
-                    item, start, length = self.calc_continuous_cnt(values, start + length)
-
-                _rows.append(len(data) + start_row)
-
-                return _rows
-
             if header:
                 # merge_rows = list(np.cumsum(df.groupby(merge_column)[merge_column].count().values[:, 0]) + start_row + df.columns.nlevels)
-                merge_rows = {col: get_merge_rows(df, col, start_row + df.columns.nlevels) for col in merge_column}
+                merge_rows = {col: get_merge_rows(df[col].tolist(), start_row + df.columns.nlevels) for col in merge_column}
             else:
                 # merge_rows = list(np.cumsum(df.groupby(merge_column)[merge_column].count().values[:, 0]) + start_row)
-                merge_rows = {col: get_merge_rows(df, col, start_row) for col in merge_column}
+                merge_rows = {col: get_merge_rows(df[col].tolist(), start_row) for col in merge_column}
         else:
             merge_cols = None
             merge_rows = None
@@ -364,9 +369,18 @@ class ExcelWriter:
                     else:
                         self.insert_rows(worksheet, row, start_row + i, start_col, auto_width=auto_width)
 
-        # 合并单元格, 仅支持单列, 两列及其以上不进行合并
-        if merge and merge_column and merge_cols and len(merge_cols) > 0:
+        # 合并索引单元格
+        if index and merge_index and merge_index_rows and len(merge_index_rows) > 0:
+            for col in merge_index_cols.keys():
+                merge_col = merge_index_cols[col]
+                merge_row = merge_index_rows[col]
 
+                for s, e in zip(merge_row[:-1], merge_row[1:]):
+                    if e - s > 1:
+                        self.merge_cells(worksheet, f"{merge_col}{s}", f"{merge_col}{e - 1}")
+
+        # 合并列单元格
+        if merge and merge_column and merge_cols and len(merge_cols) > 0:
             for col in merge_cols.keys():
                 merge_col = merge_cols[col]
                 merge_row = merge_rows[col]
@@ -374,22 +388,6 @@ class ExcelWriter:
                 for s, e in zip(merge_row[:-1], merge_row[1:]):
                     if e - s > 1:
                         self.merge_cells(worksheet, f"{merge_col}{s}", f"{merge_col}{e - 1}")
-
-            # if header:
-            #     merge_rows = [start_row + df.columns.nlevels] + merge_rows
-            # else:
-            #     merge_rows = [start_row] + merge_rows
-            #
-            # for s, e in zip(merge_rows[:-1], merge_rows[1:]):
-            #     if e - s > 1:
-            #         for merge_col in merge_cols:
-            #             # cell_style = worksheet[f"{merge_col}{s}"].style
-            #             # border_style = worksheet[f"{merge_col}{e - 1}"].border
-            #             # merged_cell = worksheet[f"{merge_col}{s}"]
-            #             # merged_cell.style = copy.deepcopy(cell_style)
-            #             # merged_cell.border = border_style.copy()
-            #             # worksheet.merge_cells(f"{merge_col}{s}:{merge_col}{e - 1}")
-            #             self.merge_cells(worksheet, f"{merge_col}{s}", f"{merge_col}{e - 1}")
 
         end_row = start_row + len(data) + df.columns.nlevels if header else start_row + len(data)
 
@@ -827,13 +825,13 @@ if __name__ == "__main__":
 
     sample = pd.DataFrame(np.concatenate([np.random.random_sample((10, 10)) * 40, np.random.randint(0, 3, (10, 2))], axis=1), columns=[f"B{i}" for i in range(10)] + ["target", "type"])
     end_row, end_col = writer.insert_df2sheet(worksheet, sample.set_index("type"), (end_row + 2, column_index_from_string("B")), merge_column=["target"], index=True, fill=True, merge=True)
-    print(sample)
     end_row, end_col = writer.insert_df2sheet(worksheet, sample, (end_row + 2, column_index_from_string("B")), merge_column=["target", "type"], index=True, fill=False, merge=True)
-    print(sample.sort_values(["target", "type"]))
     end_row, end_col = writer.insert_df2sheet(worksheet, sample.sort_values(["target", "type"]), (end_row + 2, column_index_from_string("B")), merge_column=["target"], index=True, fill=False, merge=True)
     end_row, end_col = writer.insert_df2sheet(worksheet, sample, (end_row + 2, column_index_from_string("B")))
 
     # data = pd.read_pickle("/Users/lubberit/Downloads/black_list.pkl")
+    # data.index.names = ("指标名称", "命中情况")
+    # end_row, end_col = dataframe2excel(data, writer, sheet_name="模型报告", start_row=end_row + 2, title=None, index=True, fill=False, theme_color='3f1dba')
     # data = data.reset_index(names=[("", ""), ("渠道", "时间")]).sort_values([("", ""), ("渠道", "时间")]).reset_index(drop=True)
     # end_row, end_col = dataframe2excel(data, writer, sheet_name="模型报告", start_row=end_row + 2, title=None, index=False, fill=True, merge_column=[("", "")], merge=True, theme_color='3f1dba')
     # end_row, end_col = dataframe2excel(data, writer, sheet_name="模型报告", start_row=end_row + 2, index=False, fill=False, merge_column=[("", "")], merge=True, auto_width=False, theme_color='3f1dba')

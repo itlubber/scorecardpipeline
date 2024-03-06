@@ -647,6 +647,7 @@ class Combiner(TransformerMixin, BaseEstimator):
         table['指标IV值'] = table['分档IV值'].sum()
 
         table["LIFT值"] = table['坏样本率'] / (table["坏样本数"].sum() / table["样本总数"].sum())
+        table["坏账改善"] = (table["坏样本数"].sum() / table["样本总数"].sum() - (table["坏样本数"].sum() - table["坏样本数"]) / (table["样本总数"].sum() - table["样本总数"])) / (table["坏样本数"].sum() / table["样本总数"].sum())
         
         def reverse_series(series):
             return series.reindex(series.index[::-1])
@@ -654,6 +655,7 @@ class Combiner(TransformerMixin, BaseEstimator):
         if greater_is_better == "auto":
             if table[table["分箱"] != "缺失值"]["LIFT值"].iloc[-1] > table["LIFT值"].iloc[0]:
                 table["累积LIFT值"] = (reverse_series(table['坏样本数']).cumsum() / reverse_series(table['样本总数']).cumsum()) / (table["坏样本数"].sum() / table["样本总数"].sum())
+                table["累积坏账改善"] = (table["坏样本数"].sum() / table["样本总数"].sum() - (table["坏样本数"].sum() - reverse_series(table['坏样本数']).cumsum()) / (table["样本总数"].sum() - reverse_series(table['样本总数']).cumsum())) / (table["坏样本数"].sum() / table["样本总数"].sum())
                 if ks:
                     table = table.sort_values("分箱")
                     table["累积好样本数"] = reverse_series(table["好样本数"]).cumsum()
@@ -661,6 +663,7 @@ class Combiner(TransformerMixin, BaseEstimator):
                     table["分档KS值"] = table["累积坏样本数"] / table['坏样本数'].sum() - table["累积好样本数"] / table['好样本数'].sum()
             else:
                 table["累积LIFT值"] = (table['坏样本数'].cumsum() / table['样本总数'].cumsum()) / (table["坏样本数"].sum() / table["样本总数"].sum())
+                table["累积坏账改善"] = (table["坏样本数"].sum() / table["样本总数"].sum() - (table["坏样本数"].sum() - table['坏样本数'].cumsum()) / (table["样本总数"].sum() - table['样本总数'].cumsum())) / (table["坏样本数"].sum() / table["样本总数"].sum())
                 if ks:
                     table = table.sort_values("分箱")
                     table["累积好样本数"] = table["好样本数"].cumsum()
@@ -668,6 +671,7 @@ class Combiner(TransformerMixin, BaseEstimator):
                     table["分档KS值"] = table["累积坏样本数"] / table['坏样本数'].sum() - table["累积好样本数"] / table['好样本数'].sum()
         elif greater_is_better is False:
             table["累积LIFT值"] = (reverse_series(table['坏样本数']).cumsum() / reverse_series(table['样本总数']).cumsum()) / (table["坏样本数"].sum() / table["样本总数"].sum())
+            table["累积坏账改善"] = (table["坏样本数"].sum() / table["样本总数"].sum() - (table["坏样本数"].sum() - reverse_series(table['坏样本数']).cumsum()) / (table["样本总数"].sum() - reverse_series(table['样本总数']).cumsum())) / (table["坏样本数"].sum() / table["样本总数"].sum())
             if ks:
                 table = table.sort_values("分箱")
                 table["累积好样本数"] = reverse_series(table["好样本数"]).cumsum()
@@ -675,6 +679,7 @@ class Combiner(TransformerMixin, BaseEstimator):
                 table["分档KS值"] = table["累积坏样本数"] / table['坏样本数'].sum() - table["累积好样本数"] / table['好样本数'].sum()
         else:
             table["累积LIFT值"] = (table['坏样本数'].cumsum() / table['样本总数'].cumsum()) / (table["坏样本数"].sum() / table["样本总数"].sum())
+            table["累积坏账改善"] = (table["坏样本数"].sum() / table["样本总数"].sum() - (table["坏样本数"].sum() - table['坏样本数'].cumsum()) / (table["样本总数"].sum() - table['样本总数'].cumsum())) / (table["坏样本数"].sum() / table["样本总数"].sum())
             if ks:
                 table = table.sort_values("分箱")
                 table["累积好样本数"] = table["好样本数"].cumsum()
@@ -687,9 +692,9 @@ class Combiner(TransformerMixin, BaseEstimator):
         if return_cols:
             table = table[[c for c in return_cols if c in table.columns]]
         elif ks:
-            table = table[['指标名称', "指标含义", '分箱', '样本总数', '样本占比', '好样本数', '好样本占比', '坏样本数', '坏样本占比', '坏样本率', '分档WOE值', '分档IV值', '指标IV值', 'LIFT值', '累积LIFT值', '累积好样本数', '累积坏样本数', '分档KS值']]
+            table = table[['指标名称', "指标含义", '分箱', '样本总数', '样本占比', '好样本数', '好样本占比', '坏样本数', '坏样本占比', '坏样本率', '分档WOE值', '分档IV值', '指标IV值', 'LIFT值', '坏账改善', '累积LIFT值', '累积坏账改善', '累积好样本数', '累积坏样本数', '分档KS值']]
         else:
-            table = table[['指标名称', "指标含义", '分箱', '样本总数', '样本占比', '好样本数', '好样本占比', '坏样本数', '坏样本占比', '坏样本率', '分档WOE值', '分档IV值', '指标IV值', 'LIFT值', '累积LIFT值']]
+            table = table[['指标名称', "指标含义", '分箱', '样本总数', '样本占比', '好样本数', '好样本占比', '坏样本数', '坏样本占比', '坏样本率', '分档WOE值', '分档IV值', '指标IV值', 'LIFT值', '坏账改善', '累积LIFT值', '累积坏账改善']]
 
         if return_rules:
             return table, list(_combiner[feature])

@@ -146,7 +146,7 @@ class Rule:
         :return: pd.DataFrame，规则效果评估表
         """
         if return_cols is None:
-            return_cols = ['指标名称', "指标含义", '分箱', '样本总数', '样本占比', '好样本数', '好样本占比', '坏样本数', '坏样本占比', '坏样本率', 'LIFT值']
+            return_cols = ['指标名称', "指标含义", '分箱', '样本总数', '样本占比', '好样本数', '好样本占比', '坏样本数', '坏样本占比', '坏样本率', 'LIFT值', '坏账改善']
             if desc is None or desc == "" and "指标含义" in return_cols:
                 return_cols.remove("指标含义")
 
@@ -184,13 +184,13 @@ class Rule:
 
         # 规则上线后增益评估
         # 坏账率变化情况: 上线后拒绝多少比例的坏客户同时拒绝后坏账水平多少，在原始数据基础上换张改善多少
-        total_bad, total = table["坏样本数"].sum(), table["样本总数"].sum()
-        total_bad_rate = total_bad / total
-        table["坏账改善"] = (total_bad_rate - (total_bad - table["坏样本数"]) / (total - table["样本总数"])) / total_bad_rate
+        # total_bad, total = table["坏样本数"].sum(), table["样本总数"].sum()
+        # total_bad_rate = total_bad / total
+        # table["坏账改善"] = (total_bad_rate - (total_bad - table["坏样本数"]) / (total - table["样本总数"])) / total_bad_rate
 
         if prior_rules:
             prior_tables.insert(loc=0, column="规则分类", value=["先验规则"] * len(prior_tables))
-            prior_tables["坏账改善"] = np.nan
+            # prior_tables["坏账改善"] = np.nan
             table.insert(loc=0, column="规则分类", value=["验证规则"] * len(table))
             table = pd.concat([prior_tables, table]).set_index(["规则分类"])
 
@@ -363,7 +363,7 @@ class Rule:
         return r
 
     def __mul__(self, other):
-        return self._or_(other)
+        return self.__or__(other)
 
     def __invert__(self):
         r = Rule(f"~({self.expr})")
