@@ -110,12 +110,16 @@ html_theme_options = {
 }
 
 htmlhelp_basename = "scorecardpipeline"
+html_last_updated_fmt = "%Y-%m-%d %H:%M:%S"
+html_permalinks = False
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
-
+html_extra_path = ["CNAME"]
+suppress_warnings = []
+html_show_search_summary = True
 
 # 显示类的 __init__ 相关文档
 autodoc_default_options = {
@@ -123,7 +127,7 @@ autodoc_default_options = {
     "member-order": "bysource",
     "special-members": "__init__",
     "undoc-members": True,
-    "exclude-members": "__weakref__",
+    "exclude-members": "__weakref__,set_fit_request,set_transform_request,set_decision_function_request,set_score_request,set_predict_request,Pipeline,FeatureUnion,RuleState,RuleStateError,RuleUnAppliedError",
 }
 
 # # 支持文档格式
