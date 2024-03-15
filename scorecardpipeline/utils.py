@@ -790,3 +790,37 @@ def distribution_plot(data, date="date", target="target", save=None, figsize=(10
         temp["坏样本率"] = temp["坏样本"] / temp["样本总数"]
 
         return temp[["日期", "样本总数", "样本占比", "好样本", "好样本占比", "坏样本", "坏样本占比", "坏样本率"]]
+
+
+def sample_lift_transformer(df, rule, target='target', sample_rate=0.7):
+    """采取好坏样本 sample_rate:1 的抽样方式时，计算抽样样本和原始样本上的 lift 指标
+
+    :param df: 原始数据，需全部为数值型变量
+    :param rule: Rule
+    :param target: 目标变量名称
+    :param sample_rate: 好样本采样比例
+
+    :return:
+        lift_sam: float, 抽样样本上拒绝人群的lift
+        lift_ori: float, 原始样本上拒绝人群的lift
+    """
+    rj_df = df[rule.predict(df)]
+    ps_df = df[~rule.predict(df)]
+
+    # 拒绝样本好坏样本数
+    rj = len(rj_df)
+    bad_rj = rj_df[target].sum()
+    good_rj = rj - bad_rj
+
+    # 通过样本好坏样本数
+    ps = len(ps_df)
+    bad_ps = ps_df[target].sum()
+    good_ps = ps - bad_ps
+
+    # 抽样样本上的lift
+    lift_sam = (bad_rj / rj) / ((bad_rj + bad_ps) / (rj + ps))
+
+    # 原始样本上的lift
+    lift_ori = bad_rj / (bad_rj + bad_ps) * (1 + (sample_rate * bad_ps + good_ps) / (sample_rate * bad_rj + good_rj))
+
+    return lift_sam, lift_ori

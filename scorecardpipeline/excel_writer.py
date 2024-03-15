@@ -317,13 +317,12 @@ class ExcelWriter:
             merge_rows = None
 
         def _iter_rows(df, header=True, index=True):
-            for i, row in enumerate(dataframe_to_rows(df, header=header, index=index)):
-                columns = df.columns.tolist()
+            columns = df.columns.tolist()
+            indexs = df.index.tolist()
+            for i, row in enumerate(dataframe_to_rows(df, header=header, index=False)):
                 if header:
-                    if index:
-                        if i == df.columns.nlevels:
-                            continue
-                        elif i < df.columns.nlevels:
+                    if i < df.columns.nlevels:
+                        if index:
                             if df.columns.nlevels > 1:
                                 if i == df.columns.nlevels - 1:
                                     yield list(df.index.names) + [c[i] for c in columns]
@@ -334,14 +333,20 @@ class ExcelWriter:
                             else:
                                 yield list(df.index.names) + columns
                                 continue
+                        else:
+                            if df.columns.nlevels > 1 and i < df.columns.nlevels:
+                                yield [c[i] for c in columns]
+                                continue
                     else:
-                        if df.columns.nlevels > 1 and i < df.columns.nlevels:
-                            yield [c[i] for c in columns]
-                            continue
+                        if index:
+                            yield list(indexs[i - df.columns.nlevels]) + row
+                        else:
+                            yield row
                 else:
-                    if index and i == 0:
-                        continue
-                yield row
+                    if index:
+                        yield list(indexs[i]) + row
+                    else:
+                        yield row
 
         for i, row in enumerate(_iter_rows(df, header=header, index=index)):
             if fill:

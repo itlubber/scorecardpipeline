@@ -51,7 +51,7 @@ def auto_data_testing_report(data, features=None, target="target", date=None, da
 
     worksheet = writer.get_sheet_by_name(sheet)
 
-    end_row, end_col = writer.insert_value2sheet(worksheet, (start_row, start_col), value="数据有效性分析报告", style="header_middle", end_space=(start_row, start_col + 17))
+    end_row, end_col = writer.insert_value2sheet(worksheet, (start_row, start_col), value="数据有效性分析报告", style="header_middle", end_space=(start_row, start_col + 19))
 
     if date is not None and date in data.columns:
         if data[date].dtype.name in ["str", "object"]:
@@ -87,11 +87,11 @@ def auto_data_testing_report(data, features=None, target="target", date=None, da
     # 变量相关性
     if corr:
         temp = data[features].select_dtypes(include="number")
-        corr_plot(temp, save=f"model_report/auto_report_corr_plot.png", annot=True)
-        end_row, end_col = dataframe2excel(temp.corr(), writer, worksheet, color_cols=list(temp.columns), start_row=end_row, figures=["model_report/auto_report_corr_plot.png"], title="数值类变量相关性", figsize=(700, 500), index=True, custom_cols=list(temp.columns), custom_format="0.00")
+        corr_plot(temp, save=f"model_report/auto_report_corr_plot.png", annot=True if len(temp.columns) <= 10 else False, fontsize=14 if len(temp.columns) <= 10 else 12)
+        end_row, end_col = dataframe2excel(temp.corr(), writer, worksheet, color_cols=list(temp.columns), start_row=end_row, figures=["model_report/auto_report_corr_plot.png"], title="数值类变量相关性", figsize=(min(60 * len(temp.columns), 1080), min(55 * len(temp.columns), 950)), index=True, custom_cols=list(temp.columns), custom_format="0.00")
         end_row += 2
 
-    end_row, end_col = writer.insert_value2sheet(worksheet, (end_row, start_col), value="数值类特征 OR 评分效果评估", style="header_middle", end_space=(end_row, start_col + 17))
+    end_row, end_col = writer.insert_value2sheet(worksheet, (end_row, start_col), value="数值类特征 OR 评分效果评估", style="header_middle", end_space=(end_row, start_col + 19))
     features_iter = tqdm(features)
     for col in features_iter:
         features_iter.set_postfix(feature=feature_map.get(col, col))

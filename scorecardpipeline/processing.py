@@ -644,8 +644,6 @@ class Combiner(TransformerMixin, BaseEstimator):
 
         table = table.replace(np.inf, 0).replace(-np.inf, 0)
 
-        table['指标IV值'] = table['分档IV值'].sum()
-
         table["LIFT值"] = table['坏样本率'] / (table["坏样本数"].sum() / table["样本总数"].sum())
         table["坏账改善"] = (table["坏样本数"].sum() / table["样本总数"].sum() - (table["坏样本数"].sum() - table["坏样本数"]) / (table["样本总数"].sum() - table["样本总数"])) / (table["坏样本数"].sum() / table["样本总数"].sum())
         
@@ -688,6 +686,7 @@ class Combiner(TransformerMixin, BaseEstimator):
 
         table["分箱"] = table["分箱"].map(feature_bin_dict)
         table = table.set_index(['指标名称', '指标含义', '分箱']).reindex([(feature, desc, b) for b in feature_bin_dict.values()]).fillna(0).reset_index()
+        table['指标IV值'] = table['分档IV值'].sum()
 
         if return_cols:
             table = table[[c for c in return_cols if c in table.columns]]
