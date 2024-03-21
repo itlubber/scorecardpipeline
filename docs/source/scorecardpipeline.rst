@@ -52,7 +52,7 @@ scorecardpipeline.utils
    :show-inheritance:
 
 
-scorecardpipeline.excel\_writer
+scorecardpipeline.excel_writer
 ======================================
 
 .. automodule:: scorecardpipeline.excel_writer
@@ -65,6 +65,15 @@ scorecardpipeline.rule
 ======================================
 
 .. automodule:: scorecardpipeline.rule
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+
+scorecardpipeline.rule_extraction
+======================================
+
+.. automodule:: scorecardpipeline.rule_extraction
    :members:
    :undoc-members:
    :show-inheritance:

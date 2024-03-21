@@ -255,7 +255,7 @@ class DecisionTreeRuleExtractor:
         :param max_samples: 每条组合策略的最大样本占比，默认 1.0，即全部组合策略
         :param min_score: 决策树拟合时最小的auc，如果不满足则停止后续生成决策树
         :param verbose: 是否调试模式，仅在 jupyter 环境有效
-        :param kwargs: DecisionTreeClassifier 参数
+        :param kwargs: DecisionTreeClassifier 参数，参考 https://scikit-learn.org/stable/modules/generated/sklearn.tree.DecisionTreeClassifier.html
         """
         worksheet = self.writer.get_sheet_by_name("策略详情")
 
