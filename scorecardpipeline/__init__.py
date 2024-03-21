@@ -20,7 +20,7 @@ from .rule import Rule
 from .rule_extraction import DecisionTreeRuleExtractor
 
 
-__version__ = "0.1.33"
+__version__ = "0.1.34"
 __all__ = (
     "__version__"
     , "FeatureSelection", "FeatureImportanceSelector", "StepwiseSelection", "Combiner", "WOETransformer"
