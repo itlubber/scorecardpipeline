@@ -183,7 +183,7 @@ class RoundStandardScoreTransformer(StandardScoreTransformer):
 
 class BoxCoxScoreTransformer(BaseScoreTransformer):
     def __init__(self, down_lmt=300, up_lmt=1000, greater_is_better=True, cutoff=None):
-        super(BoxCoxScoreTransformer, self).__init__(down_lmt=down_lmt, up_lmt=up_lmt, greater_is_better=greater_is_better, cutoff=cutoff)
+        super().__init__(down_lmt=down_lmt, up_lmt=up_lmt, greater_is_better=greater_is_better, cutoff=cutoff)
 
     @staticmethod
     def _box_cox_optimize(x):
@@ -205,6 +205,7 @@ class BoxCoxScoreTransformer(BaseScoreTransformer):
             self.lambdas_ = np.array([self._box_cox_optimize(col) for col in X.T])
         for i, lmbda in enumerate(self.lambdas_):
             X[:, i] = stats.boxcox(X[:, i], lmbda)
+        print(X.max(), X.min(), X.mean())
         self.scaler_ = MinMaxScaler(feature_range=(self.down_lmt, self.up_lmt)).fit(X)
         return self
 
@@ -295,11 +296,11 @@ if __name__ == '__main__':
 
     test_select = h2o.H2OFrame(load_pickle("/Users/lubberit/Desktop/workspace/scorecardpipeline/examples/model_report/h2o_model/test_select.pkl"))
 
-    model_path = 'model_report/h2o_model/StackedEnsemble_BestOfFamily_1_AutoML_1_20240415_162619'
+    model_path = '/Users/lubberit/Desktop/workspace/scorecardpipeline/examples/model_report/h2o_model/StackedEnsemble_BestOfFamily_1_AutoML_1_20240415_162619'
     best_model = h2o.load_model(model_path)
 
-    score_transform = StandardScoreTransformer(base_score=400, pdo=50, bad_rate=test_select["target"].mean()[0], greater_is_better=True)
-    # score_transform = BoxCoxScoreTransformer(greater_is_better=False)
+    # score_transform = StandardScoreTransformer(base_score=400, pdo=50, bad_rate=test_select["target"].mean()[0], greater_is_better=True)
+    score_transform = BoxCoxScoreTransformer(greater_is_better=False)
     y_pred = best_model.predict(test_select).as_data_frame()[["p1"]]
     score_transform.fit(y_pred)
 
@@ -307,4 +308,4 @@ if __name__ == '__main__':
     score = score_transform.transform(y_pred)
     print(score)
     print(score_transform.inverse_transform(score))
-    print(score_transform.scorecard_scale())
+    # print(score_transform.scorecard_scale())

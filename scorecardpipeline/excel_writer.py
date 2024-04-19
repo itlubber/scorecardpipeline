@@ -127,7 +127,7 @@ class ExcelWriter:
 
         self.workbook.move_sheet(worksheet, offset=offset)
 
-    def insert_value2sheet(self, worksheet, insert_space, value="", style="content", auto_width=False, end_space=None):
+    def insert_value2sheet(self, worksheet, insert_space, value="", style="content", auto_width=False, end_space=None, align: dict=None, max_col_width=50):
         """
         向sheet中的某个单元格插入某种样式的内容
 
@@ -137,6 +137,8 @@ class ExcelWriter:
         :param style: 渲染的样式，参考 init_style 中初始设置的样式
         :param end_space: 如果需要合并单元格，传入需要截止的单元格位置信息，可以是 "B2" 或者 (2, 2) 任意一种形式
         :param auto_width: 是否开启自动调整列宽
+        :param align: 文本排列方式, 参考: Alignment
+        :param max_col_width: 单元格列最大宽度，默认 50
 
         :return: 返回插入元素最后一列之后、最后一行之后的位置
         """
@@ -149,6 +151,11 @@ class ExcelWriter:
 
         cell = worksheet[f"{start_col}{start_row}"]
         cell.style = style
+
+        if align:
+            _align = {"horizontal": "center", "vertical": "center"}
+            _align.update(align)
+            cell.alignment = Alignment(**_align)
 
         if end_space is not None:
             if isinstance(end_space, str):
@@ -163,12 +170,13 @@ class ExcelWriter:
         worksheet[f"{start_col}{start_row}"] = value
 
         if auto_width:
-            # original_styles = [worksheet[f"{start_col}{i}"].fill for i in range(1, worksheet.max_row + 1)]
+            # original_styles = [worksheet[f"{start_col}{i}"].fill.copy() for i in range(1, worksheet.max_row + 1)]
             curr_width = worksheet.column_dimensions[start_col].width
-            auto_width = min(max([(self.check_contain_chinese(value)[1] * self.english_width + self.check_contain_chinese(value)[2] * self.chinese_width) * self.fontsize, 10, curr_width]), 50)
+            auto_width = min(max([(self.check_contain_chinese(value)[1] * self.english_width + self.check_contain_chinese(value)[2] * self.chinese_width) * self.fontsize, 10, curr_width]), max_col_width)
             worksheet.column_dimensions[start_col].width = auto_width
+
             # for i in range(worksheet.max_row):
-            #     worksheet[f"{start_col}{i + 1}"].fill = original_styles[i].copy()
+            #     worksheet[f"{start_col}{i + 1}"].fill = original_styles[i]
 
         if end_space is not None:
             return end_row + 1, column_index_from_string(end_col) + 1
