@@ -4,6 +4,7 @@
 @Author  : itlubber
 @Site    : itlubber.art
 """
+import sys
 import warnings
 
 warnings.filterwarnings("ignore")
@@ -27,7 +28,7 @@ from openpyxl.styles import NamedStyle, Border, Side, Alignment, PatternFill, Fo
 
 class ExcelWriter:
 
-    def __init__(self, style_excel=None, style_sheet_name="初始化", mode="replace", fontsize=10, font='楷体', theme_color='2639E9', opacity=0.85, system="mac"):
+    def __init__(self, style_excel=None, style_sheet_name="初始化", mode="replace", fontsize=10, font='楷体', theme_color='2639E9', opacity=0.85, system=None):
         """excel 写入方法
 
         :param style_excel: 样式模版文件，默认安装包路径下的 template.xlsx ，如果路径调整需要进行相应的调整
@@ -40,6 +41,10 @@ class ExcelWriter:
         :param opacity: 写入dataframe时使用颜色填充主题色的透明度设置，默认 0.85
         """
         self.system = system
+
+        if self.system is None:
+            self.system = "mac" if sys.platform == "darwin" else "windows"
+
         self.english_width = 0.12
         self.chinese_width = 0.21
         self.mode = mode
@@ -204,7 +209,7 @@ class ExcelWriter:
         image.width, image.height = figsize
         worksheet.add_image(image, f"{start_col}{start_row}")
 
-        return start_row + int(figsize[1] / (17.5 if self.system != 'windows' else 16.0)), column_index_from_string(start_col) + 8
+        return start_row + int(figsize[1] / (16.0 if self.system != 'mac' else 17.5)), column_index_from_string(start_col) + 8
 
     def insert_rows(self, worksheet, row, row_index, col_index, merge_rows=None, style="", auto_width=False, style_only=False, multi_levels=False):
         """
