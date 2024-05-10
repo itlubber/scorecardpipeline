@@ -52,7 +52,7 @@ class DecisionTreeRuleExtractor:
         self.dt_rules = pd.DataFrame()
         self.end_row = 2
         self.start_col = 2
-        self.describe_columns = ["组合策略", "命中数", "命中率", "好样本数", "好样本占比", "坏样本数", "坏样本占比", "坏率", "样本整体坏率", "LIFT值"]
+        self.describe_columns = ["组合策略", "命中数", "命中率", "好样本数", "好样本占比", "坏样本数", "坏样本占比", "坏样本率", "LIFT值", "坏账改善", "准确率", "精确率", "召回率", "F1分数", "样本整体坏率"]
 
         init_setting()
 
