@@ -146,13 +146,11 @@ class StandardScoreTransformer(BaseScoreTransformer):
 
     def _more_tags(self):
         return {
-            "X_types": ["2darray"],
             "allow_nan": False,
         }
 
 
 class NPRoundStandardScoreTransformer(StandardScoreTransformer):
-    """Stretch the predict probability to a normal distributed score."""
 
     def __init__(self, base_score=660, pdo=75, bad_rate=0.15, down_lmt=300, up_lmt=1000, round_decimals=0, greater_is_better=True, cutoff=None):
         self.round_decimals = round_decimals
@@ -205,7 +203,6 @@ class BoxCoxScoreTransformer(BaseScoreTransformer):
             self.lambdas_ = np.array([self._box_cox_optimize(col) for col in X.T])
         for i, lmbda in enumerate(self.lambdas_):
             X[:, i] = stats.boxcox(X[:, i], lmbda)
-        print(X.max(), X.min(), X.mean())
         self.scaler_ = MinMaxScaler(feature_range=(self.down_lmt, self.up_lmt)).fit(X)
         return self
 
