@@ -18,6 +18,9 @@ from .auto_eda import auto_eda_sweetviz
 from .auto_report import auto_data_testing_report
 from .rule import Rule
 from .rule_extraction import DecisionTreeRuleExtractor
+from .feature_engineering import NumExprDerive
+from .feature_selection import RFE, RFECV, SelectKBest, SelectFromModel
+from .scorecard import StandardScoreTransformer, NPRoundStandardScoreTransformer, RoundStandardScoreTransformer, BoxCoxScoreTransformer
 
 
 __version__ = "0.1.34"
@@ -30,5 +33,7 @@ __all__ = (
     , "ColorScaleRule", "get_column_letter", "column_index_from_string", "seed_everything"
     , "feature_bins", "feature_bin_stats", "extract_feature_bin", "inverse_feature_bins", "sample_lift_transformer"
     , "bin_plot", "corr_plot", "ks_plot", "hist_plot", "psi_plot", "csi_plot", "dataframe_plot", "distribution_plot"
-    , "ExcelWriter", "dataframe2excel", "auto_eda_sweetviz", "auto_data_testing_report",
+    , "ExcelWriter", "dataframe2excel", "auto_eda_sweetviz", "auto_data_testing_report"
+    , "RFE", "RFECV", "SelectKBest", "SelectFromModel", "NumExprDerive"
+    , "StandardScoreTransformer", "NPRoundStandardScoreTransformer", "RoundStandardScoreTransformer", "BoxCoxScoreTransformer"
 )
