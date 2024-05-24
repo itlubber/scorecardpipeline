@@ -131,7 +131,7 @@ class Rule:
 
         return result
 
-    def report(self, datasets, target="target", overdue="overdue", dpd=-1, del_grey=False, desc="", return_cols=None, prior_rules=None) -> pd.DataFrame:
+    def report(self, datasets: pd.DataFrame, target="target", overdue=None, dpd=None, del_grey=False, desc="", return_cols=None, prior_rules=None) -> pd.DataFrame:
         """规则效果报告表格输出
 
         :param datasets: 数据集，需要包含 目标变量 或 逾期天数，当不包含目标变量时，会通过逾期天数计算目标变量，同时需要传入逾期定义的DPD天数
@@ -150,49 +150,64 @@ class Rule:
             if desc is None or desc == "" and "指标含义" in return_cols:
                 return_cols.remove("指标含义")
 
-        datasets = datasets.copy()
-        if target not in datasets.columns and overdue in datasets.columns and dpd >= 0:
-            datasets[target] = (datasets[overdue] > dpd).astype(int)
-
-            if isinstance(del_grey, bool) and del_grey:
-                grey = datasets[(datasets[overdue] > 0) & (datasets[overdue] <= dpd)].reset_index(drop=True)
-                datasets = datasets[(datasets[overdue] == 0) | (datasets[overdue] > dpd)].reset_index(drop=True)
-
         rule_expr = self.expr
 
-        if prior_rules:
-            prior_tables = prior_rules.report(datasets, target=target, overdue=overdue, dpd=dpd, del_grey=del_grey, desc=desc, return_cols=return_cols, prior_rules=None)
-            temp = datasets[~prior_rules.predict(datasets)]
-            rule_result = pd.DataFrame({rule_expr: np.where(self.predict(temp), "命中", "未命中"), "target": temp[target].tolist()})
+        def _report_one_rule(data, target, desc='', prior_rules=None):
+            if prior_rules:
+                prior_tables = prior_rules.report(data, target=target, desc=desc, prior_rules=None, return_cols=return_cols)
+                prior_tables["规则分类"] = "先验规则"
+                temp = data[~prior_rules.predict(data)]
+                rule_result = pd.DataFrame({rule_expr: np.where(self.predict(temp), "命中", "未命中"), "target": temp[target].tolist()})
+            else:
+                prior_tables = pd.DataFrame(columns=return_cols)
+                rule_result = pd.DataFrame({rule_expr: np.where(self.predict(datasets), "命中", "未命中"), "target": data[target].tolist()})
+
+            combiner = Combiner(target=target)
+            combiner.load({rule_expr: [["命中"], ["未命中"]]})
+            table = feature_bin_stats(rule_result, rule_expr, combiner=combiner, desc=desc, return_cols=return_cols)
+
+            # 准确率、精确率、召回率、F1分数
+            metrics = pd.DataFrame({
+                "分箱": ["命中", "未命中"],
+                "准确率": [accuracy_score(rule_result["target"], rule_result[rule_expr].map({"命中": 1, "未命中": 0})), accuracy_score(rule_result["target"], rule_result[rule_expr].map({"命中": 0, "未命中": 1}))],
+                "精确率": [precision_score(rule_result["target"], rule_result[rule_expr].map({"命中": 1, "未命中": 0})), precision_score(rule_result["target"], rule_result[rule_expr].map({"命中": 0, "未命中": 1}))],
+                "召回率": [recall_score(rule_result["target"], rule_result[rule_expr].map({"命中": 1, "未命中": 0})), recall_score(rule_result["target"], rule_result[rule_expr].map({"命中": 0, "未命中": 1}))],
+                "F1分数": [f1_score(rule_result["target"], rule_result[rule_expr].map({"命中": 1, "未命中": 0})), f1_score(rule_result["target"], rule_result[rule_expr].map({"命中": 0, "未命中": 1}))],
+            })
+            table = table.merge(metrics, on="分箱", how="left")
+
+            if prior_rules:
+                # prior_tables.insert(loc=0, column="规则分类", value=["先验规则"] * len(prior_tables))
+                table.insert(loc=0, column="规则分类", value=["验证规则"] * len(table))
+                table = pd.concat([prior_tables, table]).set_index(["规则分类"])
+            else:
+                table.insert(loc=0, column="规则分类", value=["验证规则"] * len(table))
+
+            return table
+
+        if overdue is not None:
+            if not isinstance(overdue, list):
+                overdue = [overdue]
+
+            if not isinstance(dpd, list):
+                dpd = [dpd]
+
+            for i, col in enumerate(overdue):
+                for j, d in enumerate(dpd):
+                    _datasets = datasets.copy()
+                    _datasets[f"{col}_{d}"] = (_datasets[col] > d).astype(int)
+
+                    if isinstance(del_grey, bool) and del_grey:
+                        _datasets = _datasets.query(f"({col} > {d}) | ({col} == 0)").reset_index(drop=True)
+
+                    if i == 0 and j == 0:
+                        table = _report_one_rule(_datasets, f"{col}_{d}", desc=desc, prior_rules=prior_rules).rename(columns={"坏账改善": f"{col} {d}+改善"})
+                    else:
+                        _table = _report_one_rule(_datasets, f"{col}_{d}", desc=desc, prior_rules=prior_rules).rename(columns={"坏账改善": f"{col} {d}+改善"})
+                        table = table.merge(_table[["规则分类", "分箱", f"{col} {d}+改善"]], on=["规则分类", "分箱"])
         else:
-            prior_tables = pd.DataFrame(columns=return_cols)
-            rule_result = pd.DataFrame({rule_expr: np.where(self.predict(datasets), "命中", "未命中"), "target": datasets[target].tolist()})
-
-        combiner = Combiner(target=target)
-        combiner.load({rule_expr: [["命中"], ["未命中"]]})
-        table = feature_bin_stats(rule_result, rule_expr, combiner=combiner, desc=desc, return_cols=return_cols)
-
-        # 准确率、精确率、召回率、F1分数
-        metrics = pd.DataFrame({
-            "分箱": ["命中", "未命中"],
-            "准确率": [accuracy_score(rule_result["target"], rule_result[rule_expr].map({"命中": 1, "未命中": 0})), accuracy_score(rule_result["target"], rule_result[rule_expr].map({"命中": 0, "未命中": 1}))],
-            "精确率": [precision_score(rule_result["target"], rule_result[rule_expr].map({"命中": 1, "未命中": 0})), precision_score(rule_result["target"], rule_result[rule_expr].map({"命中": 0, "未命中": 1}))],
-            "召回率": [recall_score(rule_result["target"], rule_result[rule_expr].map({"命中": 1, "未命中": 0})), recall_score(rule_result["target"], rule_result[rule_expr].map({"命中": 0, "未命中": 1}))],
-            "F1分数": [f1_score(rule_result["target"], rule_result[rule_expr].map({"命中": 1, "未命中": 0})), f1_score(rule_result["target"], rule_result[rule_expr].map({"命中": 0, "未命中": 1}))],
-        })
-        table = table.merge(metrics, on="分箱", how="left")
-
-        # 规则上线后增益评估
-        # 坏账率变化情况: 上线后拒绝多少比例的坏客户同时拒绝后坏账水平多少，在原始数据基础上换张改善多少
-        # total_bad, total = table["坏样本数"].sum(), table["样本总数"].sum()
-        # total_bad_rate = total_bad / total
-        # table["坏账改善"] = (total_bad_rate - (total_bad - table["坏样本数"]) / (total - table["样本总数"])) / total_bad_rate
-
-        if prior_rules:
-            prior_tables.insert(loc=0, column="规则分类", value=["先验规则"] * len(prior_tables))
-            # prior_tables["坏账改善"] = np.nan
-            table.insert(loc=0, column="规则分类", value=["验证规则"] * len(table))
-            table = pd.concat([prior_tables, table]).set_index(["规则分类"])
+            _datasets = datasets.copy()
+            table = _report_one_rule(_datasets, target, desc=desc, prior_rules=prior_rules)
 
         return table
 

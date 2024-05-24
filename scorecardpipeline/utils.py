@@ -20,7 +20,7 @@ import matplotlib.pyplot as plt
 from matplotlib import font_manager
 from matplotlib.ticker import PercentFormatter, FuncFormatter
 import seaborn as sns
-from sklearn.metrics import roc_curve, auc
+from sklearn.metrics import roc_curve, auc, roc_auc_score
 import toad
 from optbinning import OptimalBinning
 
@@ -379,9 +379,16 @@ def ks_plot(score, target, title="", fontsize=14, figsize=(16, 8), save=None, co
     :param anchor: 图例显示的位置，默认 0.945，根据实际显示情况进行调整即可，0.95 附近小范围调整
     :return: Figure
     """
-    if np.mean(score) < 0 or np.mean(score) > 1:
-        warnings.warn('Since the average of pred is not in [0,1], it is treated as credit score but not probability.')
+    auc_value = roc_auc_score(target, score)
+
+    if auc_value < 0.5:
+        warnings.warn('评分AUC指标小于50%, 推断数据值越大, 正样本率越高, 将数据值转为负数后进行绘图')
         score = -score
+        auc_value = 1 - auc_value
+
+    # if np.mean(score) < 0 or np.mean(score) > 1:
+    #     warnings.warn('Since the average of pred is not in [0,1], it is treated as credit score but not probability.')
+    #     score = -score
 
     df = pd.DataFrame({'label': target, 'pred': score})
 
@@ -430,7 +437,6 @@ def ks_plot(score, target, title="", fontsize=14, figsize=(16, 8), save=None, co
 
     # ROC 曲线
     fpr, tpr, thresholds = roc_curve(target, score)
-    auc_value = toad.metrics.AUC(score, target)
 
     ax[1].plot(fpr, tpr, color=colors[0], label="ROC Curve")
     ax[1].stackplot(fpr, tpr, color=colors[0], alpha=0.25)
@@ -487,7 +493,7 @@ def hist_plot(score, y_true=None, figsize=(15, 10), bins=30, save=None, labels=[
     :return: Figure
     """
     target_unique = 1 if y_true is None else len(np.unique(y_true))
-    
+
     if y_true is not None:
         if isinstance(labels, dict):
             y_true = y_true.map(labels)
@@ -498,7 +504,7 @@ def hist_plot(score, y_true=None, figsize=(15, 10), bins=30, save=None, labels=[
     else:
         y_true = None
         hue_order = None
-    
+
     fig, ax = plt.subplots(1, 1, figsize=figsize)
     palette = sns.diverging_palette(340, 267, n=target_unique, s=100, l=40)
 
@@ -517,7 +523,7 @@ def hist_plot(score, y_true=None, figsize=(15, 10), bins=30, save=None, labels=[
     ax.set_ylabel("样本占比", fontsize=fontsize)
 
     ax.yaxis.set_major_formatter(PercentFormatter(1))
-    
+
     ax.set_title(f"{desc + ' ' if desc else '特征'}分布情况\n\n", fontsize=fontsize)
 
     if y_true is not None:
