@@ -93,6 +93,8 @@ pip install dist/scorecardpipeline-0.1.11-py3-none-any.whl
 
 `评分卡` 转 `PMML` 目前部分依赖 `java` ，如果需要解锁这部分功能，需要先安装 `jdk` 环境，推荐 `jdk 1.8 +`
 
+如果 `windows` 用户在安装过程中报错提示 `Microsoft Visual C++` 相关的异常信息，请下载安装 [`Latest Supported Visual C++ Redistributable`](https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist?view=msvc-170#latest-microsoft-visual-c-redistributable-version) 后再重新安装
+
 
 ## 评分卡建模
 
