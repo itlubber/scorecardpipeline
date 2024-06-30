@@ -20,6 +20,7 @@ from openpyxl.cell.cell import Cell
 from openpyxl.drawing.image import Image
 from openpyxl import load_workbook, Workbook
 from openpyxl.worksheet.worksheet import Worksheet
+from openpyxl.worksheet.hyperlink import Hyperlink
 from openpyxl.utils.dataframe import dataframe_to_rows
 from openpyxl.formatting.rule import DataBarRule, ColorScaleRule
 from openpyxl.utils import get_column_letter, column_index_from_string
@@ -131,6 +132,46 @@ class ExcelWriter:
                 offset = total_sheets - 1
 
         self.workbook.move_sheet(worksheet, offset=offset)
+
+    def insert_hyperlink2sheet(self, worksheet, insert_space, hyperlink=None, file=None, sheet=None, target_space=None):
+        """向sheet中的某个单元格插入超链接
+
+        :param worksheet: 需要插入超链接的sheet
+        :param insert_space: 超链接插入的单元格位置，可以是 "B2" 或者 (2, 2) 任意一种形式，首个单元格从 (1, 1) 开始
+        :param hyperlink: 超链接的地址, 与 target_space 参数互斥，优先 hyperlink，格式参考: [f"file://{文件地址} - #{表名}!{单元格位置}", f"#{表名}!{单元格位置}", f"{单元格位置}"], 其中 单元格位置 为类似 "B2" 的格式
+        :param file: 超链接的文件路径，默认 None，即当前excel文件，传入 hyperlink 参数时无效，传入file时确保sheet参数已传，否则默认为当前sheet
+        :param sheet: 超链接的sheet名称，默认 None，即当前sheet，传入 hyperlink 参数时无效
+        :param target_space: 超链接的单元格位置，默认 None，支持 "B2" 或者 (2, 2) 任意一种形式，传入 hyperlink 参数时无效
+        """
+        if isinstance(insert_space, str):
+            start_col = re.findall('\D+', insert_space)[0]
+            start_row = int(re.findall("\d+", insert_space)[0])
+        else:
+            start_col = get_column_letter(insert_space[1])
+            start_row = insert_space[0]
+
+        cell = worksheet[f"{start_col}{start_row}"]
+
+        if hyperlink is None:
+            if target_space is None:
+                raise ValueError("hyperlink 和 target_space 二选一，必须选择传入一个")
+
+            if sheet is None:
+                sheet = worksheet.title
+
+            if isinstance(target_space, str):
+                target_col = re.findall('\D+', target_space)[0]
+                target_row = int(re.findall("\d+", target_space)[0])
+            else:
+                target_col = get_column_letter(target_space[1])
+                target_row = target_space[0]
+
+            if file:
+                hyperlink = f"file://{file} - #{sheet}!{target_col}{target_row}"
+            else:
+                hyperlink = f"#{sheet}!{target_col}{target_row}"
+
+        cell.hyperlink = Hyperlink(ref=f"{start_col}{start_row}", location=hyperlink, display=f"{cell.value}")
 
     def insert_value2sheet(self, worksheet, insert_space, value="", style="content", auto_width=False, end_space=None, align: dict=None, max_col_width=50):
         """
@@ -854,6 +895,7 @@ if __name__ == "__main__":
 
     sample = pd.DataFrame(np.concatenate([np.random.random_sample((10, 10)) * 40, np.random.randint(0, 3, (10, 2))], axis=1), columns=[f"B{i}" for i in range(10)] + ["target", "type"])
     end_row, end_col = writer.insert_df2sheet(worksheet, sample, (end_row + 2, column_index_from_string("B")), fill=True, header=False, index=True)
+    writer.insert_hyperlink2sheet(worksheet, "B2", hyperlink="D5")
     end_row, end_col = writer.insert_df2sheet(worksheet, sample.set_index("type"), (end_row + 2, column_index_from_string("B")), merge_column=["target"], index=True, fill=True, merge=True)
     end_row, end_col = writer.insert_df2sheet(worksheet, sample, (end_row + 2, column_index_from_string("B")), merge_column=["target", "type"], index=True, fill=False, merge=True)
     end_row, end_col = writer.insert_df2sheet(worksheet, sample.sort_values(["target", "type"]), (end_row + 2, column_index_from_string("B")), merge_column=["target"], index=True, fill=False, merge=True)
@@ -869,6 +911,7 @@ if __name__ == "__main__":
     data = data.reset_index(names=[("", ""), ("渠道", "时间")]).sort_values([("", ""), ("渠道", "时间")]).reset_index(drop=True)
     end_row, end_col = dataframe2excel(data, writer, sheet_name="模型报告", start_row=end_row + 2, title=None, index=False, fill=True, merge_column=[("", "")], merge=True, theme_color='3f1dba')
     end_row, end_col = dataframe2excel(data, writer, sheet_name="模型报告", start_row=end_row + 2, index=False, fill=False, merge_column=[("", "")], merge=True, auto_width=False, theme_color='3f1dba')
+
     for color_rows in data[data[("渠道", "时间")] == "命中率"].index:
         rule = ColorScaleRule(start_type='num', start_value=0, start_color='3f1dba', end_type='num', end_value=data.iloc[color_rows, 2:].max(), end_color='c04d9c')
         worksheet.conditional_formatting.add(f"{get_column_letter(2 + 2)}{end_row - len(data) + color_rows}:{get_column_letter(2 + len(data.columns))}{end_row - len(data) + color_rows}", rule)

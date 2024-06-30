@@ -127,6 +127,7 @@ class Rule:
             result = _apply_expr_on_array(self.expr, X, feature_names)
         else:
             raise TypeError("Rule currently only supports dict and expression")
+
         self.result_ = result
 
         return result
@@ -179,7 +180,7 @@ class Rule:
             if prior_rules:
                 # prior_tables.insert(loc=0, column="规则分类", value=["先验规则"] * len(prior_tables))
                 table.insert(loc=0, column="规则分类", value=["验证规则"] * len(table))
-                table = pd.concat([prior_tables, table]).set_index(["规则分类"])
+                table = pd.concat([prior_tables, table]) #.set_index(["规则分类"])
             else:
                 table.insert(loc=0, column="规则分类", value=["验证规则"] * len(table))
 

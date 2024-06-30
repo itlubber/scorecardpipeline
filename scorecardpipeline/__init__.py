@@ -23,7 +23,7 @@ from .feature_selection import RFE, RFECV, SelectKBest, SelectFromModel
 from .scorecard import StandardScoreTransformer, NPRoundStandardScoreTransformer, RoundStandardScoreTransformer, BoxCoxScoreTransformer
 
 
-__version__ = "0.1.34"
+__version__ = "0.1.35"
 __all__ = (
     "__version__"
     , "FeatureSelection", "FeatureImportanceSelector", "StepwiseSelection", "Combiner", "WOETransformer"

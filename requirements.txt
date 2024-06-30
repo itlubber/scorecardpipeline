@@ -26,3 +26,5 @@ six>=1.15.0
 openpyxl>=3.0.7
 sweetviz
 numexpr
+cvxpy>=1.4.1
+protobuf>=5.27.0
