@@ -132,13 +132,13 @@ class Rule:
 
         return result
 
-    def report(self, datasets: pd.DataFrame, target="target", overdue=None, dpd=None, del_grey=False, desc="", return_cols=None, prior_rules=None) -> pd.DataFrame:
+    def report(self, datasets: pd.DataFrame, target="target", overdue=None, dpd=None, del_grey=False, desc="", filter_cols=None, prior_rules=None) -> pd.DataFrame:
         """规则效果报告表格输出
 
         :param datasets: 数据集，需要包含 目标变量 或 逾期天数，当不包含目标变量时，会通过逾期天数计算目标变量，同时需要传入逾期定义的DPD天数
         :param target: 目标变量名称，默认 target
         :param desc: 规则相关的描述，会出现在返回的表格当中
-        :param return_cols: 指定返回的字段列表，默认不传
+        :param filter_cols: 指定返回的字段列表，默认不传
         :param prior_rules: 先验规则，可以传入先验规则先筛选数据后再评估规则效果
         :param overdue: 逾期天数字读名称
         :param dpd: 逾期定义方式，逾期天数 > DPD 为 1，其他为 0，仅 overdue 字段起作用时有用
@@ -146,16 +146,15 @@ class Rule:
 
         :return: pd.DataFrame，规则效果评估表
         """
-        if return_cols is None:
-            return_cols = ['指标名称', "指标含义", '分箱', '样本总数', '样本占比', '好样本数', '好样本占比', '坏样本数', '坏样本占比', '坏样本率', 'LIFT值', '坏账改善']
-            if desc is None or desc == "" and "指标含义" in return_cols:
-                return_cols.remove("指标含义")
+        return_cols = ['指标名称', "指标含义", '分箱', '样本总数', '样本占比', '好样本数', '好样本占比', '坏样本数', '坏样本占比', '坏样本率', 'LIFT值', '坏账改善']
+        if desc is None or desc == "" and "指标含义" in return_cols:
+            return_cols.remove("指标含义")
 
         rule_expr = self.expr
 
         def _report_one_rule(data, target, desc='', prior_rules=None):
             if prior_rules:
-                prior_tables = prior_rules.report(data, target=target, desc=desc, prior_rules=None, return_cols=return_cols)
+                prior_tables = prior_rules.report(data, target=target, desc=desc, prior_rules=None)
                 prior_tables["规则分类"] = "先验规则"
                 temp = data[~prior_rules.predict(data)]
                 rule_result = pd.DataFrame({rule_expr: np.where(self.predict(temp), "命中", "未命中"), "target": temp[target].tolist()})
@@ -186,6 +185,11 @@ class Rule:
 
             return table
 
+        if isinstance(del_grey, bool) and del_grey:
+            merge_columns = ["规则分类", "指标名称", "分箱"]
+        else:
+            merge_columns = ["规则分类", "指标名称", "分箱", "样本总数", "样本占比"]
+
         if overdue is not None:
             if not isinstance(overdue, list):
                 overdue = [overdue]
@@ -201,14 +205,26 @@ class Rule:
                     if isinstance(del_grey, bool) and del_grey:
                         _datasets = _datasets.query(f"({col} > {d}) | ({col} == 0)").reset_index(drop=True)
 
+                    if "指标含义" in return_cols:
+                        merge_columns.insert(0, "指标含义")
+
                     if i == 0 and j == 0:
-                        table = _report_one_rule(_datasets, f"{col}_{d}", desc=desc, prior_rules=prior_rules).rename(columns={"坏账改善": f"{col} {d}+改善"})
+                        table = _report_one_rule(_datasets, f"{col}_{d}", desc=desc, prior_rules=prior_rules) #.rename(columns={"坏账改善": f"{col} {d}+改善"})
+                        table.columns = pd.MultiIndex.from_tuples([("规则详情", c) if c in merge_columns else (f"{col} DPD{d}+", c) for c in table.columns])
                     else:
-                        _table = _report_one_rule(_datasets, f"{col}_{d}", desc=desc, prior_rules=prior_rules).rename(columns={"坏账改善": f"{col} {d}+改善"})
-                        table = table.merge(_table[["规则分类", "分箱", f"{col} {d}+改善"]], on=["规则分类", "分箱"])
+                        _table = _report_one_rule(_datasets, f"{col}_{d}", desc=desc, prior_rules=prior_rules) #.rename(columns={"坏账改善": f"{col} {d}+改善"})
+                        _table.columns = pd.MultiIndex.from_tuples([("规则详情", c) if c in merge_columns else (f"{col} DPD{d}+", c) for c in _table.columns])
+
+                        # table = table.merge(_table[["规则分类", "分箱", f"{col} {d}+改善"]], on=["规则分类", "分箱"])
+                        table = table.merge(_table, on=[("规则详情", c) for c in merge_columns])
         else:
             _datasets = datasets.copy()
             table = _report_one_rule(_datasets, target, desc=desc, prior_rules=prior_rules)
+
+        if filter_cols:
+            if not isinstance(filter_cols, list):
+                filter_cols = [filter_cols]
+            return table[[c for c in table.columns if (isinstance(c, tuple) and c[-1] in filter_cols + merge_columns) or (not isinstance(c, tuple) and c in filter_cols + merge_columns)]]
 
         return table
 
