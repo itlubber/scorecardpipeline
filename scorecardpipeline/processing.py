@@ -871,10 +871,10 @@ def feature_bin_stats(data, feature, target="target", overdue=None, dpd=None, ru
                     combiner = Combiner(target=target, adj_rules=rules, method=method, empty_separate=empty_separate, min_n_bins=2, max_n_bins=max_n_bins, min_bin_size=min_bin_size, max_bin_size=max_bin_size, **kwargs)
                     combiner.fit(_datasets)
 
-                table, rule = Combiner.feature_bin_stats(_datasets, feature, target=target, method=method, desc=desc, combiner=combiner, ks=ks, max_n_bins=max_n_bins, min_bin_size=min_bin_size, max_bin_size=max_bin_size, greater_is_better=greater_is_better, empty_separate=empty_separate, return_cols=return_cols, return_rules=True, verbose=verbose, **kwargs)
+                table, rule = Combiner.feature_bin_stats(_datasets, feature, target=target, method=method, desc=desc, combiner=combiner, ks=ks, max_n_bins=max_n_bins, min_bin_size=min_bin_size, max_bin_size=max_bin_size, greater_is_better=greater_is_better, empty_separate=empty_separate, return_rules=True, verbose=verbose, **kwargs)
                 table.columns = pd.MultiIndex.from_tuples([("分箱详情", c) if c in merge_columns else (target, c) for c in table.columns])
             else:
-                _table = Combiner.feature_bin_stats(_datasets, feature, target=target, method=method, desc=desc, combiner=combiner, ks=ks, max_n_bins=max_n_bins, min_bin_size=min_bin_size, max_bin_size=max_bin_size, greater_is_better=greater_is_better, empty_separate=empty_separate, return_cols=return_cols, verbose=verbose, **kwargs)
+                _table = Combiner.feature_bin_stats(_datasets, feature, target=target, method=method, desc=desc, combiner=combiner, ks=ks, max_n_bins=max_n_bins, min_bin_size=min_bin_size, max_bin_size=max_bin_size, greater_is_better=greater_is_better, empty_separate=empty_separate, verbose=verbose, **kwargs)
                 _table.columns = pd.MultiIndex.from_tuples([("分箱详情", c) if c in merge_columns else (target, c) for c in _table.columns])
 
                 table = table.merge(_table, on=[("分箱详情", c) for c in merge_columns])
