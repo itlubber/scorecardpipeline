@@ -421,7 +421,7 @@ class Combiner(TransformerMixin, BaseEstimator):
         self.min_prebin_size = min_prebin_size
         self.gamma = gamma
         self.monotonic_trend = monotonic_trend
-        self.adj_rules = adj_rules
+        self.adj_rules = adj_rules or {}
         self.n_jobs = n_jobs
 
     def update(self, rules):
@@ -491,11 +491,11 @@ class Combiner(TransformerMixin, BaseEstimator):
         :return: Combiner，训练完成的分箱器
         """
         x = x.copy()
-        
+
         # 处理数据集中分类变量包含 np.nan，toad 分箱后被转为 'nan' 字符串的问题
         cat_cols = list(x.drop(columns=self.target).select_dtypes(exclude="number").columns)
         # x[cat_cols] = x[cat_cols].replace(np.nan, None)
-        
+
         if self.method in ["cart", "mdlp", "uniform"]:
             feature_optbinning_bins = partial(self.optbinning_bins, data=x, target=self.target, min_n_bins=self.min_n_bins, max_n_bins=self.max_n_bins, max_n_prebins=self.max_n_prebins, min_prebin_size=self.min_prebin_size, min_bin_size=self.min_bin_size, max_bin_size=self.max_bin_size, gamma=self.gamma, monotonic_trend=self.monotonic_trend)
             if self.n_jobs > 1:
@@ -646,10 +646,10 @@ class Combiner(TransformerMixin, BaseEstimator):
 
         table["LIFT值"] = table['坏样本率'] / (table["坏样本数"].sum() / table["样本总数"].sum())
         table["坏账改善"] = (table["坏样本数"].sum() / table["样本总数"].sum() - (table["坏样本数"].sum() - table["坏样本数"]) / (table["样本总数"].sum() - table["样本总数"])) / (table["坏样本数"].sum() / table["样本总数"].sum())
-        
+
         def reverse_series(series):
             return series.reindex(series.index[::-1])
-        
+
         if greater_is_better == "auto":
             if table[table["分箱"] != "缺失值"]["LIFT值"].iloc[-1] > table["LIFT值"].iloc[0]:
                 table["累积LIFT值"] = (reverse_series(table['坏样本数']).cumsum() / reverse_series(table['样本总数']).cumsum()) / (table["坏样本数"].sum() / table["样本总数"].sum())
@@ -807,7 +807,88 @@ class Combiner(TransformerMixin, BaseEstimator):
         return iter(self.combiner._rules)
 
 
-feature_bin_stats = Combiner.feature_bin_stats
+def feature_bin_stats(data, feature, target="target", overdue=None, dpd=None, rules=None, method='step', desc="", combiner=None, ks=True, max_n_bins=None, min_bin_size=None, max_bin_size=None, greater_is_better="auto", empty_separate=True, return_cols=None, return_rules=False, del_grey=False, verbose=0, **kwargs):
+    """特征分箱统计表，汇总统计特征每个分箱的各项指标信息
+
+    :param data: 需要查看分箱统计表的数据集
+    :param feature: 需要查看的分箱统计表的特征名称
+    :param target: 数据集中标签名称，默认 target
+    :param overdue: 逾期天数字段名称, 当传入 overdue 时，会忽略 target 参数
+    :param dpd: 逾期定义方式，逾期天数 > DPD 为 1，其他为 0，仅 overdue 字段起作用时有用
+    :param del_grey: 是否删除逾期天数 (0, dpd] 的数据，仅 overdue 字段起作用时有用
+    :param rules: 根据自定义的规则查看特征分箱统计表，支持 list（单个特征分箱规则） 或 dict（多个特征分箱规则） 格式传入
+    :param combiner: 提前训练好的特征分箱器，优先级小于 rules
+    :param method: 特征分箱方法，当传入 rules 或 combiner 时失效，可选 "chi", "dt", "quantile", "step", "kmeans", "cart", "mdlp", "uniform", 参考 toad.Combiner: https://github.com/amphibian-dev/toad/blob/master/toad/transform.py#L178-L355 & optbinning.OptimalBinning: https://gnpalencia.org/optbinning/
+    :param desc: 特征描述信息，大部分时候用于传入特征对应的中文名称或者释义
+    :param ks: 是否统计 KS 信息
+    :param max_n_bins: 最大分箱数，默认 None，即不限制拆分箱数，推荐设置 3 ～ 5，不宜过多，偶尔使用 optbinning 时不起效
+    :param min_bin_size: 使用 optbinning 正式分箱叶子结点（或者每箱）最小样本占比，默认 5%
+    :param max_bin_size: 使用 optbinning 正式分箱叶子结点（或者每箱）最大样本占比，默认 None
+    :param empty_separate: 是否空值单独一箱, 默认 False，推荐设置为 True
+    :param return_cols: list，指定返回部分特征分箱统计表的列，默认 None
+    :param return_rules: 是否返回特征分箱信息，默认 False
+    :param greater_is_better: 是否越大越好，默认 ""auto", 根据最后两箱的 lift 指标自动推断是否越大越好, 可选 True、False、auto
+    :param kwargs: scorecardpipeline.processing.Combiner 的其他参数
+
+    :return:
+        + 特征分箱统计表: pd.DataFrame
+        + 特征分箱信息: list，当参数 return_rules 为 True 时返回
+
+    """
+    if overdue and dpd is None:
+        raise ValueError("传入 overdue 参数时必须同时传入 dpd")
+
+    if overdue is None:
+        return Combiner.feature_bin_stats(data, feature, target=target, rules=rules, method=method, desc=desc, combiner=combiner, ks=ks, max_n_bins=max_n_bins, min_bin_size=min_bin_size, max_bin_size=max_bin_size, greater_is_better=greater_is_better, empty_separate=empty_separate, return_cols=return_cols, return_rules=return_rules, verbose=verbose, **kwargs)
+
+    if not isinstance(overdue, list):
+        overdue = [overdue]
+
+    if not isinstance(dpd, list):
+        dpd = [dpd]
+
+    if isinstance(del_grey, bool) and del_grey:
+        merge_columns = ["指标名称", "指标含义", "分箱"]
+    else:
+        merge_columns = ["指标名称", "指标含义", "分箱", "样本总数", "样本占比"]
+
+    table = pd.DataFrame()
+    for i, col in enumerate(overdue):
+        for j, d in enumerate(dpd):
+            target = f"{col} {d}+"
+            _datasets = data[[feature] + overdue].copy()
+            _datasets[target] = (_datasets[col] > d).astype(int)
+
+            if isinstance(del_grey, bool) and del_grey:
+                _datasets = _datasets.query(f"({col} > {d}) | ({col} == 0)").reset_index(drop=True)
+
+            if i == 0 and j == 0:
+                if combiner is None:
+                    if rules is not None and len(rules) > 0:
+                        if isinstance(rules, (list, np.ndarray)):
+                            rules = {feature: rules}
+
+                    combiner = Combiner(target=target, adj_rules=rules, method=method, empty_separate=empty_separate, min_n_bins=2, max_n_bins=max_n_bins, min_bin_size=min_bin_size, max_bin_size=max_bin_size, **kwargs)
+                    combiner.fit(_datasets)
+
+                table, rule = Combiner.feature_bin_stats(_datasets, feature, target=target, method=method, desc=desc, combiner=combiner, ks=ks, max_n_bins=max_n_bins, min_bin_size=min_bin_size, max_bin_size=max_bin_size, greater_is_better=greater_is_better, empty_separate=empty_separate, return_cols=return_cols, return_rules=True, verbose=verbose, **kwargs)
+                table.columns = pd.MultiIndex.from_tuples([("分箱详情", c) if c in merge_columns else (target, c) for c in table.columns])
+            else:
+                _table = Combiner.feature_bin_stats(_datasets, feature, target=target, method=method, desc=desc, combiner=combiner, ks=ks, max_n_bins=max_n_bins, min_bin_size=min_bin_size, max_bin_size=max_bin_size, greater_is_better=greater_is_better, empty_separate=empty_separate, return_cols=return_cols, verbose=verbose, **kwargs)
+                _table.columns = pd.MultiIndex.from_tuples([("分箱详情", c) if c in merge_columns else (target, c) for c in _table.columns])
+
+                table = table.merge(_table, on=[("分箱详情", c) for c in merge_columns])
+
+    if return_cols is not None:
+        if not isinstance(return_cols, list):
+            return_cols = [return_cols]
+
+        table = table[[c for c in table.columns if (isinstance(c, tuple) and c[-1] in return_cols + merge_columns) or (not isinstance(c, tuple) and c in return_cols + merge_columns)]]
+
+    if return_rules:
+        return (table, rule)
+    else:
+        return table
 
 
 class WOETransformer(TransformerMixin, BaseEstimator):

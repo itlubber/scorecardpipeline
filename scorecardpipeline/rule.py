@@ -140,7 +140,7 @@ class Rule:
         :param desc: 规则相关的描述，会出现在返回的表格当中
         :param filter_cols: 指定返回的字段列表，默认不传
         :param prior_rules: 先验规则，可以传入先验规则先筛选数据后再评估规则效果
-        :param overdue: 逾期天数字读名称
+        :param overdue: 逾期天数字段名称
         :param dpd: 逾期定义方式，逾期天数 > DPD 为 1，其他为 0，仅 overdue 字段起作用时有用
         :param del_grey: 是否删除逾期天数 (0, dpd] 的数据，仅 overdue 字段起作用时有用
 
