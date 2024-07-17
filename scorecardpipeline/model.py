@@ -185,7 +185,7 @@ class ITLubberLogisticRegression(LogisticRegression):
         """
         :return: pd.DataFrame，逻辑回归模型统计信息
 
-        - `Coef.`: 逻辑回归入模特征洗漱
+        - `Coef.`: 逻辑回归入模特征系数
         - `Std.Err`: 标准误差
         - `z`: Z检验统计量
         - `P>|z|`: P值
