@@ -160,7 +160,7 @@ class Rule:
                 rule_result = pd.DataFrame({rule_expr: np.where(self.predict(temp), "命中", "未命中"), "target": temp[target].tolist()})
             else:
                 prior_tables = pd.DataFrame(columns=return_cols)
-                rule_result = pd.DataFrame({rule_expr: np.where(self.predict(datasets), "命中", "未命中"), "target": data[target].tolist()})
+                rule_result = pd.DataFrame({rule_expr: np.where(self.predict(data), "命中", "未命中"), "target": data[target].tolist()})
 
             combiner = Combiner(target=target)
             combiner.load({rule_expr: [["命中"], ["未命中"]]})
