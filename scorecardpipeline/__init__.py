@@ -19,11 +19,11 @@ from .auto_report import auto_data_testing_report
 from .rule import Rule
 from .rule_extraction import DecisionTreeRuleExtractor
 from .feature_engineering import NumExprDerive
-from .feature_selection import RFE, RFECV, SelectKBest, SelectFromModel
+from .feature_selection import RFE, RFECV, SelectKBest, SelectFromModel, TypeSelector, RegexSelector, ModeSelector, NanSelector, InformationValueSelector, LiftSelector
 from .scorecard import StandardScoreTransformer, NPRoundStandardScoreTransformer, RoundStandardScoreTransformer, BoxCoxScoreTransformer
 
 
-__version__ = "0.1.35"
+__version__ = "0.1.36"
 __all__ = (
     "__version__"
     , "FeatureSelection", "FeatureImportanceSelector", "StepwiseSelection", "Combiner", "WOETransformer"
@@ -36,4 +36,5 @@ __all__ = (
     , "ExcelWriter", "dataframe2excel", "auto_eda_sweetviz", "auto_data_testing_report"
     , "RFE", "RFECV", "SelectKBest", "SelectFromModel", "NumExprDerive"
     , "StandardScoreTransformer", "NPRoundStandardScoreTransformer", "RoundStandardScoreTransformer", "BoxCoxScoreTransformer"
+    , "TypeSelector", "RegexSelector", "ModeSelector", "NanSelector", "InformationValueSelector", "LiftSelector"
 )
