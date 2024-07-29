@@ -574,3 +574,35 @@ class CorrSelector(SelectorMixin):
         self.select_columns = list(set([c for c in x.columns if c not in corr.index[drops].values] + self.exclude))
 
         return self
+
+
+class PSISelector(SelectorMixin):
+    pass
+
+
+class BorutaSelector(SelectorMixin):
+    pass
+
+
+class ExhaustiveSelector(SelectorMixin):
+    pass
+
+
+class MICSelector(SelectorMixin):
+    pass
+
+
+class NullImportanceSelector(SelectorMixin):
+    pass
+
+
+class TargetPermutationSelector(SelectorMixin):
+    pass
+
+
+class FeatureImportanceSelector(SelectorMixin):
+    pass
+
+
+class StabilitySelector(SelectorMixin):
+    pass
