@@ -5,16 +5,21 @@
 @Site    : itlubber.art
 """
 
+from functools import partial
+from abc import ABCMeta, abstractmethod
+
 import numpy as np
 import pandas as pd
 from joblib import Parallel, delayed
-from abc import ABCMeta, abstractmethod
-from sklearn.utils.validation import check_is_fitted, check_array
-from sklearn.preprocessing import LabelEncoder
 from sklearn.utils._mask import _get_mask
+from sklearn.preprocessing import LabelEncoder
+from sklearn.linear_model import LinearRegression
 from sklearn.base import BaseEstimator, TransformerMixin
-from sklearn.feature_selection import RFECV, RFE, SelectFromModel, SelectKBest
 from sklearn.model_selection import StratifiedKFold, GroupKFold
+from sklearn.utils.validation import check_is_fitted, check_array
+from sklearn.utils.sparsefuncs import mean_variance_axis, min_max_axis
+from sklearn.feature_selection import RFECV, RFE, SelectFromModel, SelectKBest
+# from statsmodels.stats.outliers_influence import variance_inflation_factor
 
 from .processing import Combiner
 
@@ -404,4 +409,167 @@ class LiftSelector(SelectorMixin):
         self.threshold = self._calculate_threshold(self, self.scores_, self.threshold)
         self.select_columns = list(set((self.scores_[self.scores_ >= self.threshold]).index.tolist() + [self.target]))
         self.dropped = pd.DataFrame([(col, f"LIFT < {self.threshold}") for col in xt.columns if col not in self.select_columns], columns=["variable", "rm_reason"])
+        return self
+
+
+class VarianceSelector(SelectorMixin):
+    """Feature selector that removes all low-variance features."""
+
+    def __init__(self, threshold=0.0, exclude=None):
+        self.threshold = threshold
+        if exclude is not None:
+            self.exclude = exclude if isinstance(exclude, (list, np.ndarray)) else [exclude]
+        else:
+            self.exclude = []
+
+    def fit(self, x, y=None):
+        self.n_features_in_ = x.shape[1]
+        
+        if hasattr(x, "toarray"):  # sparse matrix
+            _, scores = mean_variance_axis(x, axis=0)
+            if self.threshold == 0:
+                mins, maxes = min_max_axis(x, axis=0)
+                peak_to_peaks = maxes - mins
+        else:
+            scores = np.nanvar(x, axis=0)
+            if self.threshold == 0:
+                peak_to_peaks = np.ptp(x, axis=0)
+
+        if self.threshold == 0:
+            # Use peak-to-peak to avoid numeric precision issues for constant features
+            compare_arr = np.array([scores, peak_to_peaks])
+            scores = np.nanmin(compare_arr, axis=0)
+
+        if np.all(~np.isfinite(scores) | (scores <= self.threshold)):
+            msg = "No feature in x meets the variance threshold {0:.5f}"
+            if X.shape[0] == 1:
+                msg += " (x contains only one sample)"
+            raise ValueError(msg.format(self.threshold))
+
+        self.scores_ = pd.Series(scores, index=x.columns)
+        self.threshold = self._calculate_threshold(self, self.scores_, self.threshold)
+        self.select_columns = list(set((self.scores_[self.scores_ > self.threshold]).index.tolist() + self.exclude))
+        self.dropped = pd.DataFrame([(col, f"Variance <= {self.threshold}") for col in x.columns if col not in self.select_columns], columns=["variable", "rm_reason"])
+        
+        return self
+
+
+def VIF(x, n_jobs=None, missing=-1):
+    columns = x.columns
+    x = x.fillna(missing).values
+    lr = partial(lambda x, y: LinearRegression(fit_intercept=False).fit(x, y).predict(x))
+    y_pred = Parallel(n_jobs=n_jobs)(delayed(lr)(x[:, np.arange(x.shape[1]) != i], x[:, i]) for i in range(x.shape[1]))
+    vif = [np.sum(x[:, i] ** 2) / np.sum((y_pred[i] - x[:, i]) ** 2) for i in range(x.shape[1])]
+
+    return pd.Series(vif, index=columns)
+
+
+class VIFSelector(SelectorMixin):
+
+    def __init__(self, threshold=4.0, exclude=None, missing=-1, n_jobs=None):
+        """VIF越高，多重共线性的影响越严重, 在金融风险中我们使用经验法则:若VIF>4，则我们认为存在多重共线性, 计算比较消耗资源, 如果数据维度较大的情况下, 尽量不要使用
+
+        :param exclude: 数据集中需要强制保留的变量
+        :param threshold: 阈值, VIF 大于 threshold 即剔除该特征
+        :param missing: 缺失值默认填充 -1
+        :param n_jobs: 线程数
+        """
+        self.threshold = threshold
+        self.missing = missing
+        self.n_jobs = n_jobs
+        if exclude is not None:
+            self.exclude = exclude if isinstance(exclude, (list, np.ndarray)) else [exclude]
+        else:
+            self.exclude = []
+
+    def fit(self, x, y=None):
+        
+        
+        self.n_features_in_ = x.shape[1]
+        
+        # vif = partial(variance_inflation_factor, np.matrix(x.fillna(self.missing)))
+        # self.scores_ = pd.Series(Parallel(n_jobs=None)(delayed(vif)(i) for i in range(x.shape[1])), index=x.columns)
+        self.scores_ = VIF(x, missing=self.missing, n_jobs=self.n_jobs)
+        
+        self.threshold = self._calculate_threshold(self, self.scores_, self.threshold)
+        self.select_columns = list(set((self.scores_[self.scores_ > self.threshold]).index.tolist() + self.exclude))
+        self.dropped = pd.DataFrame([(col, f"VIF > {self.threshold}") for col in x.columns if col not in self.select_columns], columns=["variable", "rm_reason"])
+
+        return self
+
+
+class CorrSelector(SelectorMixin):
+    def __init__(self, threshold=0.7, method="pearson", weights=None, exclude=None, **kwargs):
+        self.threshold = threshold
+        self.method = method
+        self.weights = weights
+        if exclude is not None:
+            self.exclude = exclude if isinstance(exclude, (list, np.ndarray)) else [exclude]
+        else:
+            self.exclude = []
+        self.kwargs = kwargs
+
+    def fit(self, x: pd.DataFrame, y=None):
+        if self.exclude:
+            x = x.drop(columns=self.exclude)
+
+        self.n_features_in_ = x.shape[1]
+
+        if self.weights is None:
+            self.weights = pd.Series(np.zeros(self.n_features_in_), index=x.columns)
+        elif not isinstance(self.weights, pd.Series):
+            self.weights = pd.Series(self.weights, index=x.columns)
+            x = x[sorted(x.columns, key=self.weights.sort_values())]
+
+        corr = x.corr(method=self.method, **self.kwargs)
+        self.scores_ = corr
+        self.threshold = self._calculate_threshold(self, self.scores_, self.threshold)
+
+        # corr_matrix = self.scores_.values
+        # mask = np.full(self.n_features_in_, True, dtype=bool)
+        # for i in range(self.n_features_in_):
+        #     if not mask[i]:
+        #         continue
+        #     for j in range(i + 1, self.n_features_in_):
+        #         if not mask[j]:
+        #             continue
+        #         if abs(corr_matrix[i, j]) < self.threshold:
+        #             continue
+        #         mask[j] = False
+        #
+        # self.select_columns = list(set([c for i, c in enumerate(x.columns) if mask[i]] + self.exclude))
+
+        drops = []
+        ix, cn = np.where(np.triu(corr.values, 1) > self.threshold)
+        weights = self.weights.values
+
+        if len(ix):
+            graph = np.hstack([ix.reshape((-1, 1)), cn.reshape((-1, 1))])
+            uni, counts = np.unique(graph, return_counts=True)
+
+            while True:
+                nodes = uni[np.argwhere(counts == np.amax(counts))].flatten()
+                n = nodes[np.argsort(weights[nodes])[0]]
+
+                i, c = np.where(graph == n)
+                pairs = graph[(i, 1 - c)]
+
+                if weights[pairs].sum() > weights[n]:
+                    dro = [n]
+                else:
+                    dro = pairs.tolist()
+
+                drops += dro
+
+                di, _ = np.where(np.isin(graph, dro))
+                graph = np.delete(graph, di, axis=0)
+
+                if len(graph) <= 0:
+                    break
+
+                uni, counts = np.unique(graph, return_counts=True)
+
+        self.dropped = pd.DataFrame([(col, f"corr > {self.threshold}") for col in corr.index[drops].values], columns=["variable", "rm_reason"])
+        self.select_columns = list(set([c for c in x.columns if c not in corr.index[drops].values] + self.exclude))
+
         return self
