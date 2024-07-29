@@ -482,8 +482,9 @@ class VIFSelector(SelectorMixin):
         else:
             self.exclude = []
 
-    def fit(self, x, y=None):
-        
+    def fit(self, x: pd.DataFrame, y=None):
+        if self.exclude:
+            x = x.drop(columns=self.exclude)
         
         self.n_features_in_ = x.shape[1]
         
