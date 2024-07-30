@@ -622,6 +622,10 @@ class NullImportanceSelector(SelectorMixin):
         self.target = target
     
     @staticmethod
+    def _feature_score_v0(actual_importances, null_importances):
+        return actual_importances.mean(axis=1) / null_importances.mean(axis=1)
+    
+    @staticmethod
     def _feature_score_v1(actual_importances, null_importances):
         # 未进行特征shuffle的特征重要性除以shuffle以后的0.75分位数作为score
         actual_importance = actual_importances.mean()
@@ -662,8 +666,12 @@ class NullImportanceSelector(SelectorMixin):
         estimator = clone(self.estimator)
         actual_importances = np.zeros((n_features, n_splits * n_runs))
         for run in range(n_runs):
-            for fold_, (train_idx, valid_idx) in enumerate(cv.split(y, y)):
-                estimator.fit(x.loc[train_idx], y.loc[train_idx])
+            np.random.shuffle(idx)
+            y_shuffled = y[idx]
+            x_shuffled = x[idx]
+            
+            for fold_, (train_idx, valid_idx) in enumerate(cv.split(y_shuffled, y_shuffled)):
+                estimator.fit(x_shuffled.loc[train_idx], y_shuffled.loc[train_idx])
                 actual_importance = _get_feature_importances(estimator, getter, transform_func=None, norm_order=norm_order)
                 actual_importances[:, n_splits * run + fold_] = actual_importance
 
@@ -685,8 +693,10 @@ class NullImportanceSelector(SelectorMixin):
             self.dropped = pd.DataFrame([(col, f"nullimportance <= {self.threshold}") for col in x.columns if col not in self.select_columns], columns=["variable", "rm_reason"])
 
 
-class TargetPermutationSelector(SelectorMixin):
-    pass
+class TargetPermutationSelector(NullImportanceSelector):
+    
+    def __init__(self, estimator, target="target", threshold=1.0, norm_order=1, importance_getter='auto', cv=3, n_runs=5, **kwargs):
+        super().__init__(estimator, target=target, threshold=threshold, norm_order=norm_order, importance_getter=importance_getter, cv=cv, n_runs=n_runs, **kwargs)
 
 
 class BorutaSelector(SelectorMixin):
