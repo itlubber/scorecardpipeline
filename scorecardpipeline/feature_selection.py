@@ -8,17 +8,24 @@
 from functools import partial
 from abc import ABCMeta, abstractmethod
 
+import math
 import numpy as np
 import pandas as pd
+from copy import deepcopy
 from joblib import Parallel, delayed
+
+from sklearn.utils import _safe_indexing
+from sklearn.utils._encode import _unique
 from sklearn.utils._mask import _get_mask
+from sklearn.model_selection import check_cv
 from sklearn.preprocessing import LabelEncoder
 from sklearn.linear_model import LinearRegression
-from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.model_selection import StratifiedKFold, GroupKFold
-from sklearn.utils.validation import check_is_fitted, check_array
 from sklearn.utils.sparsefuncs import mean_variance_axis, min_max_axis
+from sklearn.utils.validation import check_is_fitted, check_array, indexable
+from sklearn.base import BaseEstimator, TransformerMixin, clone, is_classifier
 from sklearn.feature_selection import RFECV, RFE, SelectFromModel, SelectKBest
+from sklearn.feature_selection._from_model import _calculate_threshold, _get_feature_importances
 # from statsmodels.stats.outliers_influence import variance_inflation_factor
 
 from .processing import Combiner
@@ -33,52 +40,6 @@ class SelectorMixin(BaseEstimator, TransformerMixin):
     def __call__(self, *args, **kwargs):
         self.fit(*args, **kwargs)
         return self.select_columns
-
-    @staticmethod
-    def _calculate_threshold(estimator, importances, threshold):
-        if threshold is None:
-            # determine default from estimator
-            est_name = estimator.__class__.__name__
-            is_l1_penalized = hasattr(estimator, "penalty") and estimator.penalty == "l1"
-            is_lasso = "Lasso" in est_name
-            is_elasticnet_l1_penalized = "ElasticNet" in est_name and (
-                (hasattr(estimator, "l1_ratio_") and np.isclose(estimator.l1_ratio_, 1.0))
-                or (hasattr(estimator, "l1_ratio") and np.isclose(estimator.l1_ratio, 1.0))
-            )
-            if is_l1_penalized or is_lasso or is_elasticnet_l1_penalized:
-                # the natural default threshold is 0 when l1 penalty was used
-                threshold = 1e-5
-            else:
-                threshold = "mean"
-
-        if isinstance(threshold, str):
-            if "*" in threshold:
-                scale, reference = threshold.split("*")
-                scale = float(scale.strip())
-                reference = reference.strip()
-
-                if reference == "median":
-                    reference = np.median(importances)
-                elif reference == "mean":
-                    reference = np.mean(importances)
-                else:
-                    raise ValueError("Unknown reference: " + reference)
-
-                threshold = scale * reference
-
-            elif threshold == "median":
-                threshold = np.median(importances)
-
-            elif threshold == "mean":
-                threshold = np.mean(importances)
-
-            else:
-                raise ValueError("Expected threshold='mean' or threshold='median' got %s" % threshold)
-
-        else:
-            threshold = float(threshold)
-
-        return threshold
 
 
 class TypeSelector(SelectorMixin):
@@ -179,7 +140,7 @@ class NanSelector(SelectorMixin):
             x = x.drop(columns=[c for c in self.exclude if c in x.columns])
 
         self.scores_ = pd.Series(value_ratio(x, self.missing_values), index=x.columns)
-        self.threshold = self._calculate_threshold(self, self.scores_, self.threshold)
+        self.threshold = _calculate_threshold(self, self.scores_, self.threshold)
         self.select_columns = list(set((self.scores_[self.scores_ < self.threshold]).index.tolist()))
         if self.exclude:
             self.select_columns = list(set(self.select_columns + self.exclude))
@@ -211,7 +172,7 @@ class ModeSelector(SelectorMixin):
             x = x.drop(columns=[c for c in self.exclude if c in x.columns])
 
         self.scores_ = pd.DataFrame(Parallel(n_jobs=self.n_jobs)(delayed(mode_ratio)(x[c], self.dropna) for c in x.columns), columns=["Mode", "Ratio"], index=x.columns)
-        self.threshold = self._calculate_threshold(self, self.scores_, self.threshold)
+        self.threshold = _calculate_threshold(self, self.scores_, self.threshold)
         self.select_columns = list(set((self.scores_[self.scores_["Ratio"] < self.threshold]).index.tolist()))
         if self.exclude:
             self.select_columns = list(set(self.select_columns + self.exclude))
@@ -244,7 +205,7 @@ class CardinalitySelector(SelectorMixin):
                 self.exclude = [self.exclude]
 
         self.scores_ = pd.Series(x.nunique(axis=0, dropna=self.dropna).values, index=x.columns)
-        self.threshold = self._calculate_threshold(self, self.scores_, self.threshold)
+        self.threshold = _calculate_threshold(self, self.scores_, self.threshold)
         self.select_columns = list(set((self.scores_[self.scores_ < self.threshold]).index.tolist()))
 
         if self.exclude:
@@ -322,7 +283,7 @@ class InformationValueSelector(SelectorMixin):
             xt = x.copy()
         
         self.scores_ = pd.Series(_IV(xt, y, regularization=self.regularization, n_jobs=self.n_jobs), index=xt.columns)
-        self.threshold = self._calculate_threshold(self, self.scores_, self.threshold)
+        self.threshold = _calculate_threshold(self, self.scores_, self.threshold)
         self.select_columns = list(set((self.scores_[self.scores_ >= self.threshold]).index.tolist() + [self.target]))
         self.dropped = pd.DataFrame([(col, f"IV <= {self.threshold}") for col in xt.columns if col not in self.select_columns], columns=["variable", "rm_reason"])
         return self
@@ -406,7 +367,7 @@ class LiftSelector(SelectorMixin):
             xt = x.copy()
 
         self.scores_ = pd.Series(Parallel(n_jobs=self.n_jobs)(delayed(LIFT)(x[c], y) for c in xt.columns), index=xt.columns)
-        self.threshold = self._calculate_threshold(self, self.scores_, self.threshold)
+        self.threshold = _calculate_threshold(self, self.scores_, self.threshold)
         self.select_columns = list(set((self.scores_[self.scores_ >= self.threshold]).index.tolist() + [self.target]))
         self.dropped = pd.DataFrame([(col, f"LIFT < {self.threshold}") for col in xt.columns if col not in self.select_columns], columns=["variable", "rm_reason"])
         return self
@@ -447,7 +408,7 @@ class VarianceSelector(SelectorMixin):
             raise ValueError(msg.format(self.threshold))
 
         self.scores_ = pd.Series(scores, index=x.columns)
-        self.threshold = self._calculate_threshold(self, self.scores_, self.threshold)
+        self.threshold = _calculate_threshold(self, self.scores_, self.threshold)
         self.select_columns = list(set((self.scores_[self.scores_ > self.threshold]).index.tolist() + self.exclude))
         self.dropped = pd.DataFrame([(col, f"Variance <= {self.threshold}") for col in x.columns if col not in self.select_columns], columns=["variable", "rm_reason"])
         
@@ -492,7 +453,7 @@ class VIFSelector(SelectorMixin):
         # self.scores_ = pd.Series(Parallel(n_jobs=None)(delayed(vif)(i) for i in range(x.shape[1])), index=x.columns)
         self.scores_ = VIF(x, missing=self.missing, n_jobs=self.n_jobs)
         
-        self.threshold = self._calculate_threshold(self, self.scores_, self.threshold)
+        self.threshold = _calculate_threshold(self, self.scores_, self.threshold)
         self.select_columns = list(set((self.scores_[self.scores_ > self.threshold]).index.tolist() + self.exclude))
         self.dropped = pd.DataFrame([(col, f"VIF > {self.threshold}") for col in x.columns if col not in self.select_columns], columns=["variable", "rm_reason"])
 
@@ -524,7 +485,7 @@ class CorrSelector(SelectorMixin):
 
         corr = x.corr(method=self.method, **self.kwargs)
         self.scores_ = corr
-        self.threshold = self._calculate_threshold(self, self.scores_, self.threshold)
+        self.threshold = _calculate_threshold(self, self.scores_, self.threshold)
 
         # corr_matrix = self.scores_.values
         # mask = np.full(self.n_features_in_, True, dtype=bool)
@@ -576,7 +537,155 @@ class CorrSelector(SelectorMixin):
         return self
 
 
+def _psi_score(expected, actual):
+    n_expected = len(expected)
+    n_actual = len(actual)
+
+    psi = []
+    for value in _unique(expected):
+        expected_cnt = np.count_nonzero(expected == value)
+        actual_cnt = np.count_nonzero(actual == value)
+        expected_cnt = expected_cnt if expected_cnt else 1.
+        actual_cnt = actual_cnt if actual_cnt else 1.
+        expected_rate = expected_cnt / n_expected
+        actual_rate = actual_cnt / n_actual
+        psi.append((actual_rate - expected_rate) * np.log(actual_rate / expected_rate))
+    
+    return sum(psi)
+
+
+def PSI(train, test, n_jobs=None, verbose=0, pre_dispatch='2*n_jobs'):
+    parallel = Parallel(n_jobs=n_jobs, verbose=verbose, pre_dispatch=pre_dispatch)
+    scores = parallel(delayed(_psi_score)(train[:, i], test[:,i]) for i in range(len(train.columns)))
+    return scores
+
+
 class PSISelector(SelectorMixin):
+
+    def __init__(self, threshold=0.1, cv=None, method=None, exclude=None, n_jobs=None, verbose=0, pre_dispatch='2*n_jobs', **kwargs):
+        self.threshold = threshold
+        self.cv = cv
+        self.method = method
+        self.n_jobs = n_jobs
+        self.verbose = verbose
+        self.pre_dispatch = pre_dispatch
+        if exclude is not None:
+            self.exclude = exclude if isinstance(exclude, (list, np.ndarray)) else [exclude]
+        else:
+            self.exclude = []
+        self.kwargs = kwargs
+
+    def fit(self, x: pd.DataFrame, y=None, groups=None):
+        if self.method is not None:
+            temp = x.copy()
+            if y is not None:
+                if self.kwargs and "target" in self.kwargs and self.kwargs["target"] not in temp.columns:
+                    temp[self.kwargs["target"]] = y
+                elif "target" not in temp.columns:
+                    temp["target"] = y
+
+            self.combiner = Combiner(method=self.method, **self.kwargs).fit(temp)
+            x = self.combiner.transform(x)
+
+        if self.exclude:
+            x = x.drop(columns=self.exclude)
+
+        self.n_features_in_ = x.shape[1]
+        x, groups = indexable(x, groups)
+        cv = check_cv(self.cv)
+        n_jobs = self.n_jobs
+        verbose = self.verbose
+        pre_dispatch = self.pre_dispatch
+
+        cv_scores = []
+        for train, test in cv.split(x, y, groups):
+            scores = PSI(_safe_indexing(x, train), _safe_indexing(x, test), n_jobs=n_jobs, verbose=verbose, pre_dispatch=pre_dispatch)
+            cv_scores.append(scores)
+
+        self.scores_ = pd.Series(np.mean(cv_scores, axis=0), index=x.columns)
+        self.threshold = _calculate_threshold(self, self.scores_, self.threshold)
+        self.select_columns = list(set((self.scores_[self.scores_ >= self.threshold]).index.tolist() + self.exclude))
+        self.dropped = pd.DataFrame([(col, f"PSI >= {self.threshold}") for col in x.columns if col not in self.select_columns], columns=["variable", "rm_reason"])
+
+        return self
+
+
+class NullImportanceSelector(SelectorMixin):
+    
+    def __init__(self, estimator, target="target", threshold=1.0, norm_order=1, importance_getter='auto', cv=3, n_runs=5, **kwargs):
+        self.estimator = estimator
+        self.threshold = threshold
+        self.norm_order = norm_order
+        self.importance_getter = importance_getter
+        self.cv = cv
+        self.n_runs = n_runs
+        self.target = target
+    
+    @staticmethod
+    def _feature_score_v1(actual_importances, null_importances):
+        # 未进行特征shuffle的特征重要性除以shuffle以后的0.75分位数作为score
+        actual_importance = actual_importances.mean()
+        return np.log(1e-10 + actual_importance / (1. + np.percentile(null_importances, 75)))
+    
+    @staticmethod
+    def _feature_score_v2(actual_importances, null_importances):
+        # shuffle之后特征重要性低于实际target对应特征的重要性0.25分位数的次数百分比
+        return np.count_nonzero(null_importances < np.percentile(actual_importances, 25)) / null_importances.shape[0]
+
+    def fit(self, x: pd.DataFrame, y=None):
+        if self.target in x.columns:
+            y = x[self.target]
+            x = x.drop(columns=self.target)
+
+        cv = check_cv(self.cv, y, classifier=is_classifier(self.estimator))
+        
+        n_splits = cv.get_n_splits()
+        n_runs = self.n_runs
+        getter = self.importance_getter
+        norm_order = self.norm_order
+        
+        # 计算shuffle之后的特征重要性
+        estimator = deepcopy(self.estimator)
+        n_samples, n_features = x.shape
+        null_importances = np.zeros((n_features, n_splits * n_runs))
+        idx = np.arange(n_samples)
+        for run in range(n_runs):
+            np.random.shuffle(idx)
+            y_shuffled = y[idx]
+
+            for fold_, (train_idx, valid_idx) in enumerate(cv.split(y_shuffled, y_shuffled)):
+                estimator.fit(x.loc[train_idx], y_shuffled.loc[train_idx])
+                null_importance = _get_feature_importances(estimator, getter, transform_func=None, norm_order=norm_order)
+                null_importances[:, n_splits * run + fold_] = null_importance
+        
+        # 计算未shuffle的特征重要性
+        estimator = clone(self.estimator)
+        actual_importances = np.zeros((n_features, n_splits * n_runs))
+        for run in range(n_runs):
+            for fold_, (train_idx, valid_idx) in enumerate(cv.split(y, y)):
+                estimator.fit(x.loc[train_idx], y.loc[train_idx])
+                actual_importance = _get_feature_importances(estimator, getter, transform_func=None, norm_order=norm_order)
+                actual_importances[:, n_splits * run + fold_] = actual_importance
+
+        self.null_importances = null_importances
+        self.actual_importances_ = actual_importances
+        
+        scores = np.zeros(n_features)
+        for i in range(n_features):
+            scores[i] = self._feature_score_v2(actual_importances[i, :], null_importances[i, :])
+
+        self.scores_ = pd.Series(scores, index=x.columns)
+        self.threshold = _calculate_threshold(self.estimator, scores, self.threshold)
+        
+        if self.threshold > 1.0:
+            self.select_columns = list(set(self.scores_.sort_values(ascending=False).iloc[:math.floor(self.threshold)].index.tolist() + [self.target]))
+            self.dropped = pd.DataFrame([(col, f"nullimportance not top {self.threshold}") for col in x.columns if col not in self.select_columns], columns=["variable", "rm_reason"])
+        else:
+            self.select_columns = list(set((self.scores_[self.scores_ > self.threshold]).index.tolist() + [self.target]))
+            self.dropped = pd.DataFrame([(col, f"nullimportance <= {self.threshold}") for col in x.columns if col not in self.select_columns], columns=["variable", "rm_reason"])
+
+
+class TargetPermutationSelector(SelectorMixin):
     pass
 
 
@@ -589,14 +698,6 @@ class ExhaustiveSelector(SelectorMixin):
 
 
 class MICSelector(SelectorMixin):
-    pass
-
-
-class NullImportanceSelector(SelectorMixin):
-    pass
-
-
-class TargetPermutationSelector(SelectorMixin):
     pass
 
 
