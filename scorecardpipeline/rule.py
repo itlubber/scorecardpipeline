@@ -14,6 +14,7 @@ from sklearn.utils import check_array
 from sklearn.metrics import f1_score, recall_score, accuracy_score, precision_score
 
 from .processing import feature_bin_stats, Combiner
+from .excel_writer import dataframe2excel
 
 
 def _get_context(X, feature_names):
@@ -404,3 +405,24 @@ class Rule:
         r.result_ = np.logical_not(self.result())
         r._state = RuleState.APPLIED
         return r
+
+    @staticmethod
+    def save(report, excel_writer, sheet_name=None, merge_column=None, percent_cols=None, condition_cols=None, custom_cols=None, custom_format="#,##0", color_cols=None, start_col=2, start_row=2, **kwargs):
+        """保存规则结果至excel中，参数与 https://scorecardpipeline.itlubber.art/scorecardpipeline.html#scorecardpipeline.dataframe2excel 一致
+        """
+        if merge_column:
+            merge_column = [c for c in report.columns if (isinstance(c, tuple) and c[-1] in merge_column) or (not isinstance(c, tuple) and c in merge_column)]
+        
+        if percent_cols:
+            percent_cols = [c for c in report.columns if (isinstance(c, tuple) and c[-1] in percent_cols) or (not isinstance(c, tuple) and c in percent_cols)]
+            
+        if condition_cols:
+            condition_cols = [c for c in report.columns if (isinstance(c, tuple) and c[-1] in condition_cols) or (not isinstance(c, tuple) and c in condition_cols)]
+        
+        if custom_cols:
+            custom_cols = [c for c in report.columns if (isinstance(c, tuple) and c[-1] in custom_cols) or (not isinstance(c, tuple) and c in custom_cols)]
+        
+        if color_cols:
+            color_cols = [c for c in report.columns if (isinstance(c, tuple) and c[-1] in color_cols) or (not isinstance(c, tuple) and c in color_cols)]
+        
+        dataframe2excel(report, excel_writer, sheet_name=sheet_name, merge_column=merge_column, percent_cols=percent_cols, condition_cols=condition_cols, custom_cols=custom_cols, custom_format=custom_format, color_cols=color_cols, start_col=start_col, start_row=start_row, **kwargs)
