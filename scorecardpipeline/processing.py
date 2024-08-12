@@ -525,7 +525,7 @@ class Combiner(TransformerMixin, BaseEstimator):
 
             _rule = self.combiner[col]
 
-            if not np.issubdtype(_rule.dtype, np.number):
+            if len(_rule) > 0 and not np.issubdtype(_rule.dtype, np.number) and isinstance(_rule[0], (list, tuple)):
                 if sum([sum([1 for b in r if b in ("nan", "None")]) for r in _rule]) > 0:
                     _rule = [[np.nan if b == "nan" else (None if b == "None" else b) for b in r] for r in _rule]
                     if [np.nan] in _rule:
