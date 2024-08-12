@@ -911,7 +911,10 @@ class ExhaustiveSelector(SelectorMixin, MetaEstimatorMixin):
 
 
 class BorutaSelector(SelectorMixin):
-    pass
+
+    def __init__(self):
+        # 对原始特征进行复制一份，并且将其按行进行随机打乱，称为Shadow Feature。将Shadow Feature与原始特征Real Feature进行横向拼接在一起，使用某种模型（随机森林、GBDT）进行计算特征重要性。将Shadow Feature中重要性最高的值为基准，删除Real Feature中重要性低于其的特征。多重复几个迭代。（一般来说随机生成的特征效果不如原始的，因此可以以Shadow Feature的特征重要性作为基准来判断Real Feature的好坏）
+        pass
 
 
 class MICSelector(SelectorMixin):
