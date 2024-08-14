@@ -5,7 +5,7 @@
 @Site    : itlubber.art
 """
 
-import operator as op
+import operator
 import sys
 import types
 from copy import deepcopy
@@ -31,7 +31,7 @@ from sklearn.linear_model import LinearRegression
 from sklearn.utils import _safe_indexing, check_X_y
 from sklearn.model_selection import StratifiedKFold, GroupKFold
 from sklearn.utils.sparsefuncs import mean_variance_axis, min_max_axis
-from sklearn.utils.validation import check_is_fitted, check_array, indexable
+from sklearn.utils.validation import check_is_fitted, check_array, indexable, column_or_1d
 from sklearn.base import BaseEstimator, TransformerMixin, clone, is_classifier, MetaEstimatorMixin
 from sklearn.feature_selection import RFECV, RFE, SelectFromModel, SelectKBest
 from sklearn.feature_selection._from_model import _calculate_threshold, _get_feature_importances
@@ -42,6 +42,12 @@ from .processing import Combiner
 
 class SelectorMixin(BaseEstimator, TransformerMixin):
 
+    def __init__(self):
+        self.select_columns = None
+        self.scores_ = None
+        self.dropped = None
+        self.n_features_in_ = None
+
     def transform(self, x):
         check_is_fitted(self, "select_columns")
         return x[[col for col in self.select_columns if col in x.columns]]
@@ -50,9 +56,14 @@ class SelectorMixin(BaseEstimator, TransformerMixin):
         self.fit(*args, **kwargs)
         return self.select_columns
 
+    def fit(self, x, y=None):
+        pass
+
 
 class TypeSelector(SelectorMixin):
+
     def __init__(self, dtype_include=None, dtype_exclude=None, exclude=None):
+        super().__init__()
         self.dtype_include = dtype_include
         self.dtype_exclude = dtype_exclude
         self.exclude = exclude
@@ -85,6 +96,7 @@ class TypeSelector(SelectorMixin):
 
 class RegexSelector(SelectorMixin):
     def __init__(self, pattern=None, exclude=None):
+        super().__init__()
         self.pattern = pattern
         self.exclude = exclude
 
@@ -130,6 +142,7 @@ def mode_ratio(x, dropna=True):
 class NanSelector(SelectorMixin):
 
     def __init__(self, threshold=0.95, missing_values=np.nan, exclude=None, **kwargs):
+        super().__init__()
         self.exclude = exclude
         self.threshold = threshold
         self.missing_values = missing_values
@@ -161,6 +174,7 @@ class NanSelector(SelectorMixin):
 class ModeSelector(SelectorMixin):
 
     def __init__(self, threshold=0.95, exclude=None, dropna=True, n_jobs=None, **kwargs):
+        super().__init__()
         self.dropna = dropna
         self.exclude = exclude
         self.threshold = threshold
@@ -202,6 +216,7 @@ class CardinalitySelector(SelectorMixin):
     >>> cs.fit_transform(x)
     """
     def __init__(self, threshold=10, exclude=None, dropna=True):
+        super().__init__()
         self.exclude = exclude
         self.threshold = threshold
         self.dropna = dropna
@@ -261,6 +276,7 @@ def _IV(x, y, regularization=1.0, n_jobs=None):
 class InformationValueSelector(SelectorMixin):
 
     def __init__(self, threshold=0.02, target="target", regularization=1.0, methods=None, n_jobs=None, **kwargs):
+        super().__init__()
         self.dropped = None
         self.select_columns = None
         self.scores_ = None
@@ -351,6 +367,7 @@ class LiftSelector(SelectorMixin):
         Lift scores of features.
     """
     def __init__(self, target="target", threshold=3.0, n_jobs=None, methods=None, **kwargs):
+        super().__init__()
         self.threshold = threshold
         self.n_jobs = n_jobs
         self.target = target
@@ -386,6 +403,7 @@ class VarianceSelector(SelectorMixin):
     """Feature selector that removes all low-variance features."""
 
     def __init__(self, threshold=0.0, exclude=None):
+        super().__init__()
         self.threshold = threshold
         if exclude is not None:
             self.exclude = exclude if isinstance(exclude, (list, np.ndarray)) else [exclude]
@@ -412,7 +430,7 @@ class VarianceSelector(SelectorMixin):
 
         if np.all(~np.isfinite(scores) | (scores <= self.threshold)):
             msg = "No feature in x meets the variance threshold {0:.5f}"
-            if X.shape[0] == 1:
+            if x.shape[0] == 1:
                 msg += " (x contains only one sample)"
             raise ValueError(msg.format(self.threshold))
 
@@ -444,6 +462,7 @@ class VIFSelector(SelectorMixin):
         :param missing: 缺失值默认填充 -1
         :param n_jobs: 线程数
         """
+        super().__init__()
         self.threshold = threshold
         self.missing = missing
         self.n_jobs = n_jobs
@@ -471,6 +490,7 @@ class VIFSelector(SelectorMixin):
 
 class CorrSelector(SelectorMixin):
     def __init__(self, threshold=0.7, method="pearson", weights=None, exclude=None, **kwargs):
+        super().__init__()
         self.threshold = threshold
         self.method = method
         self.weights = weights
@@ -572,6 +592,7 @@ def PSI(train, test, n_jobs=None, verbose=0, pre_dispatch='2*n_jobs'):
 class PSISelector(SelectorMixin):
 
     def __init__(self, threshold=0.1, cv=None, method=None, exclude=None, n_jobs=None, verbose=0, pre_dispatch='2*n_jobs', **kwargs):
+        super().__init__()
         self.threshold = threshold
         self.cv = cv
         self.method = method
@@ -622,6 +643,7 @@ class PSISelector(SelectorMixin):
 class NullImportanceSelector(SelectorMixin):
     
     def __init__(self, estimator, target="target", threshold=1.0, norm_order=1, importance_getter='auto', cv=3, n_runs=5, **kwargs):
+        super().__init__()
         self.estimator = estimator
         self.threshold = threshold
         self.norm_order = norm_order
@@ -766,10 +788,10 @@ class ExhaustiveSelector(SelectorMixin, MetaEstimatorMixin):
     -----------
     >>> from sklearn.neighbors import KNeighborsClassifier
     >>> from sklearn.datasets import load_iris
-    >>> from scorecardpipeline.feature_selection.exhaustive_feature_selector import ExhaustiveFeatureSelector
+    >>> from scorecardpipeline.feature_selection import ExhaustiveSelector
     >>> X, y = load_iris(return_X_y=True, as_frame=True)
     >>> knn = KNeighborsClassifier(n_neighbors=3)
-    >>> efs = ExhaustiveFeatureSelector(knn, min_features=1, max_features=4, cv=3)
+    >>> efs = ExhaustiveSelector(knn, min_features=1, max_features=4, cv=3)
     >>> efs.fit(X, y)
     ExhaustiveFeatureSelector(estimator=KNeighborsClassifier(n_neighbors=3), max_features=4)
     >>> efs.best_score_
@@ -778,6 +800,7 @@ class ExhaustiveSelector(SelectorMixin, MetaEstimatorMixin):
     12
     """
     def __init__(self, estimator, min_features=1, max_features=1, scoring="accuracy", cv=3, verbose=0, n_jobs=None, pre_dispatch='2*n_jobs'):
+        super().__init__()
         self.estimator = estimator
         self.min_features = min_features
         self.max_features = max_features
@@ -788,7 +811,7 @@ class ExhaustiveSelector(SelectorMixin, MetaEstimatorMixin):
         self.pre_dispatch = pre_dispatch
     
     def _validate_params(self, x, y):
-        check_X_y(X, y, estimator=self.estimator)
+        check_X_y(x, y, estimator=self.estimator)
         _, n_features = x.shape
         if not isinstance(self.min_features, int) or (self.max_features > n_features or self.max_features < 1):
             raise AttributeError("max_features must be smaller than %d and larger than 0" % (n_features + 1))
@@ -808,7 +831,7 @@ class ExhaustiveSelector(SelectorMixin, MetaEstimatorMixin):
         if cv is None:
             try:
                 estimator.fit(x, y, **fit_params)
-            except Exception:
+            except:
                 scores = np.nan
             else:
                 scores = _score(estimator, x, y, scoring)
@@ -914,7 +937,7 @@ class BorutaSelector(SelectorMixin):
 
     def __init__(self):
         # 对原始特征进行复制一份，并且将其按行进行随机打乱，称为Shadow Feature。将Shadow Feature与原始特征Real Feature进行横向拼接在一起，使用某种模型（随机森林、GBDT）进行计算特征重要性。将Shadow Feature中重要性最高的值为基准，删除Real Feature中重要性低于其的特征。多重复几个迭代。（一般来说随机生成的特征效果不如原始的，因此可以以Shadow Feature的特征重要性作为基准来判断Real Feature的好坏）
-        pass
+        super().__init__()
 
 
 class MICSelector(SelectorMixin):
@@ -937,5 +960,5 @@ class SequentialFeatureSelector(SelectorMixin):
     pass
 
 
-class SelectFromModel(SelectorMixin):
-    pass
+# class SelectFromModel(SelectorMixin):
+#     pass
