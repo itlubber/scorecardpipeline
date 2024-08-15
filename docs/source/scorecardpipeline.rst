@@ -16,6 +16,15 @@ scorecardpipeline.processing
    :show-inheritance:
 
 
+scorecardpipeline.feature_selection
+======================================
+
+.. automodule:: scorecardpipeline.feature_selection
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+
 scorecardpipeline.model
 ======================================
 
