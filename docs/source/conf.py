@@ -127,7 +127,7 @@ autodoc_default_options = {
     "member-order": "bysource",
     "special-members": "__init__",
     "undoc-members": True,
-    "exclude-members": "__weakref__,set_fit_request,set_transform_request,set_decision_function_request,set_score_request,set_predict_request,Pipeline,FeatureUnion,RuleState,RuleStateError,RuleUnAppliedError,make_pipeline,make_union,RFE,RFECV,SelectKBest,SelectFromModel,NumExprDerive",
+    "exclude-members": "__weakref__,set_fit_request,set_transform_request,set_decision_function_request,set_score_request,set_predict_request,Pipeline,FeatureUnion,RuleState,RuleStateError,RuleUnAppliedError,make_pipeline,make_union,RFE,RFECV,SelectKBest,SelectFromModel,GenericUnivariateSelect",
 }
 
 # # 支持文档格式

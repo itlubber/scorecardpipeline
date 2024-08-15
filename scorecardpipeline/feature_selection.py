@@ -33,7 +33,7 @@ from sklearn.model_selection import StratifiedKFold, GroupKFold
 from sklearn.utils.sparsefuncs import mean_variance_axis, min_max_axis
 from sklearn.utils.validation import check_is_fitted, check_array, indexable, column_or_1d
 from sklearn.base import BaseEstimator, TransformerMixin, clone, is_classifier, MetaEstimatorMixin
-from sklearn.feature_selection import RFECV, RFE, SelectFromModel, SelectKBest
+from sklearn.feature_selection import RFECV, RFE, SelectFromModel, SelectKBest, GenericUnivariateSelect
 from sklearn.feature_selection._from_model import _calculate_threshold, _get_feature_importances
 # from statsmodels.stats.outliers_influence import variance_inflation_factor
 
@@ -139,7 +139,7 @@ def mode_ratio(x, dropna=True):
     return (summary.index[0], summary.iloc[0] / sum(summary)) if len(summary) > 0 else (np.nan, 1.0)
 
 
-class NanSelector(SelectorMixin):
+class NullSelector(SelectorMixin):
 
     def __init__(self, threshold=0.95, missing_values=np.nan, exclude=None, **kwargs):
         super().__init__()

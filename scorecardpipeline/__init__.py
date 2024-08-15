@@ -19,7 +19,7 @@ from .auto_report import auto_data_testing_report
 from .rule import Rule
 from .rule_extraction import DecisionTreeRuleExtractor
 from .feature_engineering import NumExprDerive
-from .feature_selection import RFE, RFECV, SelectKBest, SelectFromModel, TypeSelector, RegexSelector, ModeSelector, NanSelector, InformationValueSelector, LiftSelector
+from .feature_selection import RFE, RFECV, SelectKBest, SelectFromModel, GenericUnivariateSelect, TypeSelector, RegexSelector, ModeSelector, NullSelector, InformationValueSelector, LiftSelector, VarianceSelector, VIFSelector, CorrSelector, PSISelector, NullImportanceSelector, TargetPermutationSelector, ExhaustiveSelector
 from .scorecard import StandardScoreTransformer, NPRoundStandardScoreTransformer, RoundStandardScoreTransformer, BoxCoxScoreTransformer
 
 
@@ -34,7 +34,8 @@ __all__ = (
     , "feature_bins", "feature_bin_stats", "extract_feature_bin", "inverse_feature_bins", "sample_lift_transformer"
     , "bin_plot", "corr_plot", "ks_plot", "hist_plot", "psi_plot", "csi_plot", "dataframe_plot", "distribution_plot"
     , "ExcelWriter", "dataframe2excel", "auto_eda_sweetviz", "auto_data_testing_report"
-    , "RFE", "RFECV", "SelectKBest", "SelectFromModel", "NumExprDerive"
+    , "RFE", "RFECV", "SelectKBest", "SelectFromModel", "GenericUnivariateSelect", "NumExprDerive"
     , "StandardScoreTransformer", "NPRoundStandardScoreTransformer", "RoundStandardScoreTransformer", "BoxCoxScoreTransformer"
-    , "TypeSelector", "RegexSelector", "ModeSelector", "NanSelector", "InformationValueSelector", "LiftSelector"
+    , "TypeSelector", "RegexSelector", "ModeSelector", "NullSelector", "InformationValueSelector", "LiftSelector"
+    , "VarianceSelector", "VIFSelector", "CorrSelector", "PSISelector", "NullImportanceSelector", "TargetPermutationSelector", "ExhaustiveSelector"
 )
