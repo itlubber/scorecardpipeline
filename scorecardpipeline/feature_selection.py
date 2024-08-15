@@ -207,8 +207,8 @@ class ModeSelector(SelectorMixin):
 class CardinalitySelector(SelectorMixin):
     """Feature selection via categorical feature's cardinality.
 
-    Examples
-    -----------
+    **参考样例**
+
     >>> import pandas as pd
     >>> from scorecardpipeline.feature_selection import CardinalitySelector
     >>> x = pd.DataFrame({"f2": ["F", "м", "F"], "f3": ["M1", "M2", "м3"]})
@@ -317,17 +317,8 @@ class InformationValueSelector(SelectorMixin):
 def LIFT(y_pred, y_true):
     """Calculate lift according to label data.
 
-    Parameters
-    -----------
-    y_true : array-like
-    y_pred : array-like
+    **参考样例**
 
-    Returns
-    -----------
-    lift : float
-
-    Examples
-    -----------
     >>> import numpy as np
     >>> y_true = np.array([0, 1, 1, 0, 1, 1, 0, 1, 1])
     >>> y_pred = np.array([1, 0, 1, 0, 1, 1, 1, 1, 1])
@@ -352,21 +343,21 @@ def LIFT(y_pred, y_true):
 class LiftSelector(SelectorMixin):
     """Feature selection via lift score.
 
-    Parameters
-    -----------
-    threshold : float or str (default=3.0)
-        Feature which has a lift score greater than `threshold` will be kept.
-    n_jobs : int or None, (default=None)
-        Number of parallel.
-    
-    Attributes
-    -----------
-    threshold_: float
-        The threshold value used for feature selection.
-    scores_ : array-like of shape (n_features,)
-        Lift scores of features.
+    **属性字段**
+
+    :param threshold_: float. The threshold value used for feature selection.
+    :param scores_ : array-like of shape (n_features,). Lift scores of features.
+    :param select_columns : array-like
+    :param dropped : DataFrame
+
     """
     def __init__(self, target="target", threshold=3.0, n_jobs=None, methods=None, **kwargs):
+        """
+        :param target: target
+        :param threshold: float or str (default=3.0). Feature which has a lift score greater than `threshold` will be kept.
+        :param n_jobs: int or None, (default=None). Number of parallel.
+        :param methods: Combiner's methods
+        """
         super().__init__()
         self.threshold = threshold
         self.n_jobs = n_jobs
@@ -733,59 +724,16 @@ class TargetPermutationSelector(NullImportanceSelector):
 class ExhaustiveSelector(SelectorMixin, MetaEstimatorMixin):
     """Exhaustive Feature Selection for Classification and Regression.
 
-    Parameters
-    -----------
-    estimator : scikit-learn classifier or regressor
+    **属性字段**
 
-    min_features : int (default: 1)
-        Minimum number of features to select
+    :param subset_info_: list of dicts. A list of dictionary with the following keys: 'support_mask', mask array of the selected features 'cv_scores', cross validate scores
+    :param support_mask_: array-like of booleans. Array of final chosen features
+    :param best_idx_: array-like, shape = [n_predictions]. Feature Indices of the selected feature subsets.
+    :param best_score_: float. Cross validation average score of the selected subset.
+    :param best_feature_indices_: array-like, shape = (n_features,), Feature indices of the selected feature subsets.
 
-    max_features : int (default: 1)
-        Maximum number of features to select
-
-    verbose : bool (default: True)
-        Prints progress as the number of epochs to stdout.
-
-    scoring : str, (default='_passthrough_scorer')
-        Scoring metric in faccuracy, f1, precision, recall, roc_auc) for classifiers,
-        {'mean_absolute_error', 'mean_squared_error', 'median_absolute_error', 'r2'} for regressors,
-        or a callable object or function with signature ``scorer(estimator, X, y)``.
-
-    cv : int (default: 5)
-        Scikit-learn cross-validation generator or `int`,
-        If estimator is a classifier (or y consists of integer class labels), stratified k-fold is performed, and regular k-fold cross-validation otherwise.
-        No cross-validation if cv is None, False, or 0.
-
-    n_jobs : int (default: 1)
-        The number of CPUs to use for evaluating different feature subsets in parallel. -1 means 'all CPUs'.
-
-    pre_dispatch : int, or string (default: '2*n_jobs')
-        Controls the number of jobs that get dispatched during parallel execution if `n_jobs > 1` or `n_jobs=-1`.
-        Reducing this number can be useful to avoid an explosion of memory consumption when more jobs get dispatched than CPUs can process.
-        This parameter can be:
-            None, in which case all the jobs are immediately created and spawned. Use this for lightweight and fast-running jobs, to avoid delays due to on-demand spawning of the jobs
-            An int, giving the exact number of total jobs that are spawned
-            A string, giving an expression as a function of n_jobs, as in `2*n_jobs
-
-    Attributes
-    -----------
-    subset_info_ : list of dicts
-        A list of dictionary with the following keys:
-            'support_mask', mask array of the selected features
-            'cv_scores', cross validate scores
-
-    support_mask_ : array-like of booleans
-        Array of final chosen features
-
-    best_idx_ : array-like, shape = [n_predictions]
-        Feature Indices of the selected feature subsets.
-    best_score_ : float
-        Cross validation average score of the selected subset.
-    best_feature_indices_ : array-like, shape = (n_features,)
-        Feature indices of the selected feature subsets.
-
-    Examples
-    -----------
+    **参考样例**
+    
     >>> from sklearn.neighbors import KNeighborsClassifier
     >>> from sklearn.datasets import load_iris
     >>> from scorecardpipeline.feature_selection import ExhaustiveSelector
@@ -800,6 +748,16 @@ class ExhaustiveSelector(SelectorMixin, MetaEstimatorMixin):
     12
     """
     def __init__(self, estimator, min_features=1, max_features=1, scoring="accuracy", cv=3, verbose=0, n_jobs=None, pre_dispatch='2*n_jobs'):
+        """
+        :param estimator: scikit-learn classifier or regressor
+        :param min_features: int (default: 1). Minimum number of features to select
+        :param max_features: int (default: 1). Maximum number of features to select
+        :param verbose: bool (default: True). Prints progress as the number of epochs to stdout.
+        :param scoring: str, (default='_passthrough_scorer'). Scoring metric in faccuracy, f1, precision, recall, roc_auc) for classifiers, {'mean_absolute_error', 'mean_squared_error', 'median_absolute_error', 'r2'} for regressors, or a callable object or function with signature ``scorer(estimator, X, y)``.
+        :param cv: int (default: 5). Scikit-learn cross-validation generator or `int`, If estimator is a classifier (or y consists of integer class labels), stratified k-fold is performed, and regular k-fold cross-validation otherwise. No cross-validation if cv is None, False, or 0.
+        :param n_jobs: int (default: 1). The number of CPUs to use for evaluating different feature subsets in parallel. -1 means 'all CPUs'.
+        :param pre_dispatch: int, or string (default: '2*n_jobs'). Controls the number of jobs that get dispatched during parallel execution if `n_jobs > 1` or `n_jobs=-1`.
+        """
         super().__init__()
         self.estimator = estimator
         self.min_features = min_features
@@ -846,16 +804,9 @@ class ExhaustiveSelector(SelectorMixin, MetaEstimatorMixin):
     def ncr(n, r):
         """Return the number of combinations of length r from n items.
 
-        Parameters
-        -----------
-        n : int
-            Total number of items
-        r : int
-            Number of items to select from n
-
-        Returns
-        -----------
-        Number of combinations, integer
+        :param n: int, Total number of items
+        :param r: int, Number of items to select from n
+        :return: Number of combinations, integer
         """
         r = min(r, n - r)
         if r == 0:
@@ -873,19 +824,11 @@ class ExhaustiveSelector(SelectorMixin, MetaEstimatorMixin):
     def fit(self, X, y, groups=None, **fit_params):
         """Perform feature selection and learn model from training data.
 
-        Parameters
-        -----------
-        X : array-like of shape (n_samples, n_features)
-        y : array-like of shape (n_samples, )
-            Target values.
-        groups : array-like of shape (n_samples,)
-            Group labels for the samples used while splitting the dataset into train/test set. Passed to the fit method of the cross-validator.
-        fit_params : dict
-            Parameters to pass to the fit method of classifier
-
-        Returns
-        -----------
-        self : ExhaustiveFeatureSelector
+        :param X: array-like of shape (n_samples, n_features)
+        :param y: array-like of shape (n_samples, ), Target values.
+        :param groups: array-like of shape (n_samples,), Group labels for the samples used while splitting the dataset into train/test set. Passed to the fit method of the cross-validator.
+        :param fit_params: dict, Parameters to pass to the fit method of classifier
+        :return: ExhaustiveFeatureSelector
         """
         X, y = self._validate_params(X, y)
         _, n_features = X.shape

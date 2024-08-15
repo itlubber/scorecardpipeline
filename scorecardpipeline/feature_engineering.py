@@ -13,13 +13,8 @@ from sklearn.base import BaseEstimator, TransformerMixin
 class NumExprDerive(BaseEstimator, TransformerMixin):
     """Derive features by expressions.
 
-    Parameters
-    -----------
-    derivings : list, default=None
-        Each entry is a (name, expr) pair representing a deriving rule.
+    **参考样例**
 
-    Examples
-    -----------
     >>> import pandas as pd
     >>> from scorecardpipeline.feature_engineering import NumExprDerive
     >>> X = pd.DataFrame({"f0": [2, 1.0, 3], "f1": [np.inf, 2, 3], "f2": [2, 3, 4], "f3": [2.1, 1.4, -6.2]})
@@ -27,6 +22,9 @@ class NumExprDerive(BaseEstimator, TransformerMixin):
     >>> fd.fit_transform(X)
     """
     def __init__(self, derivings=None):
+        """
+        :param derivings: list, default=None. Each entry is a (name, expr) pair representing a deriving rule.
+        """
         self.derivings = derivings
 
     def fit(self, X, y=None):
