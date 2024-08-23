@@ -421,7 +421,7 @@ class Combiner(TransformerMixin, BaseEstimator):
         self.min_prebin_size = min_prebin_size
         self.gamma = gamma
         self.monotonic_trend = monotonic_trend
-        self.adj_rules = adj_rules or {}
+        self.adj_rules = adj_rules
         self.n_jobs = n_jobs
 
     def update(self, rules):
