@@ -838,8 +838,16 @@ def feature_bin_stats(data, feature, target="target", overdue=None, dpd=None, ru
     if overdue and dpd is None:
         raise ValueError("传入 overdue 参数时必须同时传入 dpd")
 
+    drop_empty = True if not empty_separate and data[feature].isnull().sum() <= 0 else False
+
     if overdue is None:
-        return Combiner.feature_bin_stats(data, feature, target=target, rules=rules, method=method, desc=desc, combiner=combiner, ks=ks, max_n_bins=max_n_bins, min_bin_size=min_bin_size, max_bin_size=max_bin_size, greater_is_better=greater_is_better, empty_separate=empty_separate, return_cols=return_cols, return_rules=return_rules, verbose=verbose, **kwargs)
+        table, rule = Combiner.feature_bin_stats(data, feature, target=target, rules=rules, method=method, desc=desc, combiner=combiner, ks=ks, max_n_bins=max_n_bins, min_bin_size=min_bin_size, max_bin_size=max_bin_size, greater_is_better=greater_is_better, empty_separate=empty_separate, return_cols=return_cols, return_rules=True, verbose=verbose, **kwargs)
+
+        if drop_empty:
+            table = table.iloc[:-1]
+            rule = rule[:-1]
+
+        return table, rule if return_rules else table
 
     if not isinstance(overdue, list):
         overdue = [overdue]
@@ -878,6 +886,10 @@ def feature_bin_stats(data, feature, target="target", overdue=None, dpd=None, ru
                 _table.columns = pd.MultiIndex.from_tuples([("分箱详情", c) if c in merge_columns else (target, c) for c in _table.columns])
 
                 table = table.merge(_table, on=[("分箱详情", c) for c in merge_columns])
+
+    if drop_empty:
+        table = table.iloc[:-1]
+        rule = rule[:-1]
 
     if return_cols is not None:
         if not isinstance(return_cols, list):
