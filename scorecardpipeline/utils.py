@@ -830,3 +830,33 @@ def sample_lift_transformer(df, rule, target='target', sample_rate=0.7):
     lift_ori = bad_rj / (bad_rj + bad_ps) * (1 + (sample_rate * bad_ps + good_ps) / (sample_rate * bad_rj + good_rj))
 
     return lift_sam, lift_ori
+
+
+def tasks_executor(tasks, n_jobs=-1, pool="thread"):
+    """多进程或多线程任务执行
+
+    :param tasks: 任务
+    :param n_jobs: 线城池或进程池数量
+    :param pool: 类型，默认 thread 线城池,
+    """
+    if len(tasks) <= 0:
+        raise ValueError("执行任务数必须大于0")
+
+    if pool == "joblib":
+        pass
+
+    from concurrent.futures import wait, ALL_COMPLETED
+    if pool == "thread":
+        from concurrent.futures import ThreadPoolExecutor
+        executor = ThreadPoolExecutor(max_workers=n_jobs if n_jobs > 0 else 1)
+    elif pool == "process":
+        from concurrent.futures import ProcessPoolExecutor
+        executor = ProcessPoolExecutor(max_workers=n_jobs if n_jobs > 0 else 1)
+
+    _tasks = []
+    for task in tasks:
+        executor.submit(task)
+
+    wait(_tasks, return_when=ALL_COMPLETED)
+
+    return [t.result() for t in _tasks]

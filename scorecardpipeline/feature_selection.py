@@ -301,7 +301,7 @@ class InformationValueSelector(SelectorMixin):
         if self.methods:
             temp = x.copy()
             temp[self.target] = y
-            self.combiner = Combiner(target=self.target, method=self.methods, **self.kwargs)
+            self.combiner = Combiner(target=self.target, method=self.methods, n_jobs=self.n_jobs, **self.kwargs)
             self.combiner.fit(temp)
             xt = self.combiner.transform(x)
         else:
@@ -377,7 +377,7 @@ class LiftSelector(SelectorMixin):
         if self.methods:
             temp = x.copy()
             temp[self.target] = y
-            self.combiner = Combiner(target=self.target, method=self.methods, **self.kwargs)
+            self.combiner = Combiner(target=self.target, method=self.methods, n_jobs=self.n_jobs, **self.kwargs)
             self.combiner.fit(temp)
             xt = self.combiner.transform(x)
         else:
@@ -605,7 +605,7 @@ class PSISelector(SelectorMixin):
                 elif "target" not in temp.columns:
                     temp["target"] = y
 
-            self.combiner = Combiner(method=self.method, **self.kwargs).fit(temp)
+            self.combiner = Combiner(method=self.method, n_jobs=self.n_jobs, **self.kwargs).fit(temp)
             x = self.combiner.transform(x)
 
         if self.exclude:

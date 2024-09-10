@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<PMML xmlns="http://www.dmg.org/PMML-4_4" xmlns:data="http://jpmml.org/jpmml-model/InlineTable" version="4.4">
+	<Header>
+		<Application name="SkLearn2PMML package" version="0.110.0"/>
+		<Timestamp>2024-08-30T06:28:54Z</Timestamp>
+	</Header>
+	<MiningBuildTask>
+		<Extension name="repr">PMMLPipeline(steps=[('preprocessing', DataFrameMapper(df_out=True, drop_cols=[],
+                features=[(['all_720_query_avg_org'],
+                           ExpressionTransformer(expr='116.31861805531601 if '
+                                                      'X[0] &lt; 0.2568 else '
+                                                      '67.13308122593628')),
+                          (['help_loan_1080_query_times'],
+                           ExpressionTransformer(expr='118.55489075866564 if '
+                                                      'X[0] &lt; 1 else '
+                                                      '62.89909217920857')),
+                          (['not_bank_1080_query_weekday_days'],
+                           ExpressionTransformer(expr='121...
+                                                      '108.47564228238582')),
+                          (['all_60_query_avg_org'],
+                           ExpressionTransformer(expr='88.4396327976653 if '
+                                                      'X[0] &lt; 0.4 else '
+                                                      '81.21864819541842')),
+                          (['bank_1080_query_org_avg_times'],
+                           ExpressionTransformer(expr='68.15140311787648 if '
+                                                      'X[0] &lt; 1.0 else '
+                                                      '101.96618280101227')),
+                          (['not_bank_180_query_avg_org'],
+                           ExpressionTransformer(expr='109.67610047709874 if '
+                                                      'X[0] &lt; 0.381 else '
+                                                      '42.48148366452569'))])),
+       ('scorecard', LinearRegression(fit_intercept=False))])</Extension>
+	</MiningBuildTask>
+	<DataDictionary>
+		<DataField name="score" optype="continuous" dataType="double"/>
+		<DataField name="all_720_query_avg_org" optype="continuous" dataType="double"/>
+		<DataField name="help_loan_1080_query_times" optype="continuous" dataType="double"/>
+		<DataField name="not_bank_1080_query_weekday_days" optype="continuous" dataType="double"/>
+		<DataField name="not_bank_90_event_30_query_times_std" optype="continuous" dataType="double"/>
+		<DataField name="bank_720_query_avg_org" optype="continuous" dataType="double"/>
+		<DataField name="all_180_event_30_query_times_std" optype="continuous" dataType="double"/>
+		<DataField name="all_60_query_avg_org" optype="continuous" dataType="double"/>
+		<DataField name="bank_1080_query_org_avg_times" optype="continuous" dataType="double"/>
+		<DataField name="not_bank_180_query_avg_org" optype="continuous" dataType="double"/>
+	</DataDictionary>
+	<RegressionModel functionName="regression" algorithmName="sklearn.linear_model._base.LinearRegression">
+		<MiningSchema>
+			<MiningField name="score" usageType="target"/>
+			<MiningField name="all_720_query_avg_org"/>
+			<MiningField name="help_loan_1080_query_times"/>
+			<MiningField name="not_bank_1080_query_weekday_days"/>
+			<MiningField name="not_bank_90_event_30_query_times_std"/>
+			<MiningField name="bank_720_query_avg_org"/>
+			<MiningField name="all_180_event_30_query_times_std"/>
+			<MiningField name="all_60_query_avg_org"/>
+			<MiningField name="bank_1080_query_org_avg_times"/>
+			<MiningField name="not_bank_180_query_avg_org"/>
+		</MiningSchema>
+		<LocalTransformations>
+			<DerivedField name="eval(116.31861805531601 if X[0] &lt; 0.2568 else 67.13308122593628)" optype="continuous" dataType="double">
+				<Apply function="if">
+					<Apply function="lessThan">
+						<FieldRef field="all_720_query_avg_org"/>
+						<Constant dataType="double">0.2568</Constant>
+					</Apply>
+					<Constant dataType="double">116.31861805531601</Constant>
+					<Constant dataType="double">67.13308122593628</Constant>
+				</Apply>
+			</DerivedField>
+			<DerivedField name="eval(118.55489075866564 if X[0] &lt; 1 else 62.89909217920857)" optype="continuous" dataType="double">
+				<Apply function="if">
+					<Apply function="lessThan">
+						<FieldRef field="help_loan_1080_query_times"/>
+						<Constant dataType="integer">1</Constant>
+					</Apply>
+					<Constant dataType="double">118.55489075866564</Constant>
+					<Constant dataType="double">62.89909217920857</Constant>
+				</Apply>
+			</DerivedField>
+			<DerivedField name="eval(121.22626170081081 if X[0] &lt; 2 else 59.65630196796644)" optype="continuous" dataType="double">
+				<Apply function="if">
+					<Apply function="lessThan">
+						<FieldRef field="not_bank_1080_query_weekday_days"/>
+						<Constant dataType="integer">2</Constant>
+					</Apply>
+					<Constant dataType="double">121.22626170081081</Constant>
+					<Constant dataType="double">59.65630196796644</Constant>
+				</Apply>
+			</DerivedField>
+			<DerivedField name="eval(98.36678169439556 if X[0] &lt; 0.0 else 67.39540445245542)" optype="continuous" dataType="double">
+				<Apply function="if">
+					<Apply function="lessThan">
+						<FieldRef field="not_bank_90_event_30_query_times_std"/>
+						<Constant dataType="double">0.0</Constant>
+					</Apply>
+					<Constant dataType="double">98.36678169439556</Constant>
+					<Constant dataType="double">67.39540445245542</Constant>
+				</Apply>
+			</DerivedField>
+			<DerivedField name="eval(90.40493982042932 if X[0] &lt; 0.8333 else 74.43738758194276)" optype="continuous" dataType="double">
+				<Apply function="if">
+					<Apply function="lessThan">
+						<FieldRef field="bank_720_query_avg_org"/>
+						<Constant dataType="double">0.8333</Constant>
+					</Apply>
+					<Constant dataType="double">90.40493982042932</Constant>
+					<Constant dataType="double">74.43738758194276</Constant>
+				</Apply>
+			</DerivedField>
+			<DerivedField name="eval(50.979707045210986 if X[0] &lt; 0.0 else 108.47564228238582)" optype="continuous" dataType="double">
+				<Apply function="if">
+					<Apply function="lessThan">
+						<FieldRef field="all_180_event_30_query_times_std"/>
+						<Constant dataType="double">0.0</Constant>
+					</Apply>
+					<Constant dataType="double">50.979707045210986</Constant>
+					<Constant dataType="double">108.47564228238582</Constant>
+				</Apply>
+			</DerivedField>
+			<DerivedField name="eval(88.4396327976653 if X[0] &lt; 0.4 else 81.21864819541842)" optype="continuous" dataType="double">
+				<Apply function="if">
+					<Apply function="lessThan">
+						<FieldRef field="all_60_query_avg_org"/>
+						<Constant dataType="double">0.4</Constant>
+					</Apply>
+					<Constant dataType="double">88.4396327976653</Constant>
+					<Constant dataType="double">81.21864819541842</Constant>
+				</Apply>
+			</DerivedField>
+			<DerivedField name="eval(68.15140311787648 if X[0] &lt; 1.0 else 101.96618280101227)" optype="continuous" dataType="double">
+				<Apply function="if">
+					<Apply function="lessThan">
+						<FieldRef field="bank_1080_query_org_avg_times"/>
+						<Constant dataType="double">1.0</Constant>
+					</Apply>
+					<Constant dataType="double">68.15140311787648</Constant>
+					<Constant dataType="double">101.96618280101227</Constant>
+				</Apply>
+			</DerivedField>
+			<DerivedField name="eval(109.67610047709874 if X[0] &lt; 0.381 else 42.48148366452569)" optype="continuous" dataType="double">
+				<Apply function="if">
+					<Apply function="lessThan">
+						<FieldRef field="not_bank_180_query_avg_org"/>
+						<Constant dataType="double">0.381</Constant>
+					</Apply>
+					<Constant dataType="double">109.67610047709874</Constant>
+					<Constant dataType="double">42.48148366452569</Constant>
+				</Apply>
+			</DerivedField>
+		</LocalTransformations>
+		<RegressionTable intercept="0.0">
+			<NumericPredictor name="eval(116.31861805531601 if X[0] &lt; 0.2568 else 67.13308122593628)" coefficient="1.0"/>
+			<NumericPredictor name="eval(118.55489075866564 if X[0] &lt; 1 else 62.89909217920857)" coefficient="1.0"/>
+			<NumericPredictor name="eval(121.22626170081081 if X[0] &lt; 2 else 59.65630196796644)" coefficient="1.0"/>
+			<NumericPredictor name="eval(98.36678169439556 if X[0] &lt; 0.0 else 67.39540445245542)" coefficient="1.0"/>
+			<NumericPredictor name="eval(90.40493982042932 if X[0] &lt; 0.8333 else 74.43738758194276)" coefficient="1.0"/>
+			<NumericPredictor name="eval(50.979707045210986 if X[0] &lt; 0.0 else 108.47564228238582)" coefficient="1.0"/>
+			<NumericPredictor name="eval(88.4396327976653 if X[0] &lt; 0.4 else 81.21864819541842)" coefficient="1.0"/>
+			<NumericPredictor name="eval(68.15140311787648 if X[0] &lt; 1.0 else 101.96618280101227)" coefficient="1.0"/>
+			<NumericPredictor name="eval(109.67610047709874 if X[0] &lt; 0.381 else 42.48148366452569)" coefficient="1.0"/>
+		</RegressionTable>
+	</RegressionModel>
+</PMML>
