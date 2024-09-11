@@ -297,7 +297,7 @@ class InformationValueSelector(SelectorMixin):
             x = x.drop(columns=self.target)
 
         self.n_features_in_ = x.shape[1]
-        
+
         if self.methods:
             temp = x.copy()
             temp[self.target] = y
@@ -306,7 +306,7 @@ class InformationValueSelector(SelectorMixin):
             xt = self.combiner.transform(x)
         else:
             xt = x.copy()
-        
+
         self.scores_ = pd.Series(_IV(xt, y, regularization=self.regularization, n_jobs=self.n_jobs), index=xt.columns)
         self.threshold = _calculate_threshold(self, self.scores_, self.threshold)
         self.select_columns = list(set((self.scores_[self.scores_ >= self.threshold]).index.tolist() + [self.target]))

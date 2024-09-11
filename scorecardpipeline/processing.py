@@ -14,6 +14,7 @@ from sklearn.base import BaseEstimator, TransformerMixin
 
 import toad
 import scorecardpy as sc
+from joblib import Parallel, delayed
 from optbinning import OptimalBinning
 from toad.plot import proportion_plot, badrate_plot
 
@@ -450,6 +451,7 @@ class Combiner(TransformerMixin, BaseEstimator):
         :param gamma: 使用 optbinning 分箱时限制过拟合的正则化参数，值越大惩罚越多，默认 0.01
         :param monotonic_trend: 使用 optbinning 正式分箱时的坏率策略，默认 auto，可选 "auto", "auto_heuristic", "auto_asc_desc", "ascending", "descending", "convex", "concave", "peak", "valley", "peak_heuristic", "valley_heuristic"
         """
+        data = data[[feature, target]].copy()
         if data[feature].dropna().nunique() <= min_n_bins:
             splits = []
             for v in data[feature].dropna().unique():
@@ -499,8 +501,9 @@ class Combiner(TransformerMixin, BaseEstimator):
         if self.method in ["cart", "mdlp", "uniform"]:
             feature_optbinning_bins = partial(self.optbinning_bins, data=x, target=self.target, min_n_bins=self.min_n_bins, max_n_bins=self.max_n_bins, max_n_prebins=self.max_n_prebins, min_prebin_size=self.min_prebin_size, min_bin_size=self.min_bin_size, max_bin_size=self.max_bin_size, gamma=self.gamma, monotonic_trend=self.monotonic_trend)
             if self.n_jobs > 1:
-                with ProcessPoolExecutor(max_workers=self.n_jobs) as executor:
-                    [executor.submit(feature_optbinning_bins(feature)) for feature in x.columns.drop(self.target)]
+                Parallel(n_jobs=self.n_jobs)(delayed(feature_optbinning_bins)(feature) for feature in x.columns.drop(self.target))
+                # with ProcessPoolExecutor(max_workers=self.n_jobs) as executor:
+                #     [executor.submit(feature_optbinning_bins(feature)) for feature in x.columns.drop(self.target)]
             else:
                 for feature in x.drop(columns=[self.target]):
                     feature_optbinning_bins(feature)
@@ -847,7 +850,10 @@ def feature_bin_stats(data, feature, target="target", overdue=None, dpd=None, ru
             table = table.iloc[:-1]
             rule = rule[:-1]
 
-        return table, rule if return_rules else table
+        if return_rules:
+            return table, rule
+        else:
+            return table
 
     if not isinstance(overdue, list):
         overdue = [overdue]
