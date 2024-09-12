@@ -502,7 +502,7 @@ class Combiner(TransformerMixin, BaseEstimator):
 
         if self.method in ["cart", "mdlp", "uniform"]:
             feature_optbinning_bins = partial(self.optbinning_bins, data=x, target=self.target, min_n_bins=self.min_n_bins, max_n_bins=self.max_n_bins, max_n_prebins=self.max_n_prebins, min_prebin_size=self.min_prebin_size, min_bin_size=self.min_bin_size, max_bin_size=self.max_bin_size, gamma=self.gamma, monotonic_trend=self.monotonic_trend, **self.kwargs)
-            if self.n_jobs > 1:
+            if self.n_jobs is not None:
                 rules = Parallel(n_jobs=self.n_jobs)(delayed(feature_optbinning_bins)(feature) for feature in x.columns.drop(self.target))
                 [self.combiner.update(r) for r in rules]
                 # with ProcessPoolExecutor(max_workers=self.n_jobs) as executor:

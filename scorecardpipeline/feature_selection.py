@@ -275,13 +275,13 @@ def _IV(x, y, regularization=1.0, n_jobs=None):
 
 class InformationValueSelector(SelectorMixin):
 
-    def __init__(self, threshold=0.02, target="target", regularization=1.0, methods=None, n_jobs=None, **kwargs):
+    def __init__(self, threshold=0.02, target="target", regularization=1.0, methods=None, n_jobs=None, combiner=None, **kwargs):
         super().__init__()
         self.dropped = None
         self.select_columns = None
         self.scores_ = None
         self.n_features_in_ = None
-        self.combiner = None
+        self.combiner = combiner
         self.threshold = threshold
         self.target = target
         self.regularization = regularization
@@ -298,7 +298,9 @@ class InformationValueSelector(SelectorMixin):
 
         self.n_features_in_ = x.shape[1]
 
-        if self.methods:
+        if self.combiner:
+            xt = self.combiner.transform(x)
+        elif self.methods:
             temp = x.copy()
             temp[self.target] = y
             self.combiner = Combiner(target=self.target, method=self.methods, n_jobs=self.n_jobs, **self.kwargs)
@@ -350,7 +352,7 @@ class LiftSelector(SelectorMixin):
     :param select_columns : array-like
     :param dropped : DataFrame
     """
-    def __init__(self, target="target", threshold=3.0, n_jobs=None, methods=None, **kwargs):
+    def __init__(self, target="target", threshold=3.0, n_jobs=None, methods=None, combiner=None, **kwargs):
         """
         :param target: target
         :param threshold: float or str (default=3.0). Feature which has a lift score greater than `threshold` will be kept.
@@ -362,6 +364,7 @@ class LiftSelector(SelectorMixin):
         self.n_jobs = n_jobs
         self.target = target
         self.methods = methods
+        self.combiner = combiner
         self.kwargs = kwargs
 
     def fit(self, x: pd.DataFrame, y=None, **fit_params):
@@ -372,8 +375,10 @@ class LiftSelector(SelectorMixin):
             x = x.drop(columns=self.target)
 
         self.n_features_in_ = x.shape[1]
-        
-        if self.methods:
+
+        if self.combiner:
+            xt = self.combiner.transform(x)
+        elif self.methods:
             temp = x.copy()
             temp[self.target] = y
             self.combiner = Combiner(target=self.target, method=self.methods, n_jobs=self.n_jobs, **self.kwargs)
