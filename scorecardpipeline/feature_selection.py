@@ -349,7 +349,6 @@ class LiftSelector(SelectorMixin):
     :param scores_ : array-like of shape (n_features,). Lift scores of features.
     :param select_columns : array-like
     :param dropped : DataFrame
-
     """
     def __init__(self, target="target", threshold=3.0, n_jobs=None, methods=None, **kwargs):
         """

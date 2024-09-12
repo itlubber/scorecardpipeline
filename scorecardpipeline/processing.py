@@ -393,7 +393,7 @@ class FeatureImportanceSelector(BaseEstimator, TransformerMixin):
 
 class Combiner(TransformerMixin, BaseEstimator):
 
-    def __init__(self, target="target", method='chi', empty_separate=True, min_n_bins=2, max_n_bins=None, max_n_prebins=20, min_prebin_size=0.02, min_bin_size=0.05, max_bin_size=None, gamma=0.01, monotonic_trend="auto_asc_desc", adj_rules={}, n_jobs=1):
+    def __init__(self, target="target", method='chi', empty_separate=True, min_n_bins=2, max_n_bins=None, max_n_prebins=20, min_prebin_size=0.02, min_bin_size=0.05, max_bin_size=None, gamma=0.01, monotonic_trend="auto_asc_desc", adj_rules={}, n_jobs=1, **kwargs):
         """特征分箱封装方法
 
         :param target: 数据集中标签名称，默认 target
@@ -424,6 +424,7 @@ class Combiner(TransformerMixin, BaseEstimator):
         self.monotonic_trend = monotonic_trend
         self.adj_rules = adj_rules
         self.n_jobs = n_jobs
+        self.kwargs = kwargs
 
     def update(self, rules):
         """更新 Combiner 中特征的分箱规则
@@ -436,7 +437,8 @@ class Combiner(TransformerMixin, BaseEstimator):
         for feature in rules.keys():
             self.check_rules(feature=feature)
 
-    def optbinning_bins(self, feature, data=None, target="target", min_n_bins=2, max_n_bins=3, max_n_prebins=10, min_prebin_size=0.02, min_bin_size=0.05, max_bin_size=None, gamma=0.01, monotonic_trend="auto_asc_desc"):
+    @staticmethod
+    def optbinning_bins(feature, data=None, target="target", min_n_bins=2, max_n_bins=3, max_n_prebins=10, min_prebin_size=0.02, min_bin_size=0.05, max_bin_size=None, gamma=0.01, monotonic_trend="auto_asc_desc", **kwargs):
         """基于 optbinning.OptimalBinning 的特征分箱方法，使用 optbinning.OptimalBinning 分箱失败时，使用 toad.transform.Combiner 的卡方分箱处理
 
         :param feature: 需要进行分箱的特征名称
@@ -472,7 +474,7 @@ class Combiner(TransformerMixin, BaseEstimator):
                     dtype = "numerical"
                     x = data[feature].values
 
-                _combiner = OptimalBinning(feature, dtype=dtype, min_n_bins=min_n_bins, max_n_bins=max_n_bins, max_n_prebins=max_n_prebins, min_prebin_size=min_prebin_size, min_bin_size=min_bin_size, max_bin_size=max_bin_size, monotonic_trend=monotonic_trend, gamma=gamma).fit(x, y)
+                _combiner = OptimalBinning(feature, dtype=dtype, min_n_bins=min_n_bins, max_n_bins=max_n_bins, max_n_prebins=max_n_prebins, min_prebin_size=min_prebin_size, min_bin_size=min_bin_size, max_bin_size=max_bin_size, monotonic_trend=monotonic_trend, gamma=gamma, **kwargs).fit(x, y)
                 if _combiner.status == "OPTIMAL":
                     rule = {feature: [s.tolist() if isinstance(s, np.ndarray) else s for s in _combiner.splits] + [[None] if dtype == "categorical" else np.nan]}
                 else:
@@ -480,10 +482,10 @@ class Combiner(TransformerMixin, BaseEstimator):
 
             except Exception as e:
                 _combiner = toad.transform.Combiner()
-                _combiner.fit(data[[feature, target]].dropna(), target, method="chi", min_samples=self.min_bin_size, n_bins=self.max_n_bins, empty_separate=False)
+                _combiner.fit(data[[feature, target]].dropna(), target, method="chi", min_samples=min_bin_size, n_bins=max_n_bins, empty_separate=False)
                 rule = {feature: [s.tolist() if isinstance(s, np.ndarray) else s for s in _combiner.export()[feature]] + [[None] if dtype == "categorical" else np.nan]}
 
-        self.combiner.update(rule)
+        return rule
 
     def fit(self, x: pd.DataFrame, y=None):
         """特征分箱训练
@@ -499,21 +501,24 @@ class Combiner(TransformerMixin, BaseEstimator):
         # x[cat_cols] = x[cat_cols].replace(np.nan, None)
 
         if self.method in ["cart", "mdlp", "uniform"]:
-            feature_optbinning_bins = partial(self.optbinning_bins, data=x, target=self.target, min_n_bins=self.min_n_bins, max_n_bins=self.max_n_bins, max_n_prebins=self.max_n_prebins, min_prebin_size=self.min_prebin_size, min_bin_size=self.min_bin_size, max_bin_size=self.max_bin_size, gamma=self.gamma, monotonic_trend=self.monotonic_trend)
+            feature_optbinning_bins = partial(self.optbinning_bins, data=x, target=self.target, min_n_bins=self.min_n_bins, max_n_bins=self.max_n_bins, max_n_prebins=self.max_n_prebins, min_prebin_size=self.min_prebin_size, min_bin_size=self.min_bin_size, max_bin_size=self.max_bin_size, gamma=self.gamma, monotonic_trend=self.monotonic_trend, **self.kwargs)
             if self.n_jobs > 1:
-                Parallel(n_jobs=self.n_jobs)(delayed(feature_optbinning_bins)(feature) for feature in x.columns.drop(self.target))
+                rules = Parallel(n_jobs=self.n_jobs)(delayed(feature_optbinning_bins)(feature) for feature in x.columns.drop(self.target))
+                [self.combiner.update(r) for r in rules]
                 # with ProcessPoolExecutor(max_workers=self.n_jobs) as executor:
                 #     [executor.submit(feature_optbinning_bins(feature)) for feature in x.columns.drop(self.target)]
             else:
                 for feature in x.drop(columns=[self.target]):
-                    feature_optbinning_bins(feature)
+                    rule = feature_optbinning_bins(feature)
+                    self.combiner.update(rule)
         else:
             if self.method in ["step", "quantile"]:
-                self.combiner.fit(x, y=self.target, method=self.method, n_bins=self.max_n_bins, empty_separate=self.empty_separate)
+                self.combiner.fit(x, y=self.target, method=self.method, n_bins=self.max_n_bins, empty_separate=self.empty_separate, **self.kwargs)
             else:
-                self.combiner.fit(x, y=self.target, method=self.method, min_samples=self.min_bin_size, n_bins=self.max_n_bins, empty_separate=self.empty_separate)
+                self.combiner.fit(x, y=self.target, method=self.method, min_samples=self.min_bin_size, n_bins=self.max_n_bins, empty_separate=self.empty_separate, **self.kwargs)
 
-        self.update(self.adj_rules)
+        if self.adj_rules is not None and len(self.adj_rules) > 0:
+            self.update(self.adj_rules)
 
         # 检查类别变量空值是否被转为字符串，如果转为了字符串，强制转回空值，同时检查分箱顺序并调整为正确顺序
         self.check_rules()
