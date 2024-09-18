@@ -500,12 +500,18 @@ class CorrSelector(SelectorMixin):
             x = x.drop(columns=self.exclude)
 
         self.n_features_in_ = x.shape[1]
-
-        if self.weights is None:
-            self.weights = pd.Series(np.zeros(self.n_features_in_), index=x.columns)
-        elif not isinstance(self.weights, pd.Series):
-            self.weights = pd.Series(self.weights.loc[x.columns], index=x.columns)
-            x = x[sorted(x.columns, key=self.weights.sort_values())]
+        
+        _weight = pd.Series(np.zeros(self.n_features_in_), index=x.columns)
+        
+        if self.weights is not None:
+            if isinstance(self.weights, pd.Series):
+                _weight_columns = list(set(self.weights.index) & set(x.columns))
+                _weight.loc[_weight_columns] = self.weights[_weight_columns]
+            else:
+                _weight = pd.Series(self.weights, index=x.columns)
+        
+        self.weights = _weight
+        x = x[sorted(x.columns, key=self.weights.sort_values(), reverse=True)]
 
         corr = x.corr(method=self.method, **self.kwargs)
         self.scores_ = corr
