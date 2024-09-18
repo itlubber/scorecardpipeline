@@ -515,9 +515,9 @@ class CorrSelector(SelectorMixin):
                 _weight.loc[_weight_columns] = self.weights[_weight_columns]
             else:
                 _weight = pd.Series(self.weights, index=x.columns)
-        
+
         self.weights = _weight
-        x = x[sorted(x.columns, key=self.weights.sort_values(), reverse=True)]
+        x = x[sorted(x.columns, key=lambda c: self.weights.loc[c], reverse=True)]
 
         corr = x.corr(method=self.method, **self.kwargs)
         self.scores_ = corr
