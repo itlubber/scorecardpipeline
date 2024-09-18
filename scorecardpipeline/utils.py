@@ -11,6 +11,7 @@ warnings.filterwarnings("ignore")
 import os
 import re
 import six
+import pickle
 import random
 import joblib
 import warnings
@@ -93,7 +94,7 @@ def init_setting(font_path=None, seed=None, freeze_torch=False, logger=False, **
         return init_logger(**kwargs)
 
 
-def load_pickle(file):
+def load_pickle(file, engine="joblib"):
     """
     导入 pickle 文件
 
@@ -101,17 +102,37 @@ def load_pickle(file):
 
     :return: pickle 文件的内容
     """
-    return joblib.load(file)
+    if engine == "joblib":
+        return joblib.load(file)
+    elif engine == "dill":
+        import dill
+        with open(file, "rb") as f:
+            return dill.load(f)
+    elif engine == "pickle":
+        with open(file, "rb") as f:
+            return pickle.load(f)
+    else:
+        raise ValueError(f"engine 目前只支持 [joblib, dill, pickle], 不支持 {engine}")
 
 
-def save_pickle(obj, file):
+def save_pickle(obj, file, engine="joblib"):
     """
     保持数据至 pickle 文件
 
     :param obj: 需要保存的数据
     :param file: 文件路径
     """
-    joblib.dump(obj, file)
+    if engine == "joblib":
+        return joblib.dump(obj, file)
+    elif engine == "dill":
+        import dill
+        with open(file, "wb") as f:
+            return dill.dump(obj, f)
+    elif engine == "pickle":
+        with open(file, "wb") as f:
+            return pickle.dump(obj, f)
+    else:
+        raise ValueError(f"engine 目前只支持 [joblib, dill, pickle], 不支持 {engine}")
 
 
 def germancredit():

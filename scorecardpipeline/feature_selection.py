@@ -357,6 +357,7 @@ class LiftSelector(SelectorMixin):
         :param target: target
         :param threshold: float or str (default=3.0). Feature which has a lift score greater than `threshold` will be kept.
         :param n_jobs: int or None, (default=None). Number of parallel.
+        :param combiner: Combiner
         :param methods: Combiner's methods
         """
         super().__init__()
@@ -387,6 +388,11 @@ class LiftSelector(SelectorMixin):
         else:
             xt = x.copy()
 
+        # _lift = {}
+        # for c in tqdm(xt.columns):
+        #     _lift[c] = LIFT(xt[c], y)
+        # self.scores_ = pd.Series(_lift)
+        
         self.scores_ = pd.Series(Parallel(n_jobs=self.n_jobs)(delayed(LIFT)(xt[c], y) for c in xt.columns), index=xt.columns)
         self.threshold = _calculate_threshold(self, self.scores_, self.threshold)
         self.select_columns = list(set((self.scores_[self.scores_ >= self.threshold]).index.tolist() + [self.target]))
