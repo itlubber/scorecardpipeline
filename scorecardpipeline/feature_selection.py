@@ -387,7 +387,7 @@ class LiftSelector(SelectorMixin):
         else:
             xt = x.copy()
 
-        self.scores_ = pd.Series(Parallel(n_jobs=self.n_jobs)(delayed(LIFT)(x[c], y) for c in xt.columns), index=xt.columns)
+        self.scores_ = pd.Series(Parallel(n_jobs=self.n_jobs)(delayed(LIFT)(xt[c], y) for c in xt.columns), index=xt.columns)
         self.threshold = _calculate_threshold(self, self.scores_, self.threshold)
         self.select_columns = list(set((self.scores_[self.scores_ >= self.threshold]).index.tolist() + [self.target]))
         self.dropped = pd.DataFrame([(col, f"LIFT < {self.threshold}") for col in xt.columns if col not in self.select_columns], columns=["variable", "rm_reason"])
@@ -504,7 +504,7 @@ class CorrSelector(SelectorMixin):
         if self.weights is None:
             self.weights = pd.Series(np.zeros(self.n_features_in_), index=x.columns)
         elif not isinstance(self.weights, pd.Series):
-            self.weights = pd.Series(self.weights, index=x.columns)
+            self.weights = pd.Series(self.weights.loc[x.columns], index=x.columns)
             x = x[sorted(x.columns, key=self.weights.sort_values())]
 
         corr = x.corr(method=self.method, **self.kwargs)
