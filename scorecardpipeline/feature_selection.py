@@ -240,12 +240,17 @@ class CardinalitySelector(SelectorMixin):
 
 
 def IV(x, y, regularization=1.0):
+    uniques = np.unique(x)
+    n_cats = len(uniques)
+
+    if n_cats <= 1:
+        return 0.0
+
     event_mask = y == 1
     nonevent_mask = y != 1
     event_tot = np.count_nonzero(event_mask) + 2 * regularization
     nonevent_tot = np.count_nonzero(nonevent_mask) + 2 * regularization
-    uniques = np.unique(x)
-    n_cats = len(uniques)
+
     event_rates = np.zeros(n_cats, dtype=np.float64)
     nonevent_rates = np.zeros(n_cats, dtype=np.float64)
     for i, cat in enumerate(uniques):
@@ -327,6 +332,9 @@ def LIFT(y_pred, y_true):
     >>> LIFT(y_true, y_pred) # (5 / 7) / (6 / 9)
     1.0714285714285716
     """
+    if len(np.unique(y_pred)) <= 1:
+        return 1.0
+
     _y_true = column_or_1d(y_true)
     base_bad_rate = np.average(y_true)
 
