@@ -712,6 +712,8 @@ class ExcelWriter:
         middle_odd_last_style.border = Border(bottom=Side(border_style="medium", color=self.theme_color))
         middle_even_first_style.border = Border(top=Side(border_style="medium", color=self.theme_color))
         middle_even_last_style.border = Border(bottom=Side(border_style="medium", color=self.theme_color))
+        middle_even_style.border = Border(bottom=Side(border_style="thin", color="FFFFFF"))
+        middle_odd_style.border = Border(bottom=Side(border_style="thin", color="FFFFFF"))
 
         self.name_styles.extend([
             header_style, header_left_style, header_middle_style, header_right_style,
@@ -854,24 +856,36 @@ def dataframe2excel(data, excel_writer, sheet_name=None, title=None, header=True
             else:
                 start_row, end_col = writer.insert_pic2sheet(worksheet, pic, (pic_row, end_col - 1), figsize=figsize)
 
+    if "merge_column" in kwargs and kwargs["merge_column"]:
+        if not isinstance(kwargs["merge_column"][0], (tuple, list)):
+            kwargs["merge_column"] = [c for c in data.columns if (isinstance(c, tuple) and c[-1] in kwargs["merge_column"]) or (not isinstance(c, tuple) and c in kwargs["merge_column"])]
+
     end_row, end_col = writer.insert_df2sheet(worksheet, data, (start_row, start_col), fill=fill, header=header, **kwargs)
 
     if percent_cols:
+        if not isinstance(percent_cols[0], (tuple, list)):
+            percent_cols = [c for c in data.columns if (isinstance(c, tuple) and c[-1] in percent_cols) or (not isinstance(c, tuple) and c in percent_cols)]
         for c in [c for c in percent_cols if c in data.columns]:
             conditional_column = get_column_letter(start_col + data.columns.get_loc(c) + data.index.nlevels if kwargs.get("index", False) else start_col + data.columns.get_loc(c))
             writer.set_number_format(worksheet, f"{conditional_column}{end_row - len(data)}:{conditional_column}{end_row - 1}", "0.00%")
 
     if custom_cols:
+        if not isinstance(custom_cols[0], (tuple, list)):
+            custom_cols = [c for c in data.columns if (isinstance(c, tuple) and c[-1] in custom_cols) or (not isinstance(c, tuple) and c in custom_cols)]
         for c in [c for c in custom_cols if c in data.columns]:
             conditional_column = get_column_letter(start_col + data.columns.get_loc(c) + data.index.nlevels if kwargs.get("index", False) else start_col + data.columns.get_loc(c))
             writer.set_number_format(worksheet, f"{conditional_column}{end_row - len(data)}:{conditional_column}{end_row - 1}", custom_format)
 
     if condition_cols:
+        if not isinstance(condition_cols[0], (tuple, list)):
+            condition_cols = [c for c in data.columns if (isinstance(c, tuple) and c[-1] in condition_cols) or (not isinstance(c, tuple) and c in condition_cols)]
         for c in [c for c in condition_cols if c in data.columns]:
             conditional_column = get_column_letter(start_col + data.columns.get_loc(c) + data.index.nlevels if kwargs.get("index", False) else start_col + data.columns.get_loc(c))
             writer.add_conditional_formatting(worksheet, f'{conditional_column}{end_row - len(data)}', f'{conditional_column}{end_row - 1}')
 
     if color_cols:
+        if not isinstance(color_cols[0], (tuple, list)):
+            color_cols = [c for c in data.columns if (isinstance(c, tuple) and c[-1] in color_cols) or (not isinstance(c, tuple) and c in color_cols)]
         for c in [c for c in color_cols if c in data.columns]:
             try:
                 rule = ColorScaleRule(start_type='num', start_value=data[c].min(), start_color=theme_color, mid_type='num', mid_value=0., mid_color='FFFFFF', end_type='num', end_value=data[c].max(), end_color=theme_color)
