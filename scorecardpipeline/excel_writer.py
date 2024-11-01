@@ -413,10 +413,16 @@ class ExcelWriter:
                 elif i == 0:
                     self.insert_rows(worksheet, row, start_row + i, start_col, style="middle_even_first", auto_width=auto_width, style_only=True)
                 else:
-                    if i % 2 == 1:
-                        style = "middle_odd_last" if (header and i == len(df) + df.columns.nlevels - 1) or (not header and i + 1 == len(df)) else "middle_odd"
+                    if df.columns.nlevels % 2 == 1:
+                        if i % 2 == 1:
+                            style = "middle_odd_last" if (header and i == len(df) + df.columns.nlevels - 1) or (not header and i + 1 == len(df)) else "middle_odd"
+                        else:
+                            style = "middle_even_last" if (header and i == len(df) + df.columns.nlevels - 1) or (not header and i + 1 == len(df)) else "middle_even"
                     else:
-                        style = "middle_even_last" if (header and i == len(df) + df.columns.nlevels - 1) or (not header and i + 1 == len(df)) else "middle_even"
+                        if i % 2 == 1:
+                            style = "middle_even_last" if (header and i == len(df) + df.columns.nlevels - 1) or (not header and i + 1 == len(df)) else "middle_even"
+                        else:
+                            style = "middle_odd_last" if (header and i == len(df) + df.columns.nlevels - 1) or (not header and i + 1 == len(df)) else "middle_odd"
                     self.insert_rows(worksheet, row, start_row + i, start_col, style=style, auto_width=auto_width, style_only=True)
             else:
                 if header and i < df.columns.nlevels:
