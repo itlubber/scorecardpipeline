@@ -491,8 +491,8 @@ class VIFSelector(SelectorMixin):
         self.scores_ = VIF(x, missing=self.missing, n_jobs=self.n_jobs)
         
         self.threshold = _calculate_threshold(self, self.scores_, self.threshold)
-        self.select_columns = list(set((self.scores_[self.scores_ > self.threshold]).index.tolist() + self.exclude))
-        self.dropped = pd.DataFrame([(col, f"VIF > {self.threshold}") for col in x.columns if col not in self.select_columns], columns=["variable", "rm_reason"])
+        self.select_columns = list(set((self.scores_[self.scores_ < self.threshold]).index.tolist() + self.exclude))
+        self.dropped = pd.DataFrame([(col, f"VIF >= {self.threshold}") for col in x.columns if col not in self.select_columns], columns=["variable", "rm_reason"])
 
         return self
 
