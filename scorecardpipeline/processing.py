@@ -943,6 +943,25 @@ class WOETransformer(TransformerMixin, BaseEstimator):
         :return: pd.DataFrame，WOE转换后的数据集
         """
         return self.transformer.transform(x)
+    
+    def export(self, to_json=None):
+        """特征分箱器导出 json 保存
+
+        :param to_json: json 文件的路径
+
+        :return: dict，特征分箱信息
+        """
+        return self.transformer.export(to_json=to_json)
+
+    def load(self, from_json):
+        """特征分箱器加载离线保存的 json 文件
+
+        :param from_json: json 文件的路径
+
+        :return: Combiner，特征分箱器
+        """
+        self.transformer.load(from_json)
+        return self
 
     @property
     def rules(self):
