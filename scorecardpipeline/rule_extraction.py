@@ -82,18 +82,10 @@ class DecisionTreeRuleExtractor:
         else:
             return X
 
-    def get_dt_rules(self, tree, feature_names):
-        tree_ = tree.tree_
-        left = tree.tree_.children_left
-        right = tree.tree_.children_right
-        feature_names_in_ = tree.feature_names_in_
-        feature_name = [feature_names[i] if i != -2 else "undefined!" for i in tree_.feature]
-
+    def get_dt_rules(self, tree):
         rules = dict()
 
         def recurse(node=0, parent=None):  # 搜每个节点的规则
-            nonlocal rules
-
             if node == 0 or tree.tree_.children_left[node] != -1:  # 非叶子节点,搜索每个节点的规则
                 name = tree.feature_names_in_[tree.tree_.feature[node]]
                 threshold = np.round(tree.tree_.threshold[node], self.decimal)
@@ -111,13 +103,13 @@ class DecisionTreeRuleExtractor:
         return list(rules.values())
 
     def select_dt_rules(self, decision_tree, x, y, lift=0., max_samples=1., save=None, verbose=False, drop=False):
-        rules = self.get_dt_rules(decision_tree, x.columns)
+        rules = self.get_dt_rules(decision_tree)
 
         try:
             viz_model = dtreeviz.model(decision_tree,
                                        X_train=x,
                                        y_train=y,
-                                       feature_names=x.columns,
+                                       feature_names=decision_tree.feature_names_in_,
                                        target_name=self.target,
                                        class_names=self.labels,
                                        )
