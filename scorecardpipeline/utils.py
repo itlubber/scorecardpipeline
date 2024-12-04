@@ -196,6 +196,11 @@ def groupby_feature_describe(data, by=None, **kwargs):
         
         describe[p] = _describe[p]
     
+    if len(by) > 1:
+        describe.columns = pd.MultiIndex.from_tuples(describe.columns)
+    
+    describe.index.names = ["特征名称", "统计指标"]
+    
     return describe
 
 
