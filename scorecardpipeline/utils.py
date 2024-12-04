@@ -177,25 +177,19 @@ def feature_describe(data, feature=None, percentiles=None, missing=None, cardina
         return pd.Series(describe, name=feature).reindex(['样本数', '非空数', '查得率', '最小值', '平均值'] + [f"{int(i * 100)}%" for i in percentiles] + ['最大值'])
 
 
-def groupby_features_describe(data, by=None, **kwargs):
+def groupby_feature_describe(data, by=None, **kwargs):
     describe = pd.DataFrame()
     
-    # Iterate over each group in the DataFrame, grouped by the specified column
     for p, group in data.groupby(by=by):
         _describe = pd.DataFrame()
         
-        # Iterate over each column in the group to compute descriptive statistics
         for f in group.columns:
-            # Compute descriptive statistics for the feature
             temp = feature_describe(group[f], **kwargs)
-            # Create a multi-level index with the feature name
             temp.index = pd.MultiIndex.from_product([[f], temp.index])
-            # Convert the Series to a DataFrame with the group name as the column
             temp = pd.DataFrame(temp, columns=[p])
-            # Concatenate the results for each feature
+            
             _describe = pd.concat([_describe, temp])
         
-        # Add the group's descriptive statistics to the main DataFrame
         describe[p] = _describe[p]
     
     return describe
