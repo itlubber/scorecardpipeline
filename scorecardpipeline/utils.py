@@ -178,17 +178,21 @@ def feature_describe(data, feature=None, percentiles=None, missing=None, cardina
 
 
 def groupby_feature_describe(data, by=None, **kwargs):
+    if not isinstance(by, (tuple, list, np.ndarray)):
+        by = [by]
+    
     describe = pd.DataFrame()
     
     for p, group in data.groupby(by=by):
         _describe = pd.DataFrame()
         
         for f in group.columns:
-            temp = feature_describe(group[f], **kwargs)
-            temp.index = pd.MultiIndex.from_product([[f], temp.index])
-            temp = pd.DataFrame(temp, columns=[p])
-            
-            _describe = pd.concat([_describe, temp])
+            if f not in by:
+                temp = feature_describe(group[f], **kwargs)
+                temp.index = pd.MultiIndex.from_product([[f], temp.index])
+                temp = pd.DataFrame(temp, columns=[p])
+                
+                _describe = pd.concat([_describe, temp])
         
         describe[p] = _describe[p]
     
