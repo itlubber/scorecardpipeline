@@ -135,6 +135,45 @@ def save_pickle(obj, file, engine="joblib"):
         raise ValueError(f"engine 目前只支持 [joblib, dill, pickle], 不支持 {engine}")
 
 
+def feature_describe(data: pd.DataFrame, feature, percentiles=None, missing=None, cardinality=None):
+    if feature not in data.columns:
+        raise ValueError(f"feature {feature} must in columns.")
+    
+    if cardinality and cardinality < 1:
+        raise ValueError(f"cardinality must grater 1")
+    
+    if percentiles is None:
+        percentiles = [0.01, 0.02, 0.03, 0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.95, 0.97, 0.98, 0.99]
+    
+    series = data[feature]
+    
+    if missing:
+        series = series.replace(missing, np.nan)
+    
+    if (cardinality and series.nunique() <= cardinality) or not pd.api.types.is_numeric_dtype(series):
+        describe = {
+            "样本数": len(series),
+            "非空数": len(series) - series.isnull().sum(),
+            "查得率": 1 - series.isnull().mean(),
+        }
+        describe.update((series.replace(np.nan, '缺失值').value_counts(dropna=False) / len(series)).to_dict())
+        return pd.Series(describe)
+    else:
+        describe = {
+            "样本数": len(series),
+            "非空数": len(series) - series.isnull().sum(),
+            "查得率": 1 - series.isnull().mean(),
+            "最小值": series.min(),
+            "平均值": series.mean(),
+            "最大值": series.max(),
+            # "众数": series.mode()[0],
+        }
+        quantile = series.quantile(percentiles)
+        quantile.index = [f"{int(i * 100)}%" for i in percentiles]
+        describe.update(quantile.to_dict())
+        return pd.Series(describe).reindex(['样本数', '非空数', '查得率', '最小值', '平均值'] + [f"{int(i * 100)}%" for i in percentiles] + ['最大值'])
+
+
 def germancredit():
     """
     加载德国信贷数据集 German Credit Data
