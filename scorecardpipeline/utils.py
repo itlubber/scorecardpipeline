@@ -135,8 +135,8 @@ def save_pickle(obj, file, engine="joblib"):
         raise ValueError(f"engine 目前只支持 [joblib, dill, pickle], 不支持 {engine}")
 
 
-def feature_describe(data: pd.DataFrame, feature, percentiles=None, missing=None, cardinality=None):
-    if feature not in data.columns:
+def feature_describe(data, feature=None, percentiles=None, missing=None, cardinality=None):
+    if feature and feature not in data.columns:
         raise ValueError(f"feature {feature} must in columns.")
     
     if cardinality and cardinality < 1:
@@ -145,7 +145,10 @@ def feature_describe(data: pd.DataFrame, feature, percentiles=None, missing=None
     if percentiles is None:
         percentiles = [0.01, 0.02, 0.03, 0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.95, 0.97, 0.98, 0.99]
     
-    series = data[feature]
+    if feature:
+        series = data[feature]
+    else:
+        series = data.copy()
     
     if missing:
         series = series.replace(missing, np.nan)
@@ -157,7 +160,7 @@ def feature_describe(data: pd.DataFrame, feature, percentiles=None, missing=None
             "查得率": 1 - series.isnull().mean(),
         }
         describe.update((series.replace(np.nan, '缺失值').value_counts(dropna=False) / len(series)).to_dict())
-        return pd.Series(describe)
+        return pd.Series(describe, name=feature)
     else:
         describe = {
             "样本数": len(series),
@@ -171,7 +174,31 @@ def feature_describe(data: pd.DataFrame, feature, percentiles=None, missing=None
         quantile = series.quantile(percentiles)
         quantile.index = [f"{int(i * 100)}%" for i in percentiles]
         describe.update(quantile.to_dict())
-        return pd.Series(describe).reindex(['样本数', '非空数', '查得率', '最小值', '平均值'] + [f"{int(i * 100)}%" for i in percentiles] + ['最大值'])
+        return pd.Series(describe, name=feature).reindex(['样本数', '非空数', '查得率', '最小值', '平均值'] + [f"{int(i * 100)}%" for i in percentiles] + ['最大值'])
+
+
+def groupby_features_describe(data, by=None, **kwargs):
+    describe = pd.DataFrame()
+    
+    # Iterate over each group in the DataFrame, grouped by the specified column
+    for p, group in data.groupby(by=by):
+        _describe = pd.DataFrame()
+        
+        # Iterate over each column in the group to compute descriptive statistics
+        for f in group.columns:
+            # Compute descriptive statistics for the feature
+            temp = feature_describe(group[f], **kwargs)
+            # Create a multi-level index with the feature name
+            temp.index = pd.MultiIndex.from_product([[f], temp.index])
+            # Convert the Series to a DataFrame with the group name as the column
+            temp = pd.DataFrame(temp, columns=[p])
+            # Concatenate the results for each feature
+            _describe = pd.concat([_describe, temp])
+        
+        # Add the group's descriptive statistics to the main DataFrame
+        describe[p] = _describe[p]
+    
+    return describe
 
 
 def germancredit():
