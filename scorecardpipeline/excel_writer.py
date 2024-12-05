@@ -768,7 +768,7 @@ class ExcelWriter:
             self.workbook.close()
 
 
-def dataframe2excel(data, excel_writer, sheet_name=None, title=None, header=True, theme_color="2639E9", fill=True, percent_cols=None, condition_cols=None, custom_cols=None, custom_format="#,##0", color_cols=None, start_col=2, start_row=2, mode="replace", figures=None, figsize=(600, 350), writer_params={}, **kwargs):
+def dataframe2excel(data, excel_writer, sheet_name=None, title=None, header=True, theme_color="2639E9", condition_color=None, fill=True, percent_cols=None, condition_cols=None, custom_cols=None, custom_format="#,##0", color_cols=None, percent_rows=None, condition_rows=None, custom_rows=None, color_rows=None, start_col=2, start_row=2, mode="replace", figures=None, figsize=(600, 350), writer_params={}, **kwargs):
     """
     向excel文件中插入指定样式的dataframe数据
 
@@ -780,6 +780,7 @@ def dataframe2excel(data, excel_writer, sheet_name=None, title=None, header=True
     :param figsize: 插入图像的大小，为了统一排版，目前仅支持设置一个图片大小，默认: (600, 350) (长度, 高度)
     :param header: 是否存储dataframe的header，暂不支持多级表头
     :param theme_color: 主题色
+    :param condition_color: 条件格式主题颜色，不传默认为 theme_color
     :param fill: 是否使用单元个颜色填充样式还是使用边框样式
     :param percent_cols: 需要显示为百分数的列，仅修改显示格式，不更改数值
     :param condition_cols: 需要显示条件格式的列（无边框渐变数据条）
@@ -894,9 +895,46 @@ def dataframe2excel(data, excel_writer, sheet_name=None, title=None, header=True
             color_cols = [c for c in data.columns if (isinstance(c, tuple) and c[-1] in color_cols) or (not isinstance(c, tuple) and c in color_cols)]
         for c in [c for c in color_cols if c in data.columns]:
             try:
-                rule = ColorScaleRule(start_type='num', start_value=data[c].min(), start_color=theme_color, mid_type='num', mid_value=0., mid_color='FFFFFF', end_type='num', end_value=data[c].max(), end_color=theme_color)
+                rule = ColorScaleRule(start_type='num', start_value=data[c].min(), start_color=condition_color or theme_color, mid_type='num', mid_value=0., mid_color='FFFFFF', end_type='num', end_value=data[c].max(), end_color=condition_color or theme_color)
                 conditional_column = get_column_letter(start_col + data.columns.get_loc(c) + data.index.nlevels if kwargs.get("index", False) else start_col + data.columns.get_loc(c))
                 worksheet.conditional_formatting.add(f"{conditional_column}{end_row - len(data)}:{conditional_column}{end_row - 1}", rule)
+            except:
+                import traceback
+                traceback.print_exc()
+
+    if percent_rows:
+        if not isinstance(percent_rows[0], (tuple, list)):
+            percent_rows = [c for c in data.index if (isinstance(c, tuple) and c[-1] in percent_rows) or (not isinstance(c, tuple) and c in percent_rows)]
+        for c in [c for c in percent_rows if c in data.index]:
+            index_row = start_row + data.index.get_loc(c) + data.columns.nlevels if kwargs.get("header", True) else start_row + data.index.get_loc(c)
+            index_col = start_col + data.index.nlevels if kwargs.get("index", False) else start_col
+            writer.set_number_format(worksheet, f"{get_column_letter(index_col)}{index_row}:{get_column_letter(index_col + len(data.columns))}{index_row}", "0.00%")
+
+    if custom_rows:
+        if not isinstance(custom_rows[0], (tuple, list)):
+            custom_rows = [c for c in data.index if (isinstance(c, tuple) and c[-1] in custom_rows) or (not isinstance(c, tuple) and c in custom_rows)]
+        for c in [c for c in custom_rows if c in data.index]:
+            index_row = start_row + data.index.get_loc(c) + data.columns.nlevels if kwargs.get("header", True) else start_row + data.index.get_loc(c)
+            index_col = start_col + data.index.nlevels if kwargs.get("index", False) else start_col
+            writer.set_number_format(worksheet, f"{get_column_letter(index_col)}{index_row}:{get_column_letter(index_col + len(data.columns))}{index_row}", custom_format)
+
+    if condition_rows:
+        if not isinstance(condition_rows[0], (tuple, list)):
+            condition_rows = [c for c in data.index if (isinstance(c, tuple) and c[-1] in condition_rows) or (not isinstance(c, tuple) and c in condition_rows)]
+        for c in [c for c in condition_rows if c in data.index]:
+            index_row = start_row + data.index.get_loc(c) + data.columns.nlevels if kwargs.get("header", True) else start_row + data.index.get_loc(c)
+            index_col = start_col + data.index.nlevels if kwargs.get("index", False) else start_col
+            writer.add_conditional_formatting(worksheet, f'{get_column_letter(index_col)}{index_row}', f'{get_column_letter(index_col + len(data.columns))}{index_row}')
+
+    if color_rows:
+        if not isinstance(color_rows[0], (tuple, list)):
+            color_rows = [c for c in data.index if (isinstance(c, tuple) and c[-1] in color_rows) or (not isinstance(c, tuple) and c in color_rows)]
+        for c in [c for c in color_rows if c in data.index]:
+            try:
+                rule = ColorScaleRule(start_type='num', start_value=data.loc[c].min(), start_color=condition_color or theme_color, mid_type='num', mid_value=0., mid_color='FFFFFF', end_type='num', end_value=data.loc[c].max(), end_color=condition_color or theme_color)
+                index_row = start_row + data.index.get_loc(c) + data.columns.nlevels if kwargs.get("header", True) else start_row + data.index.get_loc(c)
+                index_col = start_col + data.index.nlevels if kwargs.get("index", False) else start_col
+                worksheet.conditional_formatting.add(f"{get_column_letter(index_col)}{index_row}:{get_column_letter(index_col + len(data.columns))}{index_row}", rule)
             except:
                 import traceback
                 traceback.print_exc()
@@ -936,5 +974,7 @@ if __name__ == "__main__":
         rule = ColorScaleRule(start_type='num', start_value=0, start_color='3f1dba', end_type='num', end_value=data.iloc[color_rows, 2:].max(), end_color='c04d9c')
         worksheet.conditional_formatting.add(f"{get_column_letter(2 + 2)}{end_row - len(data) + color_rows}:{get_column_letter(2 + len(data.columns))}{end_row - len(data) + color_rows}", rule)
         writer.set_number_format(worksheet, f"{get_column_letter(2 + 2)}{end_row - len(data) + color_rows}:{get_column_letter(2 + len(data.columns))}{end_row - len(data) + color_rows}", "0.00%")
+
+    end_row, end_col = dataframe2excel(data.set_index([('', ''), ('渠道', '时间')]), writer, sheet_name="模型报告", condition_color="F76E6C", color_rows=["命中率"], percent_rows=["命中率"], start_row=end_row + 2, index=True, fill=False, auto_width=False, theme_color='3f1dba')
 
     writer.save("测试样例.xlsx")
