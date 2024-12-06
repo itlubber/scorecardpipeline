@@ -184,8 +184,9 @@ def groupby_feature_describe(data, by=None, **kwargs):
     describe = pd.DataFrame()
     
     for p, group in data.groupby(by=by):
-        _describe = pd.DataFrame()
+        if len(p) <= 1: p = p[0]
         
+        _describe = pd.DataFrame()
         for f in group.columns:
             if f not in by:
                 temp = feature_describe(group[f], **kwargs)
