@@ -17,13 +17,16 @@ import joblib
 import warnings
 import numpy as np
 import pandas as pd
+from functools import partial
 import matplotlib.pyplot as plt
 from matplotlib import font_manager
 from matplotlib.ticker import PercentFormatter, FuncFormatter
-import seaborn as sns
-from sklearn.metrics import roc_curve, auc, roc_auc_score
+
 import toad
+import seaborn as sns
+from joblib import Parallel, delayed
 from optbinning import OptimalBinning
+from sklearn.metrics import roc_curve, auc, roc_auc_score
 
 from .logger import init_logger
 
@@ -177,29 +180,28 @@ def feature_describe(data, feature=None, percentiles=None, missing=None, cardina
         return pd.Series(describe, name=feature).reindex(['样本数', '非空数', '查得率', '最小值', '平均值'] + [f"{int(i * 100)}%" for i in percentiles] + ['最大值'])
 
 
-def groupby_feature_describe(data, by=None, **kwargs):
+def groupby_feature_describe(data, by=None, n_jobs=-1, **kwargs):
     if not isinstance(by, (tuple, list, np.ndarray)):
         by = [by]
-    
+
     describe = pd.DataFrame()
+
+    def _feature_describe(group, p, f, **kwargs):
+        temp = feature_describe(group[f], **kwargs)
+        temp.index = pd.MultiIndex.from_product([[f], temp.index])
+        temp = pd.DataFrame(temp, columns=[p])
+        return temp
     
     for p, group in data.groupby(by=by):
         if len(p) <= 1: p = p[0]
-        
-        _describe = pd.DataFrame()
-        for f in group.columns:
-            if f not in by:
-                temp = feature_describe(group[f], **kwargs)
-                temp.index = pd.MultiIndex.from_product([[f], temp.index])
-                temp = pd.DataFrame(temp, columns=[p])
-                
-                _describe = pd.concat([_describe, temp])
-        
-        describe[p] = _describe[p]
+
+        _describe = partial(lambda f: _feature_describe(group, p, f, **kwargs))
+        describe[p] = pd.concat(Parallel(n_jobs=n_jobs)(delayed(_describe)(f) for f in group.columns if f not in by))[p]
+        # describe[p] = pd.concat([_feature_describe(group, p, f, **kwargs) for f in group.columns if f not in by])[p]
     
     if len(by) > 1:
         describe.columns = pd.MultiIndex.from_tuples(describe.columns)
-    
+
     describe.index.names = ["特征名称", "统计指标"]
     
     return describe

@@ -491,10 +491,10 @@ def get_weeks_hit(data, rule_name, rule_type, cut_point, target, rule_limit, rul
     dic['样本类型'] = rule_limit
     dic['风险类型'] = '短期风险' if target == 'fpd_30_act' else '中长期风险'
     dic['目标字段'] = target
-    dic['规则名称'] = rule_name;
-    dic['规则类型'] = rule_type;
-    dic['申请周'] = week;
-    dic['申请量'] = len(data);
+    dic['规则名称'] = rule_name
+    dic['规则类型'] = rule_type
+    dic['申请周'] = week
+    dic['申请量'] = len(data)
     dic['通过量'] = len(data[data[rule_all] == 0])
     dic['通过率'] = dic['通过量'] / dic['申请量'] if dic['申请量'] > 0 else None
     dic['用信量'] = len(data[data[use_credit_flag] == 1])
