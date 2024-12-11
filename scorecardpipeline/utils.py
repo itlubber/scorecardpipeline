@@ -141,21 +141,21 @@ def save_pickle(obj, file, engine="joblib"):
 def feature_describe(data, feature=None, percentiles=None, missing=None, cardinality=None):
     if feature and feature not in data.columns:
         raise ValueError(f"feature {feature} must in columns.")
-    
+
     if cardinality and cardinality < 1:
         raise ValueError(f"cardinality must grater 1")
-    
+
     if percentiles is None:
         percentiles = [0.01, 0.02, 0.03, 0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 0.95, 0.97, 0.98, 0.99]
-    
+
     if feature:
         series = data[feature]
     else:
         series = data.copy()
-    
+
     if missing:
         series = series.replace(missing, np.nan)
-    
+
     if (cardinality and series.nunique() <= cardinality) or not pd.api.types.is_numeric_dtype(series):
         describe = {
             "样本数": len(series),
@@ -186,24 +186,27 @@ def groupby_feature_describe(data, by=None, n_jobs=-1, **kwargs):
 
     describe = pd.DataFrame()
 
-    def _feature_describe(group, p, f, **kwargs):
+    def __feature_describe(group, _p, f, **kwargs):
         temp = feature_describe(group[f], **kwargs)
         temp.index = pd.MultiIndex.from_product([[f], temp.index])
-        temp = pd.DataFrame(temp, columns=[p])
+        temp = pd.DataFrame(temp, columns=[_p])
         return temp
-    
-    for p, group in data.groupby(by=by):
-        if len(p) <= 1: p = p[0]
 
-        _describe = partial(lambda f: _feature_describe(group, p, f, **kwargs))
-        describe[p] = pd.concat(Parallel(n_jobs=n_jobs)(delayed(_describe)(f) for f in group.columns if f not in by))[p]
-        # describe[p] = pd.concat([_feature_describe(group, p, f, **kwargs) for f in group.columns if f not in by])[p]
-    
+    def _feature_describe(group, _p, _by=None, **kwargs):
+        if len(_p) <= 1:
+            _p = _p[0]
+
+        __describe = partial(lambda f: __feature_describe(group, _p, f, **kwargs))
+        return _p, pd.concat(Parallel(n_jobs=n_jobs)(delayed(__describe)(f) for f in group.columns if f not in _by))[_p]
+
+    for info in Parallel(n_jobs=n_jobs)(delayed(_feature_describe)(group, p, _by=by, **kwargs) for p, group in data.groupby(by=by)):
+        describe[info[0]] = info[1]
+
     if len(by) > 1:
         describe.columns = pd.MultiIndex.from_tuples(describe.columns)
 
     describe.index.names = ["特征名称", "统计指标"]
-    
+
     return describe
 
 
