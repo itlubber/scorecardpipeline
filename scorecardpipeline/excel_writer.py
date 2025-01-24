@@ -103,6 +103,21 @@ class ExcelWriter:
             else:
                 cell.number_format = _format
 
+    def set_freeze_panes(self, worksheet, space):
+        """
+        设置数值显示格式
+
+        :param worksheet: 当前选择调整数值显示格式的sheet
+        :param space: 单元格范围
+        """
+        if not isinstance(worksheet, Worksheet):
+            worksheet = self.get_sheet_by_name(worksheet)
+
+        if isinstance(space, (tuple, list)):
+            space = self.get_cell_space(space)
+
+        worksheet.freeze_panes = space
+
     def get_sheet_by_name(self, name):
         """
         获取sheet名称为name的工作簿，如果不存在，则从初始模版文件中拷贝一个名称为name的sheet
@@ -906,7 +921,8 @@ def dataframe2excel(data, excel_writer, sheet_name=None, title=None, header=True
         if not isinstance(percent_rows[0], (tuple, list)):
             percent_rows = [c for c in data.index if (isinstance(c, tuple) and c[-1] in percent_rows) or (not isinstance(c, tuple) and c in percent_rows)]
         for c in [c for c in percent_rows if c in data.index]:
-            index_row = start_row + data.index.get_loc(c) + data.columns.nlevels if kwargs.get("header", True) else start_row + data.index.get_loc(c)
+            insert_row = data.index.get_loc(c).start if data.index.nlevels > 1 and not isinstance(data.index.get_loc(c), (int, float)) else data.index.get_loc(c)
+            index_row = start_row + insert_row + data.columns.nlevels if kwargs.get("header", True) else start_row + insert_row
             index_col = start_col + data.index.nlevels if kwargs.get("index", False) else start_col
             writer.set_number_format(worksheet, f"{get_column_letter(index_col)}{index_row}:{get_column_letter(index_col + len(data.columns))}{index_row}", "0.00%")
 
@@ -914,7 +930,8 @@ def dataframe2excel(data, excel_writer, sheet_name=None, title=None, header=True
         if not isinstance(custom_rows[0], (tuple, list)):
             custom_rows = [c for c in data.index if (isinstance(c, tuple) and c[-1] in custom_rows) or (not isinstance(c, tuple) and c in custom_rows)]
         for c in [c for c in custom_rows if c in data.index]:
-            index_row = start_row + data.index.get_loc(c) + data.columns.nlevels if kwargs.get("header", True) else start_row + data.index.get_loc(c)
+            insert_row = data.index.get_loc(c).start if data.index.nlevels > 1 and not isinstance(data.index.get_loc(c), (int, float)) else data.index.get_loc(c)
+            index_row = start_row + insert_row + data.columns.nlevels if kwargs.get("header", True) else start_row + insert_row
             index_col = start_col + data.index.nlevels if kwargs.get("index", False) else start_col
             writer.set_number_format(worksheet, f"{get_column_letter(index_col)}{index_row}:{get_column_letter(index_col + len(data.columns))}{index_row}", custom_format)
 
@@ -922,7 +939,8 @@ def dataframe2excel(data, excel_writer, sheet_name=None, title=None, header=True
         if not isinstance(condition_rows[0], (tuple, list)):
             condition_rows = [c for c in data.index if (isinstance(c, tuple) and c[-1] in condition_rows) or (not isinstance(c, tuple) and c in condition_rows)]
         for c in [c for c in condition_rows if c in data.index]:
-            index_row = start_row + data.index.get_loc(c) + data.columns.nlevels if kwargs.get("header", True) else start_row + data.index.get_loc(c)
+            insert_row = data.index.get_loc(c).start if data.index.nlevels > 1 and not isinstance(data.index.get_loc(c), (int, float)) else data.index.get_loc(c)
+            index_row = start_row + insert_row + data.columns.nlevels if kwargs.get("header", True) else start_row + insert_row
             index_col = start_col + data.index.nlevels if kwargs.get("index", False) else start_col
             writer.add_conditional_formatting(worksheet, f'{get_column_letter(index_col)}{index_row}', f'{get_column_letter(index_col + len(data.columns))}{index_row}')
 
@@ -931,8 +949,9 @@ def dataframe2excel(data, excel_writer, sheet_name=None, title=None, header=True
             color_rows = [c for c in data.index if (isinstance(c, tuple) and c[-1] in color_rows) or (not isinstance(c, tuple) and c in color_rows)]
         for c in [c for c in color_rows if c in data.index]:
             try:
+                insert_row = data.index.get_loc(c).start if data.index.nlevels > 1 and not isinstance(data.index.get_loc(c), (int, float)) else data.index.get_loc(c)
                 rule = ColorScaleRule(start_type='num', start_value=data.loc[c].min(), start_color=condition_color or theme_color, mid_type='num', mid_value=0., mid_color='FFFFFF', end_type='num', end_value=data.loc[c].max(), end_color=condition_color or theme_color)
-                index_row = start_row + data.index.get_loc(c) + data.columns.nlevels if kwargs.get("header", True) else start_row + data.index.get_loc(c)
+                index_row = start_row + insert_row + data.columns.nlevels if kwargs.get("header", True) else start_row + insert_row
                 index_col = start_col + data.index.nlevels if kwargs.get("index", False) else start_col
                 worksheet.conditional_formatting.add(f"{get_column_letter(index_col)}{index_row}:{get_column_letter(index_col + len(data.columns))}{index_row}", rule)
             except:
@@ -976,5 +995,7 @@ if __name__ == "__main__":
         writer.set_number_format(worksheet, f"{get_column_letter(2 + 2)}{end_row - len(data) + color_rows}:{get_column_letter(2 + len(data.columns))}{end_row - len(data) + color_rows}", "0.00%")
 
     end_row, end_col = dataframe2excel(data.set_index([('', ''), ('渠道', '时间')]), writer, sheet_name="模型报告", condition_color="F76E6C", color_rows=["命中率"], percent_rows=["命中率"], start_row=end_row + 2, index=True, fill=False, auto_width=False, theme_color='3f1dba')
+
+    writer.set_freeze_panes("模型报告", "B1")
 
     writer.save("测试样例.xlsx")
