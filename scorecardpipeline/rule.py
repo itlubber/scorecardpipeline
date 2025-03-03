@@ -106,28 +106,32 @@ class Rule:
     def predict(self, X: DataFrame, part=""):  # dict预测对应part_dict 、字符串表达式对应"、"其他情况报错
         if not isinstance(X, DataFrame):
             raise ValueError("Rule can only predict on DataFrame.")
-        feature_names = X.columns.values.tolist()  # 取数据的列名
-        X = check_array(X, dtype=None, ensure_2d=True, force_all_finite="allow-nan")
-
-        if isinstance(self.expr, dict):  # dict部分
-            if part not in part_dict:
-                raise TypeError("Part : {} not in ['if','then','else']".format(part))
-            if not self.expr[part]:  # 没有返回值的情况[]
-                return list()
-            dict2expr = json2expr(self.expr[part], X.shape[1], feature_names)
-            if not isinstance(dict2expr, str):  # 返回Value (类型已经做过转换),对其扩充 --> [value] * Len(X)
-                result = [dict2expr] * len(X)
-            else:  # 表达式在进行计算
-                result = _apply_expr_on_array(dict2expr, X, feature_names)
-                result = result.tolist()
-                if not isinstance(result, list):  # result 只有一个数值时，对其扩充 --> [value] * len(X)
-                    result = [result] * len(X)
-        elif isinstance(self.expr, str):  # 字符串表达式部分
-            if part != "":
-                raise TypeError('The part of the expression must be ""')
-            result = _apply_expr_on_array(self.expr, X, feature_names)
-        else:
-            raise TypeError("Rule currently only supports dict and expression")
+        
+        check_array(X, dtype=None, ensure_2d=True, force_all_finite="allow-nan")
+        result = X.eval(self.expr)
+        
+        # feature_names = X.columns.values.tolist()  # 取数据的列名
+        # X = X.select_dtypes("number") # 仅支持数值型变量
+        # X = check_array(X, dtype=None, ensure_2d=True, force_all_finite="allow-nan")
+        # if isinstance(self.expr, dict):  # dict部分
+        #     if part not in part_dict:
+        #         raise TypeError("Part : {} not in ['if','then','else']".format(part))
+        #     if not self.expr[part]:  # 没有返回值的情况[]
+        #         return list()
+        #     dict2expr = json2expr(self.expr[part], X.shape[1], feature_names)
+        #     if not isinstance(dict2expr, str):  # 返回Value (类型已经做过转换),对其扩充 --> [value] * Len(X)
+        #         result = [dict2expr] * len(X)
+        #     else:  # 表达式在进行计算
+        #         result = ne.evaluate(dict2expr, local_dict={name: X[:, i] for i, name in enumerate(feature_names)})
+        #         result = result.tolist()
+        #         if not isinstance(result, list):  # result 只有一个数值时，对其扩充 --> [value] * len(X)
+        #             result = [result] * len(X)
+        # elif isinstance(self.expr, str):  # 字符串表达式部分
+        #     if part != "":
+        #         raise TypeError('The part of the expression must be ""')
+        #     result = ne.evaluate(self.expr, local_dict={name: X[:, i] for i, name in enumerate(feature_names)})
+        # else:
+        #     raise TypeError("Rule currently only supports dict and expression")
 
         self.result_ = result
 
