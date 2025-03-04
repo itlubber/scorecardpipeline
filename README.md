@@ -6,7 +6,7 @@
 
 > 教程：https://itlubber.art/upload/scorecardpipeline.html
 > 
-> pipy包：https://pypi.org/project/scorecardpipeline/
+> pipy包：https://pypi.org/project/scorecardpipeline
 >
 > 仓库地址：https://github.com/itlubber/scorecardpipeline
 > 
