@@ -986,3 +986,36 @@ class WOETransformer(TransformerMixin, BaseEstimator):
 
     def __iter__(self):
         return iter(self.transformer._rules)
+
+
+def feature_efficiency_analysis(data, feature, overdue=["MOB1"], dpd=[7, 3, 0], greate_is_better=True, verbose=True, ks=False, **kwargs):
+    auto_feature_tables = feature_bin_stats(
+        data
+        , feature
+        , min_bin_size=0.01
+        , overdue=overdue, dpd=dpd
+        , method="mdlp"
+        , max_n_bins=10
+        , del_grey=False
+        , desc=f"样本数 {len(data)} 坏样本率 {round((data[overdue[0]] > dpd[0]).mean(), 4)}"
+        # , greate_is_better=greate_is_better
+        , return_cols=["坏样本数", "坏样本率", "LIFT值", "累积LIFT值", "分档KS值"]
+        , **kwargs
+    )
+
+    quantile_feature_tables = feature_bin_stats(
+        data
+        , feature, rules=data[feature].quantile([0.01, 0.02, 0.03, 0.05, 0.1, 0.2, 0.4, 0.6, 0.8] if greate_is_better else [0.1, 0.3, 0.5, 0.7, 0.9, 0.95, 0.97, 0.98, 0.99]).unique().tolist() + [np.nan]
+        , method="mdlp", overdue=overdue, dpd=dpd, max_n_bins=10, greate_is_better=greate_is_better, min_bin_size=0.01, return_cols=["坏样本数", "坏样本率", "LIFT值", "累积LIFT值", "分档KS值"]
+        , **kwargs
+    )
+
+    if ks:
+        ks_plot(data.dropna(subset=[feature])[feature], (data.dropna(subset=[feature])[overdue[0]] > dpd[0]).astype(int), figsize=(10, 6))
+
+    if verbose:
+        from IPython.display import display
+        display(auto_feature_tables)
+        display(quantile_feature_tables)
+    else:
+        return auto_feature_tables, quantile_feature_tables

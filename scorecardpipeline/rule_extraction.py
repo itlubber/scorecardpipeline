@@ -146,7 +146,7 @@ class DecisionTreeRuleExtractor:
                 fontname=plt.rcParams['font.family'],
             )
             if verbose:
-                from IPython.core.display_functions import display
+                from IPython.display import display
                 if self.feature_map is not None and len(self.feature_map) > 0:
                     display(rules_reports.replace(self.feature_map, regex=True))
                 else:
