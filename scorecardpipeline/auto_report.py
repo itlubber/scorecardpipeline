@@ -20,7 +20,7 @@ from .processing import *
 from .excel_writer import ExcelWriter, dataframe2excel
 
 
-def auto_data_testing_report(data: pd.DataFrame, features=None, target="target", overdue=None, dpd=None, date=None, data_summary_comment="", freq="M", excel_writer=None, sheet="分析报告", start_col=2, start_row=2, writer_params={}, bin_params={}, feature_map={}, corr=False, pictures=["bin", "ks", "hist"], suffix=""):
+def auto_data_testing_report(data: pd.DataFrame, features=None, target="target", overdue=None, dpd=None, date=None, data_summary_comment="", freq="M", excel_writer=None, sheet="分析报告", start_col=2, start_row=2, dropna=False, writer_params={}, bin_params={}, feature_map={}, corr=False, pictures=["bin", "ks", "hist"], suffix=""):
     """自动数据测试报告，用于三方数据评估或自有评分效果评估
 
     :param suffix: 用于避免未保存excel时，同名图片被覆盖的图片后缀名称
@@ -38,6 +38,7 @@ def auto_data_testing_report(data: pd.DataFrame, features=None, target="target",
     :param sheet: 需要保存的 sheet 名称，可传入已有的 worksheet 或 文字信息
     :param start_col: 开始列
     :param start_row: 开始行
+    :param dropna: 在分析字段是是否剔除缺失值或指定值，默认 False
     :param writer_params: excel写入器初始化参数，仅在 excel_writer 为字符串时有效
     :param bin_params: 统计分箱的参数，支持 `feature_bin_stats` 方法的参数
     :param feature_map: 特征字典，增加文档可读性使用，默认 {}
@@ -65,6 +66,7 @@ def auto_data_testing_report(data: pd.DataFrame, features=None, target="target",
     >>>                          , sheet="分析报告"
     >>>                          , start_col=2
     >>>                          , start_row=2
+    >>>                          , dropna=False
     >>>                          , writer_params={}
     >>>                          , overdue=["MOB1"]
     >>>                          , dpd=[15, 7, 3]
@@ -163,6 +165,11 @@ def auto_data_testing_report(data: pd.DataFrame, features=None, target="target",
                 temp = data[[col, target]]
             else:
                 temp = data[list(set([col, target] + overdue))]
+            
+            if isinstance(dropna, bool) and dropna is True:
+                temp = temp.dropna(subset=col).reset_index(drop=True)
+            elif isinstance(dropna, (float, int, str)):
+                temp = temp[temp[col] != dropna].reset_index(drop=True)
 
             score_table_train = feature_bin_stats(temp, col, overdue=overdue, dpd=dpd, desc=f"{feature_map.get(col, col)}", target=target, **bin_params)
             if pictures and len(pictures) > 0:
@@ -186,7 +193,10 @@ def auto_data_testing_report(data: pd.DataFrame, features=None, target="target",
                         if len(_) > 0:
                             hist_plot(_[col], y_true=_[target], figsize=(10, 6), desc=f"{feature_map.get(col, col)} 好客户 VS 坏客户", bins=30, anchor=1.11, fontsize=14, labels={0: "好客户", 1: "坏客户"}, save=f"model_report/feature_hist_plot_{col}{suffix}.png")
 
-            end_row, end_col = writer.insert_value2sheet(worksheet, (end_row + 2, start_col), value=f"数据字段: {feature_map.get(col, col)}", style="header", end_space=(end_row + 2, start_col + max_columns_len - 1))
+            if (len(temp) < len(data)) and (isinstance(dropna, bool) and dropna is True) or (isinstance(dropna, (float, int, str))):
+                end_row, end_col = writer.insert_value2sheet(worksheet, (end_row + 2, start_col), value=f"数据字段: {feature_map.get(col, col)} (缺失率: {round((1 - len(temp) / len(data)) * 100, 2)}%)", style="header", end_space=(end_row + 2, start_col + max_columns_len - 1))
+            else:
+                end_row, end_col = writer.insert_value2sheet(worksheet, (end_row + 2, start_col), value=f"数据字段: {feature_map.get(col, col)}", style="header", end_space=(end_row + 2, start_col + max_columns_len - 1))
 
             if pictures and len(pictures) > 0:
                 ks_row = end_row + 1
