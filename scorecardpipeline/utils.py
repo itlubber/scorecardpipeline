@@ -956,3 +956,73 @@ def tasks_executor(tasks, n_jobs=-1, pool="thread"):
     wait(_tasks, return_when=ALL_COMPLETED)
 
     return [t.result() for t in _tasks]
+
+
+def find_cutpoints_by_badrate(score, target, target_rates, greater_is_better=True):
+    """
+    根据目标违约率寻找最佳分箱切点
+    
+    :param score: 评分序列
+    :param target: 违约标签(1表示坏样本)
+    :param target_rates: 目标违约率列表
+    :param greater_is_better: 评分越高是否越好(违约率越低)
+    """
+    df = pd.DataFrame({'score': score, 'bad': target}).dropna()
+    
+    # 根据评分方向决定排序方式
+    ascending_order = not greater_is_better
+    df = df.sort_values('score', ascending=ascending_order)
+    
+    cutpoints = []
+    remaining_df = df.copy()
+    
+    for rate in target_rates[:-1]:  # 最后一个箱处理剩余部分
+        if rate is None:
+            break
+        
+        # 使用二分法寻找满足目标违约率的分割点
+        low = remaining_df['score'].min()
+        high = remaining_df['score'].max()
+        
+        best_cut = None
+        for _ in range(100):
+            if low >= high:
+                break
+            mid = (low + high) / 2
+            
+            # 根据评分方向决定分箱逻辑
+            if greater_is_better:
+                temp_df = remaining_df[remaining_df['score'] >= mid]
+            else:
+                temp_df = remaining_df[remaining_df['score'] <= mid]
+                
+            temp_bad_rate = temp_df['bad'].mean()
+            
+            if abs(temp_bad_rate - rate) < 0.001:  # 足够接近目标
+                best_cut = mid
+                break
+            elif temp_bad_rate > rate:
+                if greater_is_better:
+                    low = mid + 1  # 需要更高的分数（更低的违约率）
+                else:
+                    high = mid - 1  # 需要更低的分数（更高的违约率）
+            else:
+                if greater_is_better:
+                    high = mid - 1  # 需要更低的分数（更高的违约率）
+                else:
+                    low = mid + 1  # 需要更高的分数（更低的违约率）
+        
+        if best_cut is None:
+            best_cut = (low + high) / 2
+        
+        cutpoints.append(best_cut)
+        
+        # 更新剩余数据
+        if greater_is_better:
+            remaining_df = remaining_df[remaining_df['score'] < best_cut]
+        else:
+            remaining_df = remaining_df[remaining_df['score'] > best_cut]
+    
+    # 确保切点总是从小到大排序
+    cutpoints = sorted(cutpoints)
+    return cutpoints
