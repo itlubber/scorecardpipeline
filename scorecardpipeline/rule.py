@@ -4,6 +4,7 @@
 @Author  : itlubber
 @Site    : itlubber.art
 """
+import ast
 import numpy as np
 import numexpr as ne
 from enum import Enum
@@ -24,6 +25,33 @@ def _get_context(X, feature_names):
 def _apply_expr_on_array(expr, X, feature_names):
     ctx = _get_context(X, feature_names)
     return ne.evaluate(expr, local_dict=ctx)
+
+
+def get_columns_from_query(query_str):
+    """获取pandas query语句使用的列
+
+    :param query_str: pandas query 支持的查询语句
+    :return: query 语句使用的列名
+    """
+    tree = ast.parse(query_str, mode='eval')
+    columns = set()
+
+    def visit_node(node):
+        if isinstance(node, ast.Attribute):
+            # 对于属性访问，递归访问其值部分
+            visit_node(node.value)
+        elif isinstance(node, ast.Name) and not isinstance(node.ctx, ast.Load):
+            pass  # 跳过非变量名
+        elif isinstance(node, ast.Name) and node.id not in {'and', 'or', 'not'}:
+            columns.add(node.id)
+        elif isinstance(node, ast.Call):
+            # 对于函数调用，访问其函数部分
+            visit_node(node.func)
+
+    for node in ast.walk(tree):
+        visit_node(node)
+
+    return sorted(columns)
 
 
 class RuleState(str, Enum):
@@ -96,6 +124,7 @@ class Rule:
         """
         self._state = RuleState.INITIALIZED
         self.expr = expr
+        self.feature_names_in_ = get_columns_from_query(self.expr)
 
     def __str__(self):
         return f"Rule({repr(self.expr)})"
