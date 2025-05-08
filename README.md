@@ -2,7 +2,7 @@
 
 <img src="https://itlubber.art/upload/scorecardpipeline.png" alt="itlubber.png" width="100%" border=0/> 
 
-`scorecardpipeline` 封装了 `toad`、`scorecardpy`、`optbinning` 等评分卡建模相关组件，`API` 风格与 `sklearn` 高度一致，支持 `pipeline` 式端到端评分卡建模、模型报告输出、导出 `PMML` 文件、超参数搜索等
+`scorecardpipeline`封装常用的风控策略分析和评分卡建模相关组件，API风格参考`sklearn`，支持`pipeline`式端到端评分卡建模、三方数据分析报告输出、规则集效果评估、特征有效性分析、`excel`报告输出、评分卡`PMML`文件导出、评分卡全流程超参数搜索等功能
 
 > 教程：https://itlubber.art/upload/scorecardpipeline.html
 > 
