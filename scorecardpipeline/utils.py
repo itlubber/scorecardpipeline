@@ -958,46 +958,54 @@ def tasks_executor(tasks, n_jobs=-1, pool="thread"):
     return [t.result() for t in _tasks]
 
 
-def find_cutpoints_by_badrate(score, target, target_rates, greater_is_better=True):
-    """
-    根据目标违约率寻找最佳分箱切点
-    
-    :param score: 评分序列
-    :param target: 违约标签(1表示坏样本)
-    :param target_rates: 目标违约率列表
+def monotonic_bad_rate_binning(df, feature, target, target_rates, greater_is_better=True):
+    """根据目标违约率寻找最佳分箱切点，并确保逾期率单调
+
+    :param df: 包含特征和目标的DataFrame
+    :param feature: 要分箱的特征列名
+    :param target: 目标变量列名
+    :param target_rates: 目标违约率列表(从高到低或从低到高取决于greater_is_better)
     :param greater_is_better: 评分越高是否越好(违约率越低)
+
+    :return: 分箱切点列表(已排序且唯一)
     """
-    df = pd.DataFrame({'score': score, 'bad': target}).dropna()
-    
+    df = pd.DataFrame({"score": df[feature], "target": df[target]}).dropna()
+
     # 根据评分方向决定排序方式
     ascending_order = not greater_is_better
-    df = df.sort_values('score', ascending=ascending_order)
-    
+    df = df.sort_values("score", ascending=ascending_order)
+
+    # 初始化变量
     cutpoints = []
     remaining_df = df.copy()
-    
+    last_bad_rate = None
+
     for rate in target_rates[:-1]:  # 最后一个箱处理剩余部分
-        if rate is None:
+        if len(remaining_df) == 0:
             break
-        
+
         # 使用二分法寻找满足目标违约率的分割点
-        low = remaining_df['score'].min()
-        high = remaining_df['score'].max()
-        
+        low = remaining_df["score"].min()
+        high = remaining_df["score"].max()
         best_cut = None
+
         for _ in range(100):
             if low >= high:
                 break
+
             mid = (low + high) / 2
-            
+
             # 根据评分方向决定分箱逻辑
             if greater_is_better:
-                temp_df = remaining_df[remaining_df['score'] >= mid]
+                temp_df = remaining_df[remaining_df["score"] >= mid]
             else:
-                temp_df = remaining_df[remaining_df['score'] <= mid]
-                
-            temp_bad_rate = temp_df['bad'].mean()
-            
+                temp_df = remaining_df[remaining_df["score"] <= mid]
+
+            if len(temp_df) == 0:
+                break
+
+            temp_bad_rate = temp_df["target"].mean()
+
             if abs(temp_bad_rate - rate) < 0.001:  # 足够接近目标
                 best_cut = mid
                 break
@@ -1011,18 +1019,63 @@ def find_cutpoints_by_badrate(score, target, target_rates, greater_is_better=Tru
                     high = mid - 1  # 需要更低的分数（更高的违约率）
                 else:
                     low = mid + 1  # 需要更高的分数（更低的违约率）
-        
+
         if best_cut is None:
             best_cut = (low + high) / 2
-        
-        cutpoints.append(best_cut)
-        
-        # 更新剩余数据
+
+        # 根据评分方向获取当前箱
         if greater_is_better:
-            remaining_df = remaining_df[remaining_df['score'] < best_cut]
+            current_bin = remaining_df[remaining_df["score"] >= best_cut]
+            remaining_df = remaining_df[remaining_df["score"] < best_cut]
         else:
-            remaining_df = remaining_df[remaining_df['score'] > best_cut]
-    
-    # 确保切点总是从小到大排序
-    cutpoints = sorted(cutpoints)
+            current_bin = remaining_df[remaining_df["score"] <= best_cut]
+            remaining_df = remaining_df[remaining_df["score"] > best_cut]
+
+        # 计算当前箱的坏样本率
+        current_bad_rate = current_bin["target"].mean()
+
+        # 检查单调性
+        if last_bad_rate is not None:
+            if (greater_is_better and current_bad_rate >= last_bad_rate) or (not greater_is_better and current_bad_rate <= last_bad_rate):
+                # 不满足单调性，跳过当前切点
+                continue
+
+        # 满足条件，记录切点
+        cutpoints.append(best_cut)
+        last_bad_rate = current_bad_rate
+
+    # 确保切点唯一且正确排序
+    cutpoints = sorted(list(set(cutpoints)), reverse=not greater_is_better)
+
+    # 后处理：合并不满足单调性的箱
+    while True:
+        # 创建分箱
+        bins = [-np.inf] + cutpoints + [np.inf] if len(cutpoints) > 0 else [-np.inf, np.inf]
+        try:
+            bin_labels = pd.cut(df["score"], bins=bins)
+            bin_stats = df.groupby(bin_labels)["target"].agg(["count", "mean"])
+            bin_stats.columns = ["样本数", "坏样本率"]
+
+            # 检查单调性
+            bad_rates = bin_stats["坏样本率"].values
+            monotonic = True
+
+            for i in range(1, len(bad_rates)):
+                if (greater_is_better and bad_rates[i] >= bad_rates[i - 1]) or (not greater_is_better and bad_rates[i] <= bad_rates[i - 1]):
+                    monotonic = False
+                    break
+
+            if monotonic or len(cutpoints) <= 1:
+                break
+
+            # 找到需要合并的切点
+            merge_index = i - 1 if greater_is_better else i
+            if merge_index < len(cutpoints):
+                # 移除中间的切点
+                cutpoints.pop(merge_index)
+        except ValueError:
+            # 如果分箱边界不是单调的，调整排序
+            cutpoints = sorted(cutpoints)
+            continue
+
     return cutpoints
