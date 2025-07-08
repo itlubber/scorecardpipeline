@@ -575,7 +575,7 @@ class Combiner(TransformerMixin, BaseEstimator):
         return self
 
     @classmethod
-    def feature_bin_stats(cls, data, feature, target="target", rules=None, method='step', desc="", combiner=None, ks=True, max_n_bins=None, min_bin_size=None, max_bin_size=None, greater_is_better="auto", empty_separate=True, return_cols=None, return_rules=False, verbose=0, **kwargs):
+    def feature_bin_stats(cls, data, feature, target="target", rules=None, method='step', desc="", combiner=None, ks=True, max_n_bins=None, min_bin_size=None, max_bin_size=None, greater_is_better="auto", amount=None, empty_separate=True, return_cols=None, return_rules=False, verbose=0, **kwargs):
         """特征分箱统计表，汇总统计特征每个分箱的各项指标信息
 
         :param data: 需要查看分箱统计表的数据集
@@ -593,6 +593,7 @@ class Combiner(TransformerMixin, BaseEstimator):
         :param return_cols: list，指定返回部分特征分箱统计表的列，默认 None
         :param return_rules: 是否返回特征分箱信息，默认 False
         :param greater_is_better: 是否越大越好，默认 ""auto", 根据最后两箱的 lift 指标自动推断是否越大越好, 可选 True、False、auto
+        :param amount: 默认为空, 支持传入数值字段（通常为放款金额）, 在分析逾期率时，输出对应的分析结果
         :param kwargs: scorecardpipeline.processing.Combiner 的其他参数
 
         :return:
@@ -626,9 +627,17 @@ class Combiner(TransformerMixin, BaseEstimator):
 
         feature_bin_dict = feature_bins(_combiner[feature])
 
-        df_bin = _combiner.transform(data[[feature, target]], labels=False)
-        table = df_bin[[feature, target]].groupby([feature, target]).agg(len).unstack()
+        if amount:
+            temp = data.reset_index(drop=True)
+            df_bin = temp[[amount]].join(_combiner.transform(temp[[feature, target]], labels=False))
+            table = df_bin[[feature, target, amount]].groupby([feature, target])[amount].sum().unstack()
+        else:
+            df_bin = _combiner.transform(data[[feature, target]], labels=False)
+            # table = df_bin[[feature, target]].groupby([feature, target]).agg(len).unstack()
+            table = df_bin[[feature, target]].groupby([feature, target])[feature].count().unstack()
+
         table.columns.name = None
+
         table = table.rename(columns={0: '好样本数', 1: '坏样本数'}).fillna(0)
         if "好样本数" not in table.columns:
             table["好样本数"] = 0
@@ -652,40 +661,42 @@ class Combiner(TransformerMixin, BaseEstimator):
 
         table = table.replace(np.inf, 0).replace(-np.inf, 0)
 
-        table["LIFT值"] = table['坏样本率'] / (table["坏样本数"].sum() / table["样本总数"].sum())
-        table["坏账改善"] = (table["坏样本数"].sum() / table["样本总数"].sum() - (table["坏样本数"].sum() - table["坏样本数"]) / (table["样本总数"].sum() - table["样本总数"])) / (table["坏样本数"].sum() / table["样本总数"].sum())
+        bad_rate = table["坏样本数"].sum() / table["样本总数"].sum()
+
+        table["LIFT值"] = table['坏样本率'] / bad_rate
+        table["坏账改善"] = (bad_rate - (table["坏样本数"].sum() - table["坏样本数"]) / (table["样本总数"].sum() - table["样本总数"])) / bad_rate
 
         def reverse_series(series):
             return series.reindex(series.index[::-1])
 
         if greater_is_better == "auto":
-            if table[table["分箱"] != "缺失值"]["LIFT值"].iloc[-1] > table["LIFT值"].iloc[0]:
-                table["累积LIFT值"] = (reverse_series(table['坏样本数']).cumsum() / reverse_series(table['样本总数']).cumsum()) / (table["坏样本数"].sum() / table["样本总数"].sum())
-                table["累积坏账改善"] = (table["坏样本数"].sum() / table["样本总数"].sum() - (table["坏样本数"].sum() - reverse_series(table['坏样本数']).cumsum()) / (table["样本总数"].sum() - reverse_series(table['样本总数']).cumsum())) / (table["坏样本数"].sum() / table["样本总数"].sum())
+            if table[table["分箱"].map(feature_bin_dict) != "缺失值"]["LIFT值"].iloc[-1] > table["LIFT值"].iloc[0]:
+                table["累积LIFT值"] = (reverse_series(table['坏样本数']).cumsum() / reverse_series(table['样本总数']).cumsum()) / bad_rate
+                table["累积坏账改善"] = (bad_rate - ((table["坏样本数"].sum() - reverse_series(table['坏样本数']).cumsum()) / (table["样本总数"].sum() - reverse_series(table['样本总数']).cumsum())).fillna(0.0)) / bad_rate
                 if ks:
                     table = table.sort_values("分箱")
                     table["累积好样本数"] = reverse_series(table["好样本数"]).cumsum()
                     table["累积坏样本数"] = reverse_series(table["坏样本数"]).cumsum()
                     table["分档KS值"] = table["累积坏样本数"] / table['坏样本数'].sum() - table["累积好样本数"] / table['好样本数'].sum()
             else:
-                table["累积LIFT值"] = (table['坏样本数'].cumsum() / table['样本总数'].cumsum()) / (table["坏样本数"].sum() / table["样本总数"].sum())
-                table["累积坏账改善"] = (table["坏样本数"].sum() / table["样本总数"].sum() - (table["坏样本数"].sum() - table['坏样本数'].cumsum()) / (table["样本总数"].sum() - table['样本总数'].cumsum())) / (table["坏样本数"].sum() / table["样本总数"].sum())
+                table["累积LIFT值"] = (table['坏样本数'].cumsum() / table['样本总数'].cumsum()) / bad_rate
+                table["累积坏账改善"] = (bad_rate - ((table["坏样本数"].sum() - table['坏样本数'].cumsum()) / (table["样本总数"].sum() - table['样本总数'].cumsum())).fillna(0.0)) / bad_rate
                 if ks:
                     table = table.sort_values("分箱")
                     table["累积好样本数"] = table["好样本数"].cumsum()
                     table["累积坏样本数"] = table["坏样本数"].cumsum()
                     table["分档KS值"] = table["累积坏样本数"] / table['坏样本数'].sum() - table["累积好样本数"] / table['好样本数'].sum()
         elif greater_is_better is False:
-            table["累积LIFT值"] = (reverse_series(table['坏样本数']).cumsum() / reverse_series(table['样本总数']).cumsum()) / (table["坏样本数"].sum() / table["样本总数"].sum())
-            table["累积坏账改善"] = (table["坏样本数"].sum() / table["样本总数"].sum() - (table["坏样本数"].sum() - reverse_series(table['坏样本数']).cumsum()) / (table["样本总数"].sum() - reverse_series(table['样本总数']).cumsum())) / (table["坏样本数"].sum() / table["样本总数"].sum())
+            table["累积LIFT值"] = (reverse_series(table['坏样本数']).cumsum() / reverse_series(table['样本总数']).cumsum()) / bad_rate
+            table["累积坏账改善"] = (bad_rate - ((table["坏样本数"].sum() - reverse_series(table['坏样本数']).cumsum()) / (table["样本总数"].sum() - reverse_series(table['样本总数']).cumsum())).fillna(0.0)) / bad_rate
             if ks:
                 table = table.sort_values("分箱")
                 table["累积好样本数"] = reverse_series(table["好样本数"]).cumsum()
                 table["累积坏样本数"] = reverse_series(table["坏样本数"]).cumsum()
                 table["分档KS值"] = table["累积坏样本数"] / table['坏样本数'].sum() - table["累积好样本数"] / table['好样本数'].sum()
         else:
-            table["累积LIFT值"] = (table['坏样本数'].cumsum() / table['样本总数'].cumsum()) / (table["坏样本数"].sum() / table["样本总数"].sum())
-            table["累积坏账改善"] = (table["坏样本数"].sum() / table["样本总数"].sum() - (table["坏样本数"].sum() - table['坏样本数'].cumsum()) / (table["样本总数"].sum() - table['样本总数'].cumsum())) / (table["坏样本数"].sum() / table["样本总数"].sum())
+            table["累积LIFT值"] = (table['坏样本数'].cumsum() / table['样本总数'].cumsum()) / bad_rate
+            table["累积坏账改善"] = (bad_rate - ((table["坏样本数"].sum() - table['坏样本数'].cumsum()) / (table["样本总数"].sum() - table['样本总数'].cumsum())).fillna(0.0)) / bad_rate
             if ks:
                 table = table.sort_values("分箱")
                 table["累积好样本数"] = table["好样本数"].cumsum()
@@ -815,7 +826,7 @@ class Combiner(TransformerMixin, BaseEstimator):
         return iter(self.combiner._rules)
 
 
-def feature_bin_stats(data, feature, target="target", overdue=None, dpd=None, rules=None, method='step', desc="", combiner=None, ks=True, max_n_bins=None, min_bin_size=None, max_bin_size=None, greater_is_better="auto", empty_separate=True, return_cols=None, return_rules=False, del_grey=False, verbose=0, **kwargs):
+def feature_bin_stats(data, feature, target="target", overdue=None, dpd=None, rules=None, method='step', desc="", combiner=None, ks=True, max_n_bins=None, min_bin_size=None, max_bin_size=None, greater_is_better="auto", amount=None, empty_separate=True, return_cols=None, return_rules=False, del_grey=False, verbose=0, **kwargs):
     """特征分箱统计表，汇总统计特征每个分箱的各项指标信息
 
     :param data: 需要查看分箱统计表的数据集
@@ -836,6 +847,7 @@ def feature_bin_stats(data, feature, target="target", overdue=None, dpd=None, ru
     :param return_cols: list，指定返回部分特征分箱统计表的列，默认 None
     :param return_rules: 是否返回特征分箱信息，默认 False
     :param greater_is_better: 是否越大越好，默认 ""auto", 根据最后两箱的 lift 指标自动推断是否越大越好, 可选 True、False、auto
+    :param amount: 默认为空, 支持传入数值字段（通常为放款金额）, 在分析逾期率时，输出对应的分析结果
     :param kwargs: scorecardpipeline.processing.Combiner 的其他参数
 
     :return:
@@ -849,7 +861,7 @@ def feature_bin_stats(data, feature, target="target", overdue=None, dpd=None, ru
     drop_empty = True if not empty_separate and data[feature].isnull().sum() <= 0 else False
 
     if overdue is None:
-        table, rule = Combiner.feature_bin_stats(data, feature, target=target, rules=rules, method=method, desc=desc, combiner=combiner, ks=ks, max_n_bins=max_n_bins, min_bin_size=min_bin_size, max_bin_size=max_bin_size, greater_is_better=greater_is_better, empty_separate=empty_separate, return_cols=return_cols, return_rules=True, verbose=verbose, **kwargs)
+        table, rule = Combiner.feature_bin_stats(data, feature, target=target, rules=rules, method=method, desc=desc, combiner=combiner, ks=ks, max_n_bins=max_n_bins, min_bin_size=min_bin_size, max_bin_size=max_bin_size, greater_is_better=greater_is_better, amount=amount, empty_separate=empty_separate, return_cols=return_cols, return_rules=True, verbose=verbose, **kwargs)
 
         if drop_empty:
             table = table.iloc[:-1]
@@ -866,6 +878,8 @@ def feature_bin_stats(data, feature, target="target", overdue=None, dpd=None, ru
     if not isinstance(dpd, list):
         dpd = [dpd]
 
+    amount_feature = [amount] if amount else []
+
     if isinstance(del_grey, bool) and del_grey:
         merge_columns = ["指标名称", "指标含义", "分箱"]
     else:
@@ -875,7 +889,7 @@ def feature_bin_stats(data, feature, target="target", overdue=None, dpd=None, ru
     for i, col in enumerate(overdue):
         for j, d in enumerate(dpd):
             target = f"{col} {d}+"
-            _datasets = data[[feature] + overdue].copy()
+            _datasets = data[[feature] + amount_feature + overdue].copy()
             _datasets[target] = (_datasets[col] > d).astype(int)
 
             if isinstance(del_grey, bool) and del_grey:
@@ -890,10 +904,10 @@ def feature_bin_stats(data, feature, target="target", overdue=None, dpd=None, ru
                     combiner = Combiner(target=target, adj_rules=rules, method=method, empty_separate=empty_separate, min_n_bins=2, max_n_bins=max_n_bins, min_bin_size=min_bin_size, max_bin_size=max_bin_size, **kwargs)
                     combiner.fit(_datasets)
 
-                table, rule = Combiner.feature_bin_stats(_datasets, feature, target=target, method=method, desc=desc, combiner=combiner, ks=ks, max_n_bins=max_n_bins, min_bin_size=min_bin_size, max_bin_size=max_bin_size, greater_is_better=greater_is_better, empty_separate=empty_separate, return_rules=True, verbose=verbose, **kwargs)
+                table, rule = Combiner.feature_bin_stats(_datasets, feature, target=target, method=method, desc=desc, combiner=combiner, ks=ks, max_n_bins=max_n_bins, min_bin_size=min_bin_size, max_bin_size=max_bin_size, greater_is_better=greater_is_better, amount=amount, empty_separate=empty_separate, return_rules=True, verbose=verbose, **kwargs)
                 table.columns = pd.MultiIndex.from_tuples([("分箱详情", c) if c in merge_columns else (target, c) for c in table.columns])
             else:
-                _table = Combiner.feature_bin_stats(_datasets, feature, target=target, method=method, desc=desc, combiner=combiner, ks=ks, max_n_bins=max_n_bins, min_bin_size=min_bin_size, max_bin_size=max_bin_size, greater_is_better=greater_is_better, empty_separate=empty_separate, verbose=verbose, **kwargs)
+                _table = Combiner.feature_bin_stats(_datasets, feature, target=target, method=method, desc=desc, combiner=combiner, ks=ks, max_n_bins=max_n_bins, min_bin_size=min_bin_size, max_bin_size=max_bin_size, greater_is_better=greater_is_better, amount=amount, empty_separate=empty_separate, verbose=verbose, **kwargs)
                 _table.columns = pd.MultiIndex.from_tuples([("分箱详情", c) if c in merge_columns else (target, c) for c in _table.columns])
 
                 table = table.merge(_table, on=[("分箱详情", c) for c in merge_columns])
