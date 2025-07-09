@@ -13,6 +13,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from matplotlib import font_manager
+from IPython.display import display
 from openpyxl.worksheet.worksheet import Worksheet
 
 import category_encoders as ce
@@ -105,17 +106,6 @@ class DecisionTreeRuleExtractor:
     def select_dt_rules(self, decision_tree, x, y, lift=0., max_samples=1., save=None, verbose=False, drop=False):
         rules = self.get_dt_rules(decision_tree)
 
-        try:
-            viz_model = dtreeviz.model(decision_tree,
-                                       X_train=x,
-                                       y_train=y,
-                                       feature_names=decision_tree.feature_names_in_,
-                                       target_name=self.target,
-                                       class_names=self.labels,
-                                       )
-        except AttributeError:
-            raise "请检查 dtreeviz 版本"
-
         rules_reports = pd.DataFrame()
         for rule in rules:
             rules_reports = pd.concat([rules_reports, rule.report(x.join(y), target=y.name).query("分箱 == '命中'")])
@@ -125,50 +115,66 @@ class DecisionTreeRuleExtractor:
         rules_reports = rules_reports.query(f"LIFT值 >= {lift} & 命中率 <= {max_samples}").reset_index(drop=True)
 
         if len(rules_reports) > 0:
-            # font_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'matplot_chinese.ttf')
-            # font_manager.fontManager.addfont(font_path)
-            # plt.rcParams['font.family'] = font_manager.FontProperties(fname=font_path).get_name()
-            # plt.rcParams['axes.unicode_minus'] = False
+            try:
+                if verbose:
+                    if self.feature_map is not None and len(self.feature_map) > 0:
+                        display(rules_reports.replace(self.feature_map, regex=True))
+                    else:
+                        display(rules_reports)
 
-            decision_tree_viz = viz_model.view(
-                scale=1.5,
-                orientation='LR',
-                colors={
-                    "classes": [None, None, ["#2639E9", "#F76E6C"], ["#2639E9", "#F76E6C", "#FE7715", "#FFFFFF"]],
-                    "arrow": "#2639E9",
-                    'text_wedge': "#F76E6C",
-                    "pie": "#2639E9",
-                    "tile_alpha": 1,
-                    "legend_edge": "#FFFFFF",
-                },
-                ticks_fontsize=10,
-                label_fontsize=10,
-                fontname=plt.rcParams['font.family'],
-            )
-            if verbose:
-                from IPython.display import display
-                if self.feature_map is not None and len(self.feature_map) > 0:
-                    display(rules_reports.replace(self.feature_map, regex=True))
-                else:
-                    display(rules_reports)
-                display(decision_tree_viz)
-            if save:
-                if os.path.dirname(save) and not os.path.exists(os.path.dirname(save)):
-                    os.makedirs(os.path.dirname(save))
+                viz_model = dtreeviz.model(decision_tree,
+                                           X_train=x,
+                                           y_train=y,
+                                           feature_names=decision_tree.feature_names_in_,
+                                           target_name=self.target,
+                                           class_names=self.labels,
+                                           )
 
-                try:
-                    decision_tree_viz.save("combine_rules_cache.svg")
-                except graphviz.backend.execute.ExecutableNotFound:
-                    print("请确保您已安装 graphviz 程序并且正确配置了 PATH 路径。可参考: https://stackoverflow.com/questions/35064304/runtimeerror-make-sure-the-graphviz-executables-are-on-your-systems-path-aft")
+                # font_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'matplot_chinese.ttf')
+                # font_manager.fontManager.addfont(font_path)
+                # plt.rcParams['font.family'] = font_manager.FontProperties(fname=font_path).get_name()
+                # plt.rcParams['axes.unicode_minus'] = False
 
-                try:
-                    import cairosvg
-                    cairosvg.svg2png(url="combine_rules_cache.svg", write_to=save, dpi=240)
-                except:
-                    from reportlab.graphics import renderPDF
-                    from svglib.svglib import svg2rlg
-                    drawing = svg2rlg("combine_rules_cache.svg")
-                    renderPDF.drawToFile(drawing, save, dpi=240, fmt="PNG")
+                decision_tree_viz = viz_model.view(
+                    scale=1.5,
+                    orientation='LR',
+                    colors={
+                        "classes": [None, None, ["#2639E9", "#F76E6C"], ["#2639E9", "#F76E6C", "#FE7715", "#FFFFFF"]],
+                        "arrow": "#2639E9",
+                        'text_wedge': "#F76E6C",
+                        "pie": "#2639E9",
+                        "tile_alpha": 1,
+                        "legend_edge": "#FFFFFF",
+                    },
+                    ticks_fontsize=10,
+                    label_fontsize=10,
+                    fontname=plt.rcParams['font.family'],
+                )
+
+                if verbose:
+                    display(decision_tree_viz)
+                if save:
+                    if os.path.dirname(save) and not os.path.exists(os.path.dirname(save)):
+                        os.makedirs(os.path.dirname(save))
+
+                    try:
+                        decision_tree_viz.save("combine_rules_cache.svg")
+                    except graphviz.backend.execute.ExecutableNotFound:
+                        print("请确保您已安装 graphviz 程序并且正确配置了 PATH 路径。可参考: https://stackoverflow.com/questions/35064304/runtimeerror-make-sure-the-graphviz-executables-are-on-your-systems-path-aft")
+
+                    try:
+                        import cairosvg
+                        cairosvg.svg2png(url="combine_rules_cache.svg", write_to=save, dpi=240)
+                    except:
+                        from reportlab.graphics import renderPDF
+                        from svglib.svglib import svg2rlg
+                        drawing = svg2rlg("combine_rules_cache.svg")
+                        renderPDF.drawToFile(drawing, save, dpi=240, fmt="PNG")
+
+            except AttributeError:
+                print("请检查 dtreeviz、graphviz 等依赖库是否正确安装")
+            except:
+                print("请检查 dtreeviz、graphviz 等依赖库是否正确安装")
 
         if os.path.isfile("combine_rules_cache.svg"):
             os.remove("combine_rules_cache.svg")
@@ -205,7 +211,7 @@ class DecisionTreeRuleExtractor:
 
         end_row, end_col = dataframe2excel(parsed_rules, self.writer, sheet_name=worksheet, start_row=end_row + 1, start_col=start_col, percent_cols=['好样本占比', '坏样本占比', '命中率', '坏样本率', '样本整体坏率', 'LIFT值', '坏账改善', '准确率', '精确率', '召回率', 'F1分数'], condition_cols=["坏样本率", "LIFT值"])
 
-        if save is not None:
+        if save is not None and os.path.isfile(save):
             end_row, end_col = self.writer.insert_pic2sheet(worksheet, save, (end_row + 1, start_col), figsize=figsize)
 
         return end_row, end_col
