@@ -575,7 +575,7 @@ class Combiner(TransformerMixin, BaseEstimator):
         return self
 
     @classmethod
-    def feature_bin_stats(cls, data, feature, target="target", rules=None, method='step', desc="", combiner=None, ks=True, max_n_bins=None, min_bin_size=None, max_bin_size=None, greater_is_better="auto", amount=None, empty_separate=True, return_cols=None, return_rules=False, verbose=0, **kwargs):
+    def feature_bin_stats(cls, data, feature, target="target", rules=None, method='step', desc="", combiner=None, ks=True, max_n_bins=None, min_bin_size=None, max_bin_size=None, greater_is_better="auto", amount=None, margins=False, empty_separate=True, return_cols=None, return_rules=False, verbose=0, **kwargs):
         """特征分箱统计表，汇总统计特征每个分箱的各项指标信息
 
         :param data: 需要查看分箱统计表的数据集
@@ -594,6 +594,7 @@ class Combiner(TransformerMixin, BaseEstimator):
         :param return_rules: 是否返回特征分箱信息，默认 False
         :param greater_is_better: 是否越大越好，默认 ""auto", 根据最后两箱的 lift 指标自动推断是否越大越好, 可选 True、False、auto
         :param amount: 默认为空, 支持传入数值字段（通常为放款金额）, 在分析逾期率时，输出对应的分析结果
+        :param margins: 分箱表是否输出合计, 默认为 False, 即不输出
         :param kwargs: scorecardpipeline.processing.Combiner 的其他参数
 
         :return:
@@ -706,6 +707,9 @@ class Combiner(TransformerMixin, BaseEstimator):
         table["分箱"] = table["分箱"].map(feature_bin_dict)
         table = table.set_index(['指标名称', '指标含义', '分箱']).reindex([(feature, desc, b) for b in feature_bin_dict.values()]).fillna(0).reset_index()
         table['指标IV值'] = table['分档IV值'].sum()
+
+        if margins:
+            table = pd.concat([table, pd.DataFrame([{"指标名称": feature, "指标含义": desc, "分箱": "合计", "好样本数": table["好样本数"].sum(), "坏样本数": table["坏样本数"].sum(), "样本总数": table["样本总数"].sum(), "样本占比": 1.0, "好样本占比": 1.0, "坏样本占比": 1.0, "坏样本率": bad_rate, "LIFT值": 1.0, "坏账改善": 1.0, "累积LIFT值": 1.0, "累积坏账改善": 1.0, "累积好样本数": table["好样本数"].sum(), "累积坏样本数": table["坏样本数"].sum(), "分档KS值": table["分档KS值"].max()}])])
 
         if return_cols:
             table = table[[c for c in return_cols if c in table.columns]]
@@ -826,7 +830,7 @@ class Combiner(TransformerMixin, BaseEstimator):
         return iter(self.combiner._rules)
 
 
-def feature_bin_stats(data, feature, target="target", overdue=None, dpd=None, rules=None, method='step', desc="", combiner=None, ks=True, max_n_bins=None, min_bin_size=None, max_bin_size=None, greater_is_better="auto", amount=None, empty_separate=True, return_cols=None, return_rules=False, del_grey=False, verbose=0, **kwargs):
+def feature_bin_stats(data, feature, target="target", overdue=None, dpd=None, rules=None, method='step', desc="", combiner=None, ks=True, max_n_bins=None, min_bin_size=None, max_bin_size=None, greater_is_better="auto", amount=None, margins=False, empty_separate=True, return_cols=None, return_rules=False, del_grey=False, verbose=0, **kwargs):
     """特征分箱统计表，汇总统计特征每个分箱的各项指标信息
 
     :param data: 需要查看分箱统计表的数据集
@@ -848,6 +852,7 @@ def feature_bin_stats(data, feature, target="target", overdue=None, dpd=None, ru
     :param return_rules: 是否返回特征分箱信息，默认 False
     :param greater_is_better: 是否越大越好，默认 ""auto", 根据最后两箱的 lift 指标自动推断是否越大越好, 可选 True、False、auto
     :param amount: 默认为空, 支持传入数值字段（通常为放款金额）, 在分析逾期率时，输出对应的分析结果
+    :param margins: 分箱表是否输出合计, 默认为 False, 即不输出
     :param kwargs: scorecardpipeline.processing.Combiner 的其他参数
 
     :return:
@@ -861,7 +866,7 @@ def feature_bin_stats(data, feature, target="target", overdue=None, dpd=None, ru
     drop_empty = True if not empty_separate and data[feature].isnull().sum() <= 0 else False
 
     if overdue is None:
-        table, rule = Combiner.feature_bin_stats(data, feature, target=target, rules=rules, method=method, desc=desc, combiner=combiner, ks=ks, max_n_bins=max_n_bins, min_bin_size=min_bin_size, max_bin_size=max_bin_size, greater_is_better=greater_is_better, amount=amount, empty_separate=empty_separate, return_cols=return_cols, return_rules=True, verbose=verbose, **kwargs)
+        table, rule = Combiner.feature_bin_stats(data, feature, target=target, rules=rules, method=method, desc=desc, combiner=combiner, ks=ks, max_n_bins=max_n_bins, min_bin_size=min_bin_size, max_bin_size=max_bin_size, greater_is_better=greater_is_better, amount=amount, margins=margins, empty_separate=empty_separate, return_cols=return_cols, return_rules=True, verbose=verbose, **kwargs)
 
         if drop_empty:
             table = table.iloc[:-1]
@@ -904,10 +909,10 @@ def feature_bin_stats(data, feature, target="target", overdue=None, dpd=None, ru
                     combiner = Combiner(target=target, adj_rules=rules, method=method, empty_separate=empty_separate, min_n_bins=2, max_n_bins=max_n_bins, min_bin_size=min_bin_size, max_bin_size=max_bin_size, **kwargs)
                     combiner.fit(_datasets)
 
-                table, rule = Combiner.feature_bin_stats(_datasets, feature, target=target, method=method, desc=desc, combiner=combiner, ks=ks, max_n_bins=max_n_bins, min_bin_size=min_bin_size, max_bin_size=max_bin_size, greater_is_better=greater_is_better, amount=amount, empty_separate=empty_separate, return_rules=True, verbose=verbose, **kwargs)
+                table, rule = Combiner.feature_bin_stats(_datasets, feature, target=target, method=method, desc=desc, combiner=combiner, ks=ks, max_n_bins=max_n_bins, min_bin_size=min_bin_size, max_bin_size=max_bin_size, greater_is_better=greater_is_better, amount=amount, margins=margins, empty_separate=empty_separate, return_rules=True, verbose=verbose, **kwargs)
                 table.columns = pd.MultiIndex.from_tuples([("分箱详情", c) if c in merge_columns else (target, c) for c in table.columns])
             else:
-                _table = Combiner.feature_bin_stats(_datasets, feature, target=target, method=method, desc=desc, combiner=combiner, ks=ks, max_n_bins=max_n_bins, min_bin_size=min_bin_size, max_bin_size=max_bin_size, greater_is_better=greater_is_better, amount=amount, empty_separate=empty_separate, verbose=verbose, **kwargs)
+                _table = Combiner.feature_bin_stats(_datasets, feature, target=target, method=method, desc=desc, combiner=combiner, ks=ks, max_n_bins=max_n_bins, min_bin_size=min_bin_size, max_bin_size=max_bin_size, greater_is_better=greater_is_better, amount=amount, margins=margins, empty_separate=empty_separate, verbose=verbose, **kwargs)
                 _table.columns = pd.MultiIndex.from_tuples([("分箱详情", c) if c in merge_columns else (target, c) for c in _table.columns])
 
                 table = table.merge(_table, on=[("分箱详情", c) for c in merge_columns])
