@@ -709,7 +709,7 @@ class Combiner(TransformerMixin, BaseEstimator):
         table['指标IV值'] = table['分档IV值'].sum()
 
         if margins:
-            table = pd.concat([table, pd.DataFrame([{"指标名称": feature, "指标含义": desc, "分箱": "合计", "好样本数": table["好样本数"].sum(), "坏样本数": table["坏样本数"].sum(), "样本总数": table["样本总数"].sum(), "样本占比": 1.0, "好样本占比": 1.0, "坏样本占比": 1.0, "坏样本率": bad_rate, "LIFT值": 1.0, "坏账改善": 1.0, "累积LIFT值": 1.0, "累积坏账改善": 1.0, "累积好样本数": table["好样本数"].sum(), "累积坏样本数": table["坏样本数"].sum(), "分档KS值": table["分档KS值"].max()}])])
+            table = pd.concat([table, pd.DataFrame([{"指标名称": feature, "指标含义": desc, "分箱": "合计", "好样本数": table["好样本数"].sum(), "坏样本数": table["坏样本数"].sum(), "样本总数": table["样本总数"].sum(), "样本占比": 1.0, "好样本占比": 1.0, "坏样本占比": 1.0, "坏样本率": bad_rate, '分档IV值':  table['分档IV值'].sum(), '指标IV值': table['分档IV值'].sum(), "LIFT值": 1.0, "坏账改善": 1.0, "累积LIFT值": 1.0, "累积坏账改善": 1.0, "累积好样本数": table["好样本数"].sum(), "累积坏样本数": table["坏样本数"].sum(), "分档KS值": table["分档KS值"].max()}])])
 
         if return_cols:
             table = table[[c for c in return_cols if c in table.columns]]
