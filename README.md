@@ -14,6 +14,7 @@
 > 
 > 微信公共号推文：https://mp.weixin.qq.com/s/eCTp4h0fau77xOgf_V28wQ
 
+> PS: *新注册账号请勿 `star` 本项目*
 
 ## 交流
 
