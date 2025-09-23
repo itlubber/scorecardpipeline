@@ -8,6 +8,7 @@ import ast
 import numpy as np
 import numexpr as ne
 from enum import Enum
+from functools import reduce
 
 import pandas as pd
 from pandas import DataFrame
@@ -166,7 +167,7 @@ class Rule:
 
         return result
 
-    def report(self, datasets: pd.DataFrame, target="target", overdue=None, dpd=None, del_grey=False, desc="", filter_cols=None, prior_rules=None) -> pd.DataFrame:
+    def report(self, datasets: pd.DataFrame, target="target", overdue=None, dpd=None, del_grey=False, desc="", filter_cols=None, prior_rules=None, **kwargs) -> pd.DataFrame:
         """规则效果报告表格输出
 
         :param datasets: 数据集，需要包含 目标变量 或 逾期天数，当不包含目标变量时，会通过逾期天数计算目标变量，同时需要传入逾期定义的DPD天数
@@ -198,7 +199,8 @@ class Rule:
 
             combiner = Combiner(target=target)
             combiner.load({rule_expr: [["命中"], ["未命中"]]})
-            table = feature_bin_stats(rule_result, rule_expr, combiner=combiner, desc=desc, return_cols=return_cols)
+            table = feature_bin_stats(rule_result, rule_expr, combiner=combiner, desc=desc, return_cols=return_cols, **kwargs)
+            table["风险拒绝比"] = table["坏账改善"] / table["样本占比"]
 
             # 准确率、精确率、召回率、F1分数
             metrics = pd.DataFrame({
@@ -460,3 +462,32 @@ class Rule:
         
         end_row, end_col = dataframe2excel(report, excel_writer, sheet_name=sheet_name, merge_column=merge_column, percent_cols=percent_cols, condition_cols=condition_cols, custom_cols=custom_cols, custom_format=custom_format, color_cols=color_cols, start_col=start_col, start_row=start_row, **kwargs)
         return end_row, end_col
+
+
+def rule_set_report(datasets: pd.DataFrame, rules: list[Rule], target="target", overdue=None, dpd=None, filter_cols=None, **kwargs) -> pd.DataFrame:
+    datasets = datasets.copy()
+
+    feature_names_missing = set([f for rule in rules for f in rule.feature_names_in_]) - set(datasets.columns)
+    if len(feature_names_missing) > 0:
+        raise ValueError(f"数据集字段缺少以下字段: {feature_names_missing}")
+
+    report = pd.DataFrame()
+
+    table_total = reduce(lambda r1, r2: r1 | r2, rules).report(datasets, target=target, overdue=overdue, dpd=dpd, filter_cols=filter_cols, margins=True, **kwargs)
+    table_total[("规则详情", "分箱")] = ["汇总", "剩余样本", "原始样本"]
+    table_total = table_total.drop(columns=[("规则详情", "规则分类"), ("规则详情", "指标名称")])
+
+    report = pd.concat([report, table_total.loc[table_total[("规则详情", "分箱")] == "原始样本", :]])
+
+    for rule in rules:
+        table = rule.report(datasets, target=target, overdue=overdue, dpd=dpd, filter_cols=filter_cols, margins=False, **kwargs)
+        table[("规则详情", "分箱")] = [rule.expr, "剩余样本"]
+        table = table.drop(columns=[("规则详情", "规则分类"), ("规则详情", "指标名称")])
+
+        report = pd.concat([report, table])
+
+        datasets = datasets[~rule.predict(datasets)]
+
+    report = pd.concat([report, table_total.loc[table_total[("规则详情", "分箱")] == "汇总", :]])
+
+    return report
