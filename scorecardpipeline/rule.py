@@ -464,7 +464,7 @@ class Rule:
         return end_row, end_col
 
 
-def rule_set_report(datasets: pd.DataFrame, rules: list[Rule], target="target", overdue=None, dpd=None, filter_cols=None, **kwargs) -> pd.DataFrame:
+def ruleset_report(datasets: pd.DataFrame, rules: list[Rule], target="target", overdue=None, dpd=None, filter_cols=None, **kwargs) -> pd.DataFrame:
     datasets = datasets.copy()
 
     feature_names_missing = set([f for rule in rules for f in rule.feature_names_in_]) - set(datasets.columns)
@@ -488,6 +488,6 @@ def rule_set_report(datasets: pd.DataFrame, rules: list[Rule], target="target", 
 
         datasets = datasets[~rule.predict(datasets)]
 
-    report = pd.concat([report, table_total.loc[table_total[("规则详情", "分箱")] == "汇总", :]])
+    report = pd.concat([report, table_total.loc[table_total[("规则详情", "分箱")] == "汇总", :]]).reset_index(drop=True)
 
     return report
