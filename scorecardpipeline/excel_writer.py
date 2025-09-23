@@ -62,15 +62,16 @@ class ExcelWriter:
             if style.name not in self.workbook.style_names:
                 self.workbook.add_named_style(style)
 
-    def add_conditional_formatting(self, worksheet, start_space, end_space):
+    def add_conditional_formatting(self, worksheet, start_space, end_space, condition_color=None):
         """
         设置条件格式
 
         :param worksheet: 当前选择设置条件格式的sheet
         :param start_space: 开始单元格位置
         :param end_space: 结束单元格位置
+        :param condition_color: 条件格式主题色
         """
-        worksheet.conditional_formatting.add(f'{start_space}:{end_space}', DataBarRule(start_type='min', end_type='max', color=self.theme_color))
+        worksheet.conditional_formatting.add(f'{start_space}:{end_space}', DataBarRule(start_type='min', end_type='max', color=condition_color or self.theme_color))
 
     @staticmethod
     def set_column_width(worksheet, column, width):
@@ -903,7 +904,7 @@ def dataframe2excel(data, excel_writer, sheet_name=None, title=None, header=True
             condition_cols = [c for c in data.columns if (isinstance(c, tuple) and c[-1] in condition_cols) or (not isinstance(c, tuple) and c in condition_cols)]
         for c in [c for c in condition_cols if c in data.columns]:
             conditional_column = get_column_letter(start_col + data.columns.get_loc(c) + data.index.nlevels if kwargs.get("index", False) else start_col + data.columns.get_loc(c))
-            writer.add_conditional_formatting(worksheet, f'{conditional_column}{end_row - len(data)}', f'{conditional_column}{end_row - 1}')
+            writer.add_conditional_formatting(worksheet, f'{conditional_column}{end_row - len(data)}', f'{conditional_column}{end_row - 1}', condition_color=condition_color or theme_color)
 
     if color_cols:
         if not isinstance(color_cols[0], (tuple, list)):
@@ -942,7 +943,7 @@ def dataframe2excel(data, excel_writer, sheet_name=None, title=None, header=True
             insert_row = data.index.get_loc(c).start if data.index.nlevels > 1 and not isinstance(data.index.get_loc(c), (int, float)) else data.index.get_loc(c)
             index_row = start_row + insert_row + data.columns.nlevels if kwargs.get("header", True) else start_row + insert_row
             index_col = start_col + data.index.nlevels if kwargs.get("index", False) else start_col
-            writer.add_conditional_formatting(worksheet, f'{get_column_letter(index_col)}{index_row}', f'{get_column_letter(index_col + len(data.columns))}{index_row}')
+            writer.add_conditional_formatting(worksheet, f'{get_column_letter(index_col)}{index_row}', f'{get_column_letter(index_col + len(data.columns))}{index_row}', condition_color=condition_color or theme_color)
 
     if color_rows:
         if not isinstance(color_rows[0], (tuple, list)):
