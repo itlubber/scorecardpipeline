@@ -499,3 +499,165 @@ def ruleset_report(datasets: pd.DataFrame, rules: List[Rule], target="target", o
     report = pd.concat([report, table_total.loc[table_total[("规则详情", "分箱")] == "汇总", :]]).reset_index(drop=True)
 
     return report
+
+
+def bin_table_badrate_prediction(group, amount=None):
+    if amount is None:
+        return pd.Series(dict(
+            样本总数=len(group),
+            坏样本数=group["BAD_RATE"].sum(),
+            坏样本率=group["BAD_RATE"].mean(),
+        ))
+    else:
+        return pd.Series(dict(
+            样本总数=group[amount].sum(),
+            坏样本数=(group["BAD_RATE"] * group[amount]).sum(),
+            坏样本率=(group["BAD_RATE"] * group[amount]).sum() / group[amount].sum(),
+        ))
+
+
+def sawpin_badrate_prediction_by_score(base: pd.DataFrame, test: pd.DataFrame, swap_in_ruleset, feature, target="target", overdue=None, dpd=None, rules={}, method="quantile", max_n_bins=10, amount=None, **kwargs):
+    """
+    基于 base 上 feature 的分箱，计算 test 的逾期数据
+
+    :param base: pd.DataFrame, 有表现的数据集，用于建立分箱规则和计算坏样本率
+    :param test: pd.DataFrame, 测试数据集（包含置入样本），需要预测风险
+    :param swap_in_ruleset: list 置入规则列表
+    :param feature: str 特征名称
+    :param target: str 目标变量名称
+    :param overdue: list or str 逾期字段名称
+    :param dpd: list or int 逾期天数阈值
+    :param rules: dict 分箱规则
+    :param method: str 分箱方法
+    :param max_n_bins: int 最大分箱数
+    :param amount: 金额字段名称
+
+    **参考样例**
+
+    >>> # 使用示例
+    >>> swap_in_ruleset = [Rule("(当前履约机构数 < 22) & (自营资质分 >= 0) & (自营资质分 < 555)")]
+    >>> # 单一target分析
+    >>> swap_in_data, swap_in_data_amount = sawpin_badrate_prediction_by_score(
+    >>>     swap_data, swap_data, swap_in_ruleset, "自营资质分", 
+    >>>     target="target", amount="放款金额"
+    >>> )
+    >>> # 多逾期标签分析
+    >>> overdue_columns = ["MOB1"]  # 根据实际数据调整
+    >>> dpd_thresholds = [7, 3, 0]  # 逾期天数阈值
+    >>> swap_in_data_multi, swap_in_data_amount_multi = sawpin_badrate_prediction_by_score(
+    >>>     swap_data, swap_data, swap_in_ruleset, "自营资质分",
+    >>>     overdue=overdue_columns, dpd=dpd_thresholds, amount="放款金额"
+    >>> )
+    >>> print("单一标签分析结果:")
+    >>> print(swap_in_data)
+    >>> print("多标签分析结果:")
+    >>> print(swap_in_data_multi)
+    """
+    test = test.copy()
+
+    if isinstance(swap_in_ruleset, list):
+        rule_swap_in = reduce(lambda r1, r2: r1 | r2, swap_in_ruleset)
+        test["SWAPIN"] = rule_swap_in.predict(test).astype(int)
+    else:
+        rule_swap_in = swap_in_ruleset
+        test["SWAPIN"] = rule_swap_in.predict(test).astype(int)
+
+    # 如果没有指定overdue和dpd，使用单一target进行分析
+    if overdue is None or dpd is None:
+        base_table, rules = feature_bin_stats(base, feature, target=target, overdue=overdue, dpd=dpd, rules=rules, method=method, max_n_bins=max_n_bins, return_rules=True, **kwargs)
+
+        combiner = Combiner().load({feature: rules})
+        test["BINS"] = combiner.transform(test[feature])
+        test["BAD_RATE"] = test["BINS"].map(dict(zip(base_table.index, base_table["坏样本率"])))
+        swap_in_data = test.groupby("SWAPIN").apply(lambda x: bin_table_badrate_prediction(x)).sort_index(ascending=False)
+        swap_in_data.index = [rule_swap_in.expr, "剩余样本"]
+        swap_in_data.index.name = "规则详情"
+        swap_in_data.loc["合计", :] = pd.Series(dict(
+                样本总数=len(test),
+                坏样本数=test["BAD_RATE"].sum(),
+                坏样本率=test["BAD_RATE"].mean(),
+            ))
+        swap_in_data = swap_in_data.assign(
+            样本占比=lambda x: x["样本总数"] / swap_in_data.loc["合计", "样本总数"],
+            LIFT值=lambda x: x["坏样本率"]  / swap_in_data.loc["合计", "坏样本率"],
+            坏账改善=lambda x: (swap_in_data.loc["合计", "坏样本率"] - x["坏样本率"]) / swap_in_data.loc["合计", "坏样本率"],
+            风险拒绝比=lambda x: x["坏账改善"] / x["样本占比"],
+        )
+
+        if amount is not None:
+            swap_in_data_amount = test.groupby("SWAPIN").apply(lambda x: bin_table_badrate_prediction(x, amount=amount)).sort_index(ascending=False)
+            swap_in_data_amount.index = [rule_swap_in.expr, "剩余样本"]
+            swap_in_data_amount.index.name = "规则详情"
+            swap_in_data_amount.loc["合计", :] = pd.Series(dict(
+                    样本总数=test[amount].sum(),
+                    坏样本数=(test[amount] * test["BAD_RATE"]).sum(),
+                    坏样本率=(test[amount] * test["BAD_RATE"]).sum() / test[amount].sum(),
+                ))
+            swap_in_data_amount = swap_in_data_amount.assign(
+                样本占比=lambda x: x["样本总数"] / swap_in_data_amount.loc["合计", "样本总数"],
+                LIFT值=lambda x: x["坏样本率"]  / swap_in_data_amount.loc["合计", "坏样本率"],
+                坏账改善=lambda x: (swap_in_data_amount.loc["合计", "坏样本率"] - x["坏样本率"]) / swap_in_data_amount.loc["合计", "坏样本率"],
+                风险拒绝比=lambda x: x["坏账改善"] / x["样本占比"],
+            )
+        else:
+            swap_in_data_amount = swap_in_data.copy()
+
+        return swap_in_data, swap_in_data_amount
+
+    else:
+        # 处理多个逾期标签的情况
+        merge_columns = ["样本总数", "样本占比"]
+        swap_in_data_final, swap_in_data_amount_final = None, None
+
+        if not isinstance(overdue, list):
+            overdue = [overdue]
+
+        if not isinstance(dpd, list):
+            dpd = [dpd]
+
+        amount_feature = [amount] if amount is not None else []
+
+        # 遍历所有逾期标签组合
+        for i, col in enumerate(overdue):
+            for j, d in enumerate(dpd):
+                _target = f"{col} {d}+"
+
+                # 在base数据上创建新的目标变量
+                _datasets = base[[feature] + amount_feature + [col]].copy()
+                _datasets[_target] = (_datasets[col] > d).astype(int)
+
+                # 递归调用处理当前逾期标签
+                _swap_in_data, _swap_in_data_amount = sawpin_badrate_prediction_by_score(_datasets, test, swap_in_ruleset, feature, target=_target, overdue=None, dpd=None, rules=rules, amount=amount, **kwargs)
+
+                # 重命名列名为多级索引，确保规则详情相关字段在最前面
+                _swap_in_data.columns = pd.MultiIndex.from_tuples(
+                    [("规则详情", c) if c in merge_columns else (_target, c) for c in _swap_in_data.columns]
+                )
+                _swap_in_data_amount.columns = pd.MultiIndex.from_tuples(
+                    [("规则详情", c) if c in merge_columns else (_target, c) for c in _swap_in_data_amount.columns]
+                )
+
+                # 合并结果
+                if swap_in_data_final is None:
+                    swap_in_data_final = _swap_in_data
+                    swap_in_data_amount_final = _swap_in_data_amount
+                else:
+                    # 确保索引一致后合并
+                    swap_in_data_final = pd.concat([swap_in_data_final, _swap_in_data.drop(columns=[("规则详情", c) for c in merge_columns])], axis=1)
+                    swap_in_data_amount_final = pd.concat([swap_in_data_amount_final, _swap_in_data_amount.drop(columns=[("规则详情", c) for c in merge_columns])], axis=1)
+
+        # 重新排列列的顺序，确保规则详情相关字段在最前面
+        def reorder_columns(df):
+            # 提取规则详情相关的列
+            rule_columns = [col for col in df.columns if col[0] == "规则详情"]
+            # 提取其他列
+            other_columns = [col for col in df.columns if col[0] != "规则详情"]
+            # 重新组合：规则详情列在前，其他列在后
+            reordered_columns = rule_columns + other_columns
+            return df[reordered_columns]
+
+        if swap_in_data_final is not None:
+            swap_in_data_final = reorder_columns(swap_in_data_final)
+            swap_in_data_amount_final = reorder_columns(swap_in_data_amount_final)
+
+        return swap_in_data_final, swap_in_data_amount_final
