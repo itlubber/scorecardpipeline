@@ -9,6 +9,7 @@ import numpy as np
 import numexpr as ne
 from enum import Enum
 from functools import reduce
+from typing import List
 
 import pandas as pd
 from pandas import DataFrame
@@ -464,7 +465,7 @@ class Rule:
         return end_row, end_col
 
 
-def ruleset_report(datasets: pd.DataFrame, rules: list[Rule], target="target", overdue=None, dpd=None, filter_cols=None, **kwargs) -> pd.DataFrame:
+def ruleset_report(datasets: pd.DataFrame, rules: List[Rule], target="target", overdue=None, dpd=None, filter_cols=None, **kwargs) -> pd.DataFrame:
     datasets = datasets.copy()
 
     feature_names_missing = set([f for rule in rules for f in rule.feature_names_in_]) - set(datasets.columns)
