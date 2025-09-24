@@ -168,7 +168,7 @@ class Rule:
 
         return result
 
-    def report(self, datasets: pd.DataFrame, target="target", overdue=None, dpd=None, del_grey=False, desc="", filter_cols=None, prior_rules=None, **kwargs) -> pd.DataFrame:
+    def report(self, datasets: pd.DataFrame, target="target", overdue=None, dpd=None, del_grey=False, desc="", filter_cols=None, prior_rules=None, amount=None, **kwargs) -> pd.DataFrame:
         """规则效果报告表格输出
 
         :param datasets: 数据集，需要包含 目标变量 或 逾期天数，当不包含目标变量时，会通过逾期天数计算目标变量，同时需要传入逾期定义的DPD天数
@@ -179,6 +179,7 @@ class Rule:
         :param overdue: 逾期天数字段名称
         :param dpd: 逾期定义方式，逾期天数 > DPD 为 1，其他为 0，仅 overdue 字段起作用时有用
         :param del_grey: 是否删除逾期天数 (0, dpd] 的数据，仅 overdue 字段起作用时有用
+        :param amount: 默认为空, 支持传入数值字段（通常为放款金额）, 在分析逾期率时，输出对应的分析结果
 
         :return: pd.DataFrame，规则效果评估表
         """
@@ -193,14 +194,20 @@ class Rule:
                 prior_tables = prior_rules.report(data, target=target, desc=desc, prior_rules=None)
                 prior_tables["规则分类"] = "先验规则"
                 temp = data[~prior_rules.predict(data)]
-                rule_result = pd.DataFrame({rule_expr: np.where(self.predict(temp), "命中", "未命中"), "target": temp[target].tolist()})
+                if amount is not None:
+                    rule_result = pd.DataFrame({rule_expr: np.where(self.predict(temp), "命中", "未命中"), amount: temp[amount], "target": temp[target].tolist()})
+                else:
+                    rule_result = pd.DataFrame({rule_expr: np.where(self.predict(temp), "命中", "未命中"), "target": temp[target].tolist()})
             else:
                 prior_tables = pd.DataFrame(columns=return_cols)
-                rule_result = pd.DataFrame({rule_expr: np.where(self.predict(data), "命中", "未命中"), "target": data[target].tolist()})
+                if amount is not None:
+                    rule_result = pd.DataFrame({rule_expr: np.where(self.predict(data), "命中", "未命中"), amount: data[amount], "target": data[target].tolist()})
+                else:
+                    rule_result = pd.DataFrame({rule_expr: np.where(self.predict(data), "命中", "未命中"), "target": data[target].tolist()})
 
             combiner = Combiner(target=target)
             combiner.load({rule_expr: [["命中"], ["未命中"]]})
-            table = feature_bin_stats(rule_result, rule_expr, combiner=combiner, desc=desc, return_cols=return_cols, **kwargs)
+            table = feature_bin_stats(rule_result, rule_expr, combiner=combiner, desc=desc, return_cols=return_cols, amount=amount, **kwargs)
             table["风险拒绝比"] = table["坏账改善"] / table["样本占比"]
 
             # 准确率、精确率、召回率、F1分数

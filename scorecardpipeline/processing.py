@@ -883,7 +883,7 @@ def feature_bin_stats(data, feature, target="target", overdue=None, dpd=None, ru
     if not isinstance(dpd, list):
         dpd = [dpd]
 
-    amount_feature = [amount] if amount else []
+    amount_feature = [amount] if amount is not None else []
 
     if isinstance(del_grey, bool) and del_grey:
         merge_columns = ["指标名称", "指标含义", "分箱"]
