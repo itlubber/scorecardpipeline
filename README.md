@@ -4,13 +4,13 @@
 
 `scorecardpipeline`封装常用的风控策略分析和评分卡建模相关组件，API风格参考`sklearn`，支持`pipeline`式端到端评分卡建模、三方数据分析报告输出、规则集效果评估、特征有效性分析、`excel`报告输出、评分卡`PMML`文件导出、评分卡全流程超参数搜索等功能
 
-> 教程：https://itlubber.art/upload/scorecardpipeline.html
+> 教程：https://scorecardpipeline.itlubber.art
 > 
 > pipy包：https://pypi.org/project/scorecardpipeline
 >
 > 仓库地址：https://github.com/itlubber/scorecardpipeline
 > 
-> 博文地址：https://itlubber.art/archives/itlubber-scorecard-end2end
+> 博文地址：https://scorecardpipeline.itlubber.art/quickstart.html
 > 
 > 微信公共号推文：https://mp.weixin.qq.com/s/eCTp4h0fau77xOgf_V28wQ
 
