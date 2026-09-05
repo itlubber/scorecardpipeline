@@ -4,6 +4,13 @@
 
 `scorecardpipeline` 封装常用的风控策略分析和建模组件，API 风格参考 `sklearn`，覆盖从特征筛选、分箱、WOE 编码到模型训练、评分卡生成、规则挖掘和分析、规则集SWAP分析、报告输出等完整策略分析和建模流程，支持端到端 Pipeline 串联和全流程超参数自动搜索。
 
+### 新增能力
+
+- **SHAP 解释性** (`ScorecardExplainer`)：对 WOE-LR 评分卡模型进行 SHAP 归因，支持单样本解释与特征重要度汇总。
+- **模型监控** (`ModelMonitor`)：评分分布 PSI、特征 PSI、模型性能（KS/AUC）衰减监控。
+- **概率校准** (`ProbabilityCalibrator`)：支持 Platt Scaling 与 Isotonic Regression 校准模型输出概率。
+- **可选依赖拆分**：核心依赖精简，可视化/PMML/EDA/解释性等能力按需安装。
+
 该包底层整合了 `toad`、`scorecardpy`、`optbinning` 三个主流评分卡库的核心能力，设计上遵循 `fit` + `transform` 范式，所有组件（分箱器、筛选器、LR 模型、规则器、评分卡等）均可直接放入 `Pipeline` 中串联使用，并支持 `GridSearchCV`、`Optuna`、`BayesOpt` 等工具对全流程参数进行自动化调优。同时针对报告输出做了统一封装和丰富增强——`ExcelWriter` 支持将文字、数据、图片、公式等内容直接插入 Excel 并自动应用精美样式，可将机构的策略分析或模型上线 SOP 固化为模板，每次填入数据即可快速产出规范的报告文件。
 
 > PS: 社区反馈安装门槛较高，底层各库版本要求各不相同。为解决这一问题，我们即将推出不依赖任何三方库的 [`hscredit`](https://github.com/hengshu-credit/hscredit) 一站式解决方案，支持`19种分箱方法`、`20+特征筛选器`、支持`最新python3.14`、极简依赖`无门槛安装`，覆盖从数据探索、策略分析到建模报告生成的全流程，欢迎提前 star 跟踪进度。
@@ -80,14 +87,14 @@ https://github.com/itlubber/scorecardpipeline
 + `pipy` 安装
 
 ```bash
->> pip install scorecardpipeline -i https://pypi.Python.org/simple/
+# 安装（包含全部建模依赖）
+pip install scorecardpipeline
 
-Looking in indexes: https://pypi.Python.org/simple/
-Collecting scorecardpipeline
-  Downloading scorecardpipeline-0.1.5-py3-none-any.whl (36 kB)
-  ......
-Installing collected packages: sklearn-pandas, scorecardpy, sklearn2pmml, scorecardpipeline
-Successfully installed scorecardpipeline-0.1.5 scorecardpy-0.1.9.2 sklearn-pandas-2.2.0 sklearn2pmml-0.92.2
+# 如需 SHAP 模型解释性功能
+pip install "scorecardpipeline[explain]"
+
+# 开发与测试
+pip install "scorecardpipeline[dev]"
 ```
 
 + 源码编译

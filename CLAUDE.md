@@ -58,6 +58,19 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 封装 numpy_financial，提供 `fv`、`pmt`、`nper`、`ipmt`、`ppmt`、`pv`、`rate`、`irr`、`npv`、`mirr` 等财务函数。
 
+### `scorecardpipeline/explainability.py` — 模型解释性
+
+- `ScorecardExplainer`: 基于 SHAP 的 WOE-LR 评分卡解释器，支持单样本解释与特征重要度汇总。
+- 依赖 `shap`，安装方式：`pip install scorecardpipeline[explain]`。
+
+### `scorecardpipeline/monitoring.py` — 模型监控
+
+- `ModelMonitor`: 评分分布 PSI、特征 PSI、模型性能（KS/AUC）衰减监控。
+
+### `scorecardpipeline/calibration.py` — 概率校准
+
+- `ProbabilityCalibrator`: 支持 Platt Scaling 与 Isotonic Regression 的概率校准器。
+
 ### `scorecardpipeline/model_report.py` — 模型报告
 
 - `QuickModelReport` / `auto_model_report()`: 生成多 Sheet 的 Excel 模型报告（目录、基本信息、模型性能、入模变量分析、稳定性分析、模型参数、部署需求）。支持 overdue/dpds 多标签。

@@ -163,6 +163,10 @@ cython_debug/
 *.DS_Store
 *.virtual_documents
 test*
+!tests/
+!tests/**
+!tests/**/test_*.py
+tests/__pycache__/
 *.png
 examples/model_report/*.png
 examples/scorecard_samples_360.ipynb

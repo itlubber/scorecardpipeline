@@ -21,7 +21,16 @@ classifiers = [
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
 ]
+# 依赖与原项目 requirements.txt 保持一致，不做过多拆分
+# 仅 CairoSVG（需要系统 Cairo 库）和 shap（新增解释性依赖）作为可选
 dependencies = [
+    "setuptools<82",
+    "wheel",
+    "wget",
+    "Cython<=0.29.15;python_version<'3.10'",
+    "Cython>=0.29.15;python_version>='3.10'",
+    "numpy>1.23.1,<1.24.0;python_version<'3.10'",
+    "numpy>=1.24;python_version>='3.10'",
     "pandas>=1.5",
     "matplotlib",
     "seaborn>=0.10.0",
@@ -46,16 +55,25 @@ dependencies = [
     "cvxpy>=1.4.1",
     "protobuf>=5.27.0",
     "dill",
-    "ipython",
-    "toad>=0.1.5",
     "svglib>=1.5.0",
     "reportlab",
+    "toad>0.1.5",
     "ipython",
 ]
 
 [project.optional-dependencies]
-all = ["CairoSVG>=2.7.0", "svglib>=1.5.0", "reportlab"]
-graph = ["svglib>=1.5.0", "reportlab"]
+# CairoSVG 需要系统 Cairo 库，安装易出错，按需安装
+cairo = ["CairoSVG>=2.7.0"]
+# 模型解释性（新增功能，非原项目依赖）
+explain = ["shap>=0.42.0"]
+# 开发与测试
+dev = [
+    "pytest>=7.0",
+    "pytest-cov",
+    "tox>=4.0",
+    "ruff>=0.1.0",
+    "black>=23.0",
+]
 
 [tool.setuptools.dynamic]
 version = {attr = "scorecardpipeline.__version__"}
@@ -65,3 +83,32 @@ packages = ["scorecardpipeline"]
 
 [tool.setuptools.package-data]
 scorecardpipeline = ["*.ttf", "*.csv", "*.xlsx"]
+
+[tool.pytest.ini_options]
+minversion = "7.0"
+testpaths = ["tests"]
+addopts = ["--strict-markers", "--disable-warnings", "-p", "no:flask"]
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "explain: marks tests that require shap",
+]
+
+[tool.black]
+line-length = 120
+target-version = ["py38", "py39", "py310", "py311", "py312"]
+
+[tool.ruff]
+line-length = 120
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "N", "UP", "B", "C4", "SIM"]
+ignore = ["E501", "UP009"]
+
+[tool.ruff.lint.pep8-naming]
+ignore-names = ["X", "Xt", "X_all", "X_ref", "X_valid", "X_inv", "woe_X", "A", "B", "sgn"]
+
+[tool.mypy]
+python_version = "3.8"
+warn_return_any = true
+warn_unused_configs = true
+ignore_missing_imports = true

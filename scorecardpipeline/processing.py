@@ -595,6 +595,7 @@ class Combiner(TransformerMixin, BaseEstimator):
         :return: Combiner，特征分箱器
         """
         self.combiner.load(from_json)
+        self.fitted_ = True
         return self
 
     @classmethod
@@ -1045,6 +1046,7 @@ class WOETransformer(TransformerMixin, BaseEstimator):
         :return: Combiner，特征分箱器
         """
         self.transformer.load(from_json)
+        self.fitted_ = True
         return self
 
     def plot(self, x, head=10, save=None, **kwargs):

@@ -4,8 +4,10 @@
 @Author  : itlubber
 @Site    : itlubber.art
 """
+
 import math
 from abc import abstractmethod
+
 import numpy as np
 import pandas as pd
 from pandas import DataFrame
@@ -16,7 +18,23 @@ from sklearn.utils import check_array
 from sklearn.utils.validation import check_is_fitted
 
 
+def _check_array_compat(X, accept_sparse=False, dtype="numeric", copy=False, force_all_finite=True):
+    """兼容 sklearn 1.5/1.6 的 check_array 包装。"""
+    import inspect
+
+    sig = inspect.signature(check_array)
+    all_finite_param = "ensure_all_finite" if "ensure_all_finite" in sig.parameters else "force_all_finite"
+    kwargs = {"accept_sparse": accept_sparse, "dtype": dtype, "copy": copy, all_finite_param: force_all_finite}
+    return check_array(X, **kwargs)
+
+
 class BaseScoreTransformer(BaseEstimator, TransformerMixin):
+    def _validate_data(self, X, reset=False, accept_sparse=False, dtype="numeric", copy=False, force_all_finite=True):
+        """兼容不同 sklearn 版本的输入校验。"""
+        return _check_array_compat(
+            X, accept_sparse=accept_sparse, dtype=dtype, copy=copy, force_all_finite=force_all_finite
+        )
+
     def __init__(self, down_lmt=300, up_lmt=1000, greater_is_better=True, cutoff=None):
         """评分转换器基类，将模型预测概率转换为标准评分
 
@@ -86,7 +104,17 @@ class StandardScoreTransformer(BaseScoreTransformer):
     >>> transformer.inverse_transform(scores)
     """
 
-    def __init__(self, base_score=660, pdo=75, rate=2, bad_rate=0.15, down_lmt=300, up_lmt=1000, greater_is_better=True, cutoff=None):
+    def __init__(
+        self,
+        base_score=660,
+        pdo=75,
+        rate=2,
+        bad_rate=0.15,
+        down_lmt=300,
+        up_lmt=1000,
+        greater_is_better=True,
+        cutoff=None,
+    ):
         """标准评分转换器
 
         :param base_score: 基础分数，当 bad_rate 对应的 odds 时的评分，默认 660
@@ -116,13 +144,13 @@ class StandardScoreTransformer(BaseScoreTransformer):
 
         base_score, down_lmt, up_lmt = self.base_score, self.down_lmt, self.up_lmt
         if not down_lmt <= base_score <= up_lmt:
-            raise ValueError("base_score should be greater than {} and less than {}!".format(down_lmt, up_lmt))
+            raise ValueError(f"base_score should be greater than {down_lmt} and less than {up_lmt}!")
 
         bad_rate = self.bad_rate
         if not 0.0 <= bad_rate <= 1.0:
             raise ValueError("bad rate should be greater than e and less than 1!")
 
-        base_odds = bad_rate / (1. - bad_rate)
+        base_odds = bad_rate / (1.0 - bad_rate)
         B = self.pdo / np.log(self.rate)
         if self.greater_is_better:
             sgn = -1
@@ -144,13 +172,25 @@ class StandardScoreTransformer(BaseScoreTransformer):
         """
         scorecard_kedu = pd.DataFrame(
             [
-                ["base_odds", self.base_odds, "根据业务经验设置的基础比率（违约概率/正常概率），估算方法：坏客户占比 / (1 - 样本坏客户占比)"],
+                [
+                    "base_odds",
+                    self.base_odds,
+                    "根据业务经验设置的基础比率（违约概率/正常概率），估算方法：坏客户占比 / (1 - 样本坏客户占比)",
+                ],
                 ["base_score", self.base_score, "基础ODDS对应的分数"],
                 ["rate", self.rate, "设置分数的倍率"],
                 ["pdo", self.pdo, "表示分数增长PDO时，ODDS值增长到RATE倍"],
                 ["B", self.B_, "刻度，计算方式：pdo / ln(rate)"],
-                ["A", self.A_, "补偿值，计算方式：base_score - sgn * B * ln(base_odds)，其中 greater_is_better=True 时 sgn=-1，False 时 sgn=1"],
-                ["score", f"{self.A_:.4f} {'+' if self.sgn_ == -1 else '-'} {self.B_:.4f} * ln(odds)", f"评分公式：greater_is_better={self.greater_is_better_}，分数越高客户越{'优质' if self.greater_is_better_ else '劣质'}"],
+                [
+                    "A",
+                    self.A_,
+                    "补偿值，计算方式：base_score - sgn * B * ln(base_odds)，其中 greater_is_better=True 时 sgn=-1，False 时 sgn=1",
+                ],
+                [
+                    "score",
+                    f"{self.A_:.4f} {'+' if self.sgn_ == -1 else '-'} {self.B_:.4f} * ln(odds)",
+                    f"评分公式：greater_is_better={self.greater_is_better_}，分数越高客户越{'优质' if self.greater_is_better_ else '劣质'}",
+                ],
             ],
             columns=["刻度项", "刻度值", "备注"],
         )
@@ -211,10 +251,10 @@ class StandardScoreTransformer(BaseScoreTransformer):
         :return: 概率数组
         """
         check_is_fitted(self, ["A_", "B_", "sgn_"])
-        Xt = check_array(X, accept_sparse=False, dtype="numeric", copy=True, force_all_finite=True)
+        Xt = _check_array_compat(X, accept_sparse=False, dtype="numeric", copy=True, force_all_finite=True)
         down_lmt, up_lmt = self.down_lmt, self.up_lmt
         if not np.all(np.logical_and((down_lmt <= Xt), (Xt <= up_lmt))):
-            raise ValueError("Input should be points between {} and {}".format(down_lmt, up_lmt))
+            raise ValueError(f"Input should be points between {down_lmt} and {up_lmt}")
         A, B, sgn = self.A_, self.B_, self.sgn_
         probs = 1.0 - 1.0 / (np.exp((A - Xt) / (sgn * B)) + 1.0)
         return probs
@@ -255,7 +295,17 @@ class NPRoundStandardScoreTransformer(StandardScoreTransformer):
     >>> transformer.transform(proba)
     """
 
-    def __init__(self, base_score=660, pdo=75, bad_rate=0.15, down_lmt=300, up_lmt=1000, round_decimals=0, greater_is_better=True, cutoff=None):
+    def __init__(
+        self,
+        base_score=660,
+        pdo=75,
+        bad_rate=0.15,
+        down_lmt=300,
+        up_lmt=1000,
+        round_decimals=0,
+        greater_is_better=True,
+        cutoff=None,
+    ):
         """标准评分转换器（非四舍五入版）
 
         :param base_score: 基础分数，默认 660
@@ -268,8 +318,15 @@ class NPRoundStandardScoreTransformer(StandardScoreTransformer):
         :param cutoff: 决策截断点，默认 None
         """
         self.round_decimals = round_decimals
-        super(NPRoundStandardScoreTransformer, self).__init__(base_score=base_score, pdo=pdo, bad_rate=bad_rate, down_lmt=down_lmt, up_lmt=up_lmt,
-                                                              greater_is_better=greater_is_better, cutoff=cutoff)
+        super().__init__(
+            base_score=base_score,
+            pdo=pdo,
+            bad_rate=bad_rate,
+            down_lmt=down_lmt,
+            up_lmt=up_lmt,
+            greater_is_better=greater_is_better,
+            cutoff=cutoff,
+        )
 
     def _transform(self, X):
         """评分转换，使用 np.round 截断
@@ -300,7 +357,17 @@ class RoundStandardScoreTransformer(StandardScoreTransformer):
     >>> transformer.transform(proba)  # 输出整数评分
     """
 
-    def __init__(self, base_score=660, pdo=75, bad_rate=0.15, down_lmt=300, up_lmt=1000, round_decimals=0, greater_is_better=True, cutoff=None):
+    def __init__(
+        self,
+        base_score=660,
+        pdo=75,
+        bad_rate=0.15,
+        down_lmt=300,
+        up_lmt=1000,
+        round_decimals=0,
+        greater_is_better=True,
+        cutoff=None,
+    ):
         """标准评分转换器（四舍五入版）
 
         :param base_score: 基础分数，默认 660
@@ -313,8 +380,15 @@ class RoundStandardScoreTransformer(StandardScoreTransformer):
         :param cutoff: 决策截断点，默认 None
         """
         self.round_decimals = round_decimals
-        super(RoundStandardScoreTransformer, self).__init__(base_score=base_score, pdo=pdo, bad_rate=bad_rate, down_lmt=down_lmt, up_lmt=up_lmt,
-                                                            greater_is_better=greater_is_better, cutoff=cutoff)
+        super().__init__(
+            base_score=base_score,
+            pdo=pdo,
+            bad_rate=bad_rate,
+            down_lmt=down_lmt,
+            up_lmt=up_lmt,
+            greater_is_better=greater_is_better,
+            cutoff=cutoff,
+        )
 
     def _transform(self, X):
         """评分转换，使用 round 进行四舍五入
@@ -435,7 +509,7 @@ class BoxCoxScoreTransformer(BaseScoreTransformer):
         if self.cutoff is None:
             lmbda = self.lambdas_[0]
             if lmbda != 0:
-                p = (0.5 ** lmbda - 1) / lmbda
+                p = (0.5**lmbda - 1) / lmbda
             else:
                 p = np.log(0.5)
             scaler = self.scaler_
@@ -502,18 +576,23 @@ class BoxCoxScoreTransformer(BaseScoreTransformer):
         return x_inv
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     import sys
 
     sys.path.append("../")
+    import h2o
+
     from scorecardpipeline import *
 
-    import h2o
     h2o.init()
 
-    test_select = h2o.H2OFrame(load_pickle("/Users/lubberit/Desktop/workspace/scorecardpipeline/examples/model_report/h2o_model/test_select.pkl"))
+    test_select = h2o.H2OFrame(
+        load_pickle(
+            "/Users/lubberit/Desktop/workspace/scorecardpipeline/examples/model_report/h2o_model/test_select.pkl"
+        )
+    )
 
-    model_path = '/Users/lubberit/Desktop/workspace/scorecardpipeline/examples/model_report/h2o_model/StackedEnsemble_BestOfFamily_1_AutoML_1_20240415_162619'
+    model_path = "/Users/lubberit/Desktop/workspace/scorecardpipeline/examples/model_report/h2o_model/StackedEnsemble_BestOfFamily_1_AutoML_1_20240415_162619"
     best_model = h2o.load_model(model_path)
 
     # score_transform = StandardScoreTransformer(base_score=400, pdo=50, bad_rate=test_select["target"].mean()[0], greater_is_better=True)
